@@ -285,13 +285,16 @@
                         </ul>
                     </div>
 
-                    <div class="mt-8 pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <div class="mt-8 pt-4 border-t border-slate-100 dark:border-slate-800 space-y-2">
                         <a href="{{ route('download.exe') }}" download 
                            class="w-full py-3 px-4 bg-atoma-blue hover:bg-blue-600 text-white rounded-2xl font-black text-sm text-center shadow-lg shadow-atoma-blue/20 transition-all flex items-center justify-center gap-2 cursor-pointer">
                             <x-icon.download class="w-4 h-4" />
-                            <span>{{ __('Download ATOMA (.exe)') }}</span>
+                            <span>{{ __('Download Installer (.exe)') }}</span>
                         </a>
-                        <div class="text-[10px] text-center text-slate-400 mt-2 font-mono">{{ __('Windows 10 / 11 • Installer 2.5 MB') }}</div>
+                        <div class="text-[10px] text-center text-slate-400 font-mono">{{ __('Windows 10 / 11 • Installer 2.5 MB') }}</div>
+                        <a href="{{ route('download.exe-portable') }}" download class="block text-center text-xs font-bold text-atoma-blue hover:underline pt-1">
+                            {{ __('Atau unduh Versi Portable (11 MB) →') }}
+                        </a>
                     </div>
                 </div>
 

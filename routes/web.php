@@ -743,6 +743,16 @@ Route::get('/download/exe', function () {
     return redirect('https://github.com/Irvan113/atomaroute/actions');
 })->name('download.exe');
 
+Route::get('/download/exe-portable', function () {
+    $path = public_path('downloads/ATOMA-Portable.exe');
+    if (file_exists($path)) {
+        return response()->download($path, 'ATOMA-Portable.exe', [
+            'Content-Type' => 'application/vnd.microsoft.portable-executable',
+        ]);
+    }
+    return redirect('https://github.com/Irvan113/atomaroute/actions');
+})->name('download.exe-portable');
+
 Route::get('/download/apk', function () {
     $path = public_path('downloads/ATOMA.apk');
     if (file_exists($path)) {

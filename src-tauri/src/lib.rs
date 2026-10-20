@@ -51,9 +51,19 @@ pub fn run() {
 
             if let Some(icon) = app.default_window_icon() {
                 tray_builder = tray_builder.icon(icon.clone());
+            } else if let Ok(icon) = tauri::image::Image::from_bytes(include_bytes!("../icons/32x32.png")) {
+                tray_builder = tray_builder.icon(icon);
             }
 
-            let _tray = tray_builder.build(app)?;
+            if let Err(e) = tray_builder.build(app) {
+                eprintln!("Warning: Failed to initialize tray icon: {}", e);
+            }
+
+            // Ensure main window is shown and focused
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.show();
+                let _ = window.set_focus();
+            }
 
             Ok(())
         })
