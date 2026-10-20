@@ -21,10 +21,23 @@ Route::get('lang/{locale}', function ($locale) {
 Route::middleware(['guest'])->group(function () {
     Route::get('/auth/google', [\App\Http\Controllers\GoogleAuthController::class, 'redirectToGoogle'])->name('auth.google');
     Route::get('/auth/google/callback', [\App\Http\Controllers\GoogleAuthController::class, 'handleGoogleCallback'])->name('auth.google.callback');
-    Route::get('/mobile-auth-token-login', function (\Illuminate\Http\Request $request) {
+    
+    // One-Time Token Exchange for Android WebView Cookie Jar Authentication
+    $exchangeHandler = function (\Illuminate\Http\Request $request) {
         $token = $request->query('token');
-        if ($token && \Illuminate\Support\Facades\Cache::has("mobile_auth_{$token}")) {
-            $userId = \Illuminate\Support\Facades\Cache::pull("mobile_auth_{$token}");
+        $cacheKey = "auth_exchange_{$token}";
+        $legacyKey = "mobile_auth_{$token}";
+
+        $userId = null;
+        if ($token) {
+            if (\Illuminate\Support\Facades\Cache::has($cacheKey)) {
+                $userId = \Illuminate\Support\Facades\Cache::pull($cacheKey);
+            } elseif (\Illuminate\Support\Facades\Cache::has($legacyKey)) {
+                $userId = \Illuminate\Support\Facades\Cache::pull($legacyKey);
+            }
+        }
+
+        if ($userId) {
             $user = \App\Models\User::find($userId);
             if ($user) {
                 \Illuminate\Support\Facades\Auth::login($user, remember: true);
@@ -35,11 +48,15 @@ Route::middleware(['guest'])->group(function () {
                 ]);
             }
         }
+
         return redirect()->route('login')->with('toast', [
             'message' => __('Tautan otentikasi aplikasi telah kedaluwarsa atau tidak valid. Silakan coba lagi.'),
             'type' => 'error'
         ]);
-    })->name('mobile.auth.token');
+    };
+
+    Route::get('/auth/mobile-exchange', $exchangeHandler)->name('auth.mobile-exchange');
+    Route::get('/mobile-auth-token-login', $exchangeHandler)->name('mobile.auth.token');
 });
 
 Route::view('dashboard', 'dashboard')->middleware(['auth', 'verified'])->name('dashboard');

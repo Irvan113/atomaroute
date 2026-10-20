@@ -25,7 +25,6 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_weight="1"
-            android:fontFamily="sans-serif-black"
             android:text="ATOMA Pomodoro"
             android:textColor="@color/widget_text_primary"
             android:textSize="14sp"

@@ -35,7 +35,7 @@ public class MainActivity extends BridgeActivity {
                             if ("atomaroute".equalsIgnoreCase(scheme)) {
                                 String token = uri.getQueryParameter("token");
                                 if (token != null && !token.isEmpty()) {
-                                    b.getWebView().loadUrl("https://atomaroute.com/mobile-auth-token-login?token=" + Uri.encode(token));
+                                    b.getWebView().loadUrl("https://atomaroute.com/auth/mobile-exchange?token=" + Uri.encode(token));
                                     return;
                                 }
                                 String host = uri.getHost();

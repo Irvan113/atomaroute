@@ -195,11 +195,17 @@ class GoogleAuthController extends Controller
 
             if ($isMobileApp) {
                 $token = \Illuminate\Support\Str::random(64);
+                \Illuminate\Support\Facades\Cache::put("auth_exchange_{$token}", $user->id, now()->addMinutes(10));
                 \Illuminate\Support\Facades\Cache::put("mobile_auth_{$token}", $user->id, now()->addMinutes(10));
+                
+                $intentUri = "intent://auth-callback?token={$token}#Intent;scheme=atomaroute;package=com.atoma.app;end";
+                $customSchemeUri = "atomaroute://auth-callback?token={$token}";
+
                 return response()->view('auth.mobile-handoff', [
                     'token' => $token,
                     'user' => $user,
-                    'appDeepLink' => "atomaroute://login-callback?token={$token}",
+                    'appDeepLink' => $customSchemeUri,
+                    'intentUri' => $intentUri,
                 ]);
             }
 

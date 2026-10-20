@@ -195,8 +195,8 @@ class GoogleAuthTest extends TestCase
             ->get('/auth/google/callback?state=' . urlencode($state) . '&code=mock_code_mobile');
 
         $response->assertStatus(200);
-        $response->assertSee('atomaroute://login-callback?token=');
-        $response->assertSee('Buka Aplikasi ATOMA');
+        $response->assertSee('atomaroute://auth-callback?token=');
+        $response->assertSee('Lanjutkan ke Aplikasi ATOMA');
         $this->assertAuthenticated();
     }
 
