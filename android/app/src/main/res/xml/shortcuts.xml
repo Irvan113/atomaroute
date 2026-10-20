@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="shortcut_tasks"
+        android:enabled="true"
+        android:icon="@drawable/ic_widget_check"
+        android:shortcutShortLabel="@string/shortcut_tasks_short"
+        android:shortcutLongLabel="@string/shortcut_tasks_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.atoma.app"
+            android:targetClass="com.atoma.app.MainActivity"
+            android:data="https://atomaroute.com/tasks" />
+    </shortcut>
+    <shortcut
+        android:shortcutId="shortcut_pomodoro"
+        android:enabled="true"
+        android:icon="@drawable/ic_widget_timer"
+        android:shortcutShortLabel="@string/shortcut_pomodoro_short"
+        android:shortcutLongLabel="@string/shortcut_pomodoro_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.atoma.app"
+            android:targetClass="com.atoma.app.MainActivity"
+            android:data="https://atomaroute.com/tasks?action=pomodoro" />
+    </shortcut>
+    <shortcut
+        android:shortcutId="shortcut_journal"
+        android:enabled="true"
+        android:icon="@drawable/ic_widget_note"
+        android:shortcutShortLabel="@string/shortcut_journal_short"
+        android:shortcutLongLabel="@string/shortcut_journal_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.atoma.app"
+            android:targetClass="com.atoma.app.MainActivity"
+            android:data="https://atomaroute.com/journal" />
+    </shortcut>
+</shortcuts>

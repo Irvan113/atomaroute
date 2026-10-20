@@ -73,7 +73,7 @@
                     <a href="#download" class="hover:text-atoma-blue dark:hover:text-atoma-cyan transition-colors flex items-center gap-1.5">
                         <x-icon.download class="w-4 h-4 text-emerald-500" />
                         <span>{{ __('Download Aplikasi') }}</span>
-                        <span class="px-1.5 py-0.5 rounded-full text-[10px] bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 font-extrabold">.exe & .dmg</span>
+                        <span class="px-1.5 py-0.5 rounded-full text-[10px] bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 font-extrabold">.exe & .apk</span>
                     </a>
                     <a href="{{ route('guide') }}" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 flex items-center gap-1.5 font-extrabold">
                         <x-icon.book-open class="w-4 h-4" />
@@ -145,7 +145,7 @@
             <!-- Badge Pengumuman -->
             <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-100/80 dark:bg-blue-950/60 text-atoma-blue dark:text-atoma-cyan font-extrabold text-xs sm:text-sm mb-6 border border-blue-200/60 dark:border-blue-800/60 shadow-xs">
                 <x-icon.sparkles class="w-4 h-4 text-atoma-blue dark:text-atoma-cyan" />
-                <span>{{ __('Bebas ribet: Buka langsung di web, pasang di HP, atau download di PC') }}</span>
+                <span>{{ __('Bebas ribet: Buka langsung di web, pasang APK di HP, atau download EXE di PC') }}</span>
             </div>
             
             <h1 class="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight mb-6 leading-[1.15] text-slate-900 dark:text-white max-w-5xl mx-auto">
@@ -241,7 +241,7 @@
         </div>
     </div>
 
-    <!-- PUSAT DOWNLOAD RESMI (.EXE & .DMG & PWA) -->
+    <!-- PUSAT DOWNLOAD RESMI (.EXE, .APK & PWA) -->
     <section id="download" class="py-20 bg-gradient-to-b from-slate-50 to-blue-50/50 dark:from-slate-950 dark:to-slate-900/60 border-y border-slate-200/80 dark:border-slate-800/80">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 text-xs font-black uppercase tracking-wider mb-3 border border-emerald-200 dark:border-emerald-800/60">
@@ -252,22 +252,22 @@
                 {{ __('Pilih Cara Pakai yang Paling Nyaman Buat Kamu') }}
             </h2>
             <p class="mt-3 text-slate-600 dark:text-slate-400 max-w-2xl mx-auto font-medium text-sm sm:text-base">
-                {{ __('Bisa dibuka langsung di browser, dipasang di layar HP, atau diunduh ke laptop agar tetap menyala di background saat jendela diminimize.') }}
+                {{ __('Tersedia aplikasi native untuk Windows & Android dengan alarm anti-mati & widget, serta Web App (PWA) instan untuk semua perangkat.') }}
             </p>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 text-left max-w-5xl mx-auto">
-                <!-- Windows (.exe) Card -->
-                <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] p-7 border-2 border-slate-200 dark:border-slate-800 shadow-xl hover:border-atoma-blue dark:hover:border-atoma-cyan transition-all flex flex-col justify-between group">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12 text-left max-w-7xl mx-auto">
+                <!-- 1. Windows (.exe) Card -->
+                <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] p-6 sm:p-7 border-2 border-slate-200 dark:border-slate-800 shadow-xl hover:border-atoma-blue dark:hover:border-atoma-cyan transition-all flex flex-col justify-between group">
                     <div class="space-y-4">
-                        <div class="w-14 h-14 rounded-2xl bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 flex items-center justify-center group-hover:scale-105 transition-transform">
-                            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.9-1.801"/></svg>
+                        <div class="w-13 h-13 rounded-2xl bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 flex items-center justify-center group-hover:scale-105 transition-transform">
+                            <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.9-1.801"/></svg>
                         </div>
                         <div>
-                            <span class="text-[11px] font-mono font-bold text-slate-400 uppercase">{{ __('Untuk Laptop / PC Windows') }}</span>
+                            <span class="text-[10px] font-mono font-bold text-atoma-blue uppercase">{{ __('Untuk Laptop / PC') }}</span>
                             <h3 class="text-xl font-black text-slate-900 dark:text-white mt-0.5">Windows App (.exe)</h3>
                         </div>
                         <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-                            {{ __('Installer praktis untuk Windows 10 & 11. Sangat ringan (~15 MB), tidak membebani RAM, dan tetap aktif di pojok taskbar saat di-minimize.') }}
+                            {{ __('Installer resmi untuk Windows 10 & 11. Sangat ringan (~2.5 MB), tidak membebani RAM, dan tetap aktif di System Tray saat diminimize.') }}
                         </p>
                         <ul class="space-y-1.5 text-xs text-slate-600 dark:text-slate-300 font-medium">
                             <li class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
@@ -276,51 +276,130 @@
                             </li>
                             <li class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
                                 <x-icon.check class="w-4 h-4 shrink-0" />
-                                <span>{{ __('Jendela melayang di atas aplikasi lain (Always-on-Top)') }}</span>
+                                <span>{{ __('Notifikasi pengingat fokus native PC') }}</span>
                             </li>
                             <li class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
                                 <x-icon.check class="w-4 h-4 shrink-0" />
-                                <span>{{ __('Notifikasi pengingat fokus langsung di PC') }}</span>
+                                <span>{{ __('Installer ringkas (~2.5 MB)') }}</span>
                             </li>
                         </ul>
                     </div>
 
                     <div class="mt-8 pt-4 border-t border-slate-100 dark:border-slate-800">
-                        <button type="button" 
-                                onclick="window.installDesktopApp('windows')" 
-                                class="w-full py-3 px-4 bg-atoma-blue hover:bg-blue-600 text-white rounded-2xl font-black text-sm text-center shadow-lg shadow-atoma-blue/20 transition-all flex items-center justify-center gap-2 cursor-pointer">
-                            <span>{{ __('Pasang App Windows') }}</span>
+                        <a href="{{ route('download.exe') }}" download 
+                           class="w-full py-3 px-4 bg-atoma-blue hover:bg-blue-600 text-white rounded-2xl font-black text-sm text-center shadow-lg shadow-atoma-blue/20 transition-all flex items-center justify-center gap-2 cursor-pointer">
                             <x-icon.download class="w-4 h-4" />
-                        </button>
-                        <div class="text-[10px] text-center text-slate-400 mt-2 font-mono">{{ __('PWA Desktop • Langsung Terpasang') }}</div>
+                            <span>{{ __('Download ATOMA (.exe)') }}</span>
+                        </a>
+                        <div class="text-[10px] text-center text-slate-400 mt-2 font-mono">{{ __('Windows 10 / 11 • Installer 2.5 MB') }}</div>
                     </div>
                 </div>
 
-                <!-- macOS (.dmg) Card -->
-                <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] p-7 border-2 border-slate-200 dark:border-slate-800 shadow-xl hover:border-indigo-500 dark:hover:border-indigo-400 transition-all flex flex-col justify-between group">
+                <!-- 2. Android (.apk) Card -->
+                <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] p-6 sm:p-7 border-2 border-emerald-300 dark:border-emerald-800/80 shadow-xl hover:border-emerald-500 transition-all flex flex-col justify-between group relative overflow-hidden">
+                    <div class="absolute -top-3 -right-3 bg-emerald-500 text-white text-[9px] font-black uppercase tracking-wider px-4 py-1.5 rounded-full rotate-6 shadow-sm">
+                        {{ __('Widget & Alarm') }}
+                    </div>
                     <div class="space-y-4">
-                        <div class="w-14 h-14 rounded-2xl bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center group-hover:scale-105 transition-transform">
-                            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.61-.75 1.04-1.8 0.92-2.85-.9.04-2 .6-2.65 1.34-.56.63-1.05 1.68-.92 2.71 1.01.08 2.04-.45 2.65-1.2"/></svg>
+                        <div class="w-13 h-13 rounded-2xl bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center group-hover:scale-105 transition-transform">
+                            <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M17.523 15.3414c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.551 0 .9993.4482.9993.9993.0001.5511-.4483.9997-.9993.9997m-11.046 0c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.5511 0 .9993.4482.9993.9993 0 .5511-.4482.9997-.9993.9997m11.4045-6.02l1.9973-3.4592a.416.416 0 00-.1521-.5676.416.416 0 00-.5676.1521l-2.0223 3.503C15.5802 8.4116 13.8427 8.1 12 8.1c-1.8427 0-3.5802.4116-5.1378 1.1507L4.84 5.7477a.416.416 0 00-.5676-.1521.416.416 0 00-.1521.5676l1.9973 3.4592C2.6889 11.3323.3333 15.1152.3333 19.5h23.3334c0-4.3848-2.3556-8.1677-5.7867-10.1786"/></svg>
                         </div>
                         <div>
-                            <span class="text-[11px] font-mono font-bold text-slate-400 uppercase">{{ __('Untuk Macbook / Mac Desktop') }}</span>
-                            <h3 class="text-xl font-black text-slate-900 dark:text-white mt-0.5">macOS App (PWA)</h3>
+                            <span class="text-[10px] font-mono font-bold text-emerald-600 uppercase">{{ __('Untuk Smartphone Android') }}</span>
+                            <h3 class="text-xl font-black text-slate-900 dark:text-white mt-0.5">Android App (.apk)</h3>
                         </div>
                         <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-                            {{ __('Installer native untuk Mac (M1/M2/M3/M4 Apple Silicon & Intel). Sangat hemat baterai karena memakai engine bawaan Mac.') }}
+                            {{ __('Aplikasi Native Android resmi (~5.9 MB). Dilengkapi Alarm Anti-Mati (Exact Alarm) & 3 Widget interaktif untuk Layar Utama.') }}
                         </p>
                         <ul class="space-y-1.5 text-xs text-slate-600 dark:text-slate-300 font-medium">
                             <li class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
                                 <x-icon.check class="w-4 h-4 shrink-0" />
-                                <span>{{ __('Ikon status di Menu Bar atas & Dock') }}</span>
+                                <span>{{ __('3 Widget Home: To-Do, Pomodoro & Catatan') }}</span>
                             </li>
                             <li class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
                                 <x-icon.check class="w-4 h-4 shrink-0" />
-                                <span>{{ __('Musik Lo-Fi tetap nyala di background') }}</span>
+                                <span>{{ __('Alarm Anti-Mati (Bypass Doze Mode)') }}</span>
                             </li>
                             <li class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
                                 <x-icon.check class="w-4 h-4 shrink-0" />
-                                <span>{{ __('Shortcut keyboard untuk kendali cepat') }}</span>
+                                <span>{{ __('Shortcut Cepat saat tahan ikon app') }}</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="mt-8 pt-4 border-t border-slate-100 dark:border-slate-800">
+                        <a href="{{ route('download.apk') }}" download 
+                           class="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black text-sm text-center shadow-lg shadow-emerald-600/25 transition-all flex items-center justify-center gap-2 cursor-pointer">
+                            <x-icon.download class="w-4 h-4" />
+                            <span>{{ __('Download ATOMA (.apk)') }}</span>
+                        </a>
+                        <div class="text-[10px] text-center text-slate-400 mt-2 font-mono">{{ __('Android 8.0+ • APK Resmi 5.9 MB') }}</div>
+                    </div>
+                </div>
+
+                <!-- 3. PWA Mobile Card -->
+                <div class="bg-gradient-to-br from-indigo-50/70 to-blue-50/70 dark:from-slate-800/80 dark:to-slate-900/80 rounded-[2.5rem] p-6 sm:p-7 border-2 border-indigo-200/80 dark:border-indigo-800/60 shadow-xl flex flex-col justify-between group">
+                    <div class="space-y-4">
+                        <div class="w-13 h-13 rounded-2xl bg-atoma-blue text-white flex items-center justify-center group-hover:scale-105 transition-transform shadow-md shadow-atoma-blue/30">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                        </div>
+                        <div>
+                            <span class="text-[10px] font-mono font-bold text-atoma-blue uppercase">{{ __('Langsung Pasang di HP') }}</span>
+                            <h3 class="text-xl font-black text-slate-900 dark:text-white mt-0.5">PWA Mobile (Web App)</h3>
+                        </div>
+                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
+                            {{ __('Tanpa download file besar. Buka di Safari (iPhone) atau Chrome (Android), lalu tambahkan langsung ke layar utama.') }}
+                        </p>
+                        <ul class="space-y-1.5 text-xs text-slate-600 dark:text-slate-300 font-medium">
+                            <li class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
+                                <x-icon.check class="w-4 h-4 shrink-0" />
+                                <span>{{ __('0 MB Memori (Sangat hemat kuota & disk)') }}</span>
+                            </li>
+                            <li class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
+                                <x-icon.check class="w-4 h-4 shrink-0" />
+                                <span>{{ __('Sempurna untuk pengguna iPhone & iPad') }}</span>
+                            </li>
+                            <li class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
+                                <x-icon.check class="w-4 h-4 shrink-0" />
+                                <span>{{ __('Akses instan dari ikon Layar Utama') }}</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="mt-8 pt-4 border-t border-indigo-100 dark:border-slate-800">
+                        <button onclick="if(window.installAtomaPwa){window.installAtomaPwa()}else{window.location.href='/register'}" 
+                                class="w-full py-3 px-4 bg-gradient-to-r from-atoma-blue to-atoma-cyan hover:opacity-95 text-white rounded-2xl font-black text-sm text-center shadow-lg shadow-atoma-blue/25 transition-all cursor-pointer flex items-center justify-center gap-2">
+                            <span>{{ __('Pasang ke Layar HP') }}</span>
+                        </button>
+                        <div class="text-[10px] text-center text-slate-400 mt-2 font-mono">{{ __('iOS & Android • 0 MB Memori') }}</div>
+                    </div>
+                </div>
+
+                <!-- 4. macOS Card -->
+                <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] p-6 sm:p-7 border-2 border-slate-200 dark:border-slate-800 shadow-xl hover:border-indigo-500 dark:hover:border-indigo-400 transition-all flex flex-col justify-between group">
+                    <div class="space-y-4">
+                        <div class="w-13 h-13 rounded-2xl bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center group-hover:scale-105 transition-transform">
+                            <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.61-.75 1.04-1.8 0.92-2.85-.9.04-2 .6-2.65 1.34-.56.63-1.05 1.68-.92 2.71 1.01.08 2.04-.45 2.65-1.2"/></svg>
+                        </div>
+                        <div>
+                            <span class="text-[10px] font-mono font-bold text-slate-400 uppercase">{{ __('Untuk Macbook / Mac Desktop') }}</span>
+                            <h3 class="text-xl font-black text-slate-900 dark:text-white mt-0.5">macOS App (Desktop)</h3>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                            {{ __('Aplikasi desktop native untuk Mac (M1/M2/M3/M4 & Intel). Sangat hemat baterai karena memakai WebKit bawaan Apple.') }}
+                        </p>
+                        <ul class="space-y-1.5 text-xs text-slate-600 dark:text-slate-300 font-medium">
+                            <li class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
+                                <x-icon.check class="w-4 h-4 shrink-0" />
+                                <span>{{ __('Ikon status di Dock & Launchpad') }}</span>
+                            </li>
+                            <li class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
+                                <x-icon.check class="w-4 h-4 shrink-0" />
+                                <span>{{ __('Musik Lo-Fi tetap nyala di latar') }}</span>
+                            </li>
+                            <li class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
+                                <x-icon.check class="w-4 h-4 shrink-0" />
+                                <span>{{ __('Shortcut keyboard kendali cepat') }}</span>
                             </li>
                         </ul>
                     </div>
@@ -329,50 +408,10 @@
                         <button type="button" 
                                 onclick="window.installDesktopApp('mac')" 
                                 class="w-full py-3 px-4 bg-slate-900 dark:bg-indigo-600 hover:bg-slate-800 dark:hover:bg-indigo-500 text-white rounded-2xl font-black text-sm text-center shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer">
-                            <span>{{ __('Pasang App Mac') }}</span>
                             <x-icon.download class="w-4 h-4" />
+                            <span>{{ __('Pasang App Mac') }}</span>
                         </button>
                         <div class="text-[10px] text-center text-slate-400 mt-2 font-mono">{{ __('PWA Desktop • Langsung Terpasang') }}</div>
-                    </div>
-                </div>
-
-                <!-- PWA Card -->
-                <div class="bg-gradient-to-br from-indigo-50/70 to-blue-50/70 dark:from-slate-800/80 dark:to-slate-900/80 rounded-[2.5rem] p-7 border-2 border-indigo-200/80 dark:border-indigo-800/60 shadow-xl flex flex-col justify-between group">
-                    <div class="space-y-4">
-                        <div class="w-14 h-14 rounded-2xl bg-atoma-blue text-white flex items-center justify-center group-hover:scale-105 transition-transform shadow-md shadow-atoma-blue/30">
-                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                        </div>
-                        <div>
-                            <span class="text-[11px] font-mono font-bold text-atoma-blue uppercase">{{ __('Langsung Pasang di HP') }}</span>
-                            <h3 class="text-xl font-black text-slate-900 dark:text-white mt-0.5">PWA Mobile (Android & iPhone)</h3>
-                        </div>
-                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
-                            {{ __('Tidak perlu download file besar dari toko aplikasi. Cukup buka di browser HP Anda, lalu pasang ke layar utama dengan 1 ketukan.') }}
-                        </p>
-                        <ul class="space-y-1.5 text-xs text-slate-600 dark:text-slate-300 font-medium">
-                            <li class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
-                                <x-icon.check class="w-4 h-4 shrink-0" />
-                                <span>{{ __('0 MB Memori (Sangat hemat penyimpanan)') }}</span>
-                            </li>
-                            <li class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
-                                <x-icon.check class="w-4 h-4 shrink-0" />
-                                <span>{{ __('Bisa diakses cepat lewat ikon di Home Screen') }}</span>
-                            </li>
-                            <li class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
-                                <x-icon.check class="w-4 h-4 shrink-0" />
-                                <span>{{ __('Otomatis sinkron dengan akun di laptop') }}</span>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div class="mt-8 pt-4 border-t border-indigo-100 dark:border-slate-800 space-y-2">
-                        <button onclick="if(window.installAtomaPwa){window.installAtomaPwa()}else{window.location.href='/register'}" 
-                                class="w-full py-3 px-4 bg-gradient-to-r from-atoma-blue to-atoma-cyan hover:opacity-95 text-white rounded-2xl font-black text-sm text-center shadow-lg shadow-atoma-blue/25 transition-all cursor-pointer flex items-center justify-center gap-2">
-                            <span>{{ __('Pasang ke Layar HP Sekarang') }}</span>
-                        </button>
-                        <a href="{{ route('dashboard') }}" class="block text-center text-xs font-bold text-atoma-blue hover:underline">
-                            {{ __('Atau buka langsung di browser →') }}
-                        </a>
                     </div>
                 </div>
             </div>

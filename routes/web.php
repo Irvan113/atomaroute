@@ -731,3 +731,24 @@ Route::match(['get', 'post'], '/admin/db-maintenance', function (\Illuminate\Htt
         'messageType' => $messageType,
     ]);
 });
+
+// Direct Application Downloads (Windows .EXE & Android .APK)
+Route::get('/download/exe', function () {
+    $path = public_path('downloads/ATOMA-Setup.exe');
+    if (file_exists($path)) {
+        return response()->download($path, 'ATOMA-Setup.exe', [
+            'Content-Type' => 'application/vnd.microsoft.portable-executable',
+        ]);
+    }
+    return redirect('https://github.com/Irvan113/atomaroute/actions');
+})->name('download.exe');
+
+Route::get('/download/apk', function () {
+    $path = public_path('downloads/ATOMA.apk');
+    if (file_exists($path)) {
+        return response()->download($path, 'ATOMA.apk', [
+            'Content-Type' => 'application/vnd.android.package-archive',
+        ]);
+    }
+    return redirect('https://github.com/Irvan113/atomaroute/actions');
+})->name('download.apk');

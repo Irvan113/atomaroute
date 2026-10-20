@@ -15,12 +15,24 @@ class LandingAndGuidePageTest extends TestCase
         $response = $this->get('/');
 
         $response->assertStatus(200);
-        $response->assertSee('Pasang App Windows');
+        $response->assertSee('Windows App (.exe)');
+        $response->assertSee('Android App (.apk)');
         $response->assertSee('macOS App');
         $response->assertSee('Panduan');
         $response->assertSee('/images/atoma_icon.png');
         $response->assertSee('toggleDarkMode');
         $response->assertSee('localStorage.getItem(\'darkMode\')', false);
+    }
+
+    public function test_download_routes_work_for_exe_and_apk()
+    {
+        $exeResponse = $this->get(route('download.exe'));
+        $exeResponse->assertOk();
+        $this->assertEquals('attachment; filename=ATOMA-Setup.exe', $exeResponse->headers->get('content-disposition'));
+
+        $apkResponse = $this->get(route('download.apk'));
+        $apkResponse->assertOk();
+        $this->assertEquals('attachment; filename=ATOMA.apk', $apkResponse->headers->get('content-disposition'));
     }
 
     public function test_guide_page_renders_successfully_for_guest_and_user()

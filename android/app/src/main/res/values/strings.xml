@@ -4,4 +4,17 @@
     <string name="title_activity_main">ATOMA</string>
     <string name="package_name">com.atoma.app</string>
     <string name="custom_url_scheme">com.atoma.app</string>
+
+    <!-- Widgets Labels -->
+    <string name="widget_todo_name">ATOMA To-Do List</string>
+    <string name="widget_pomodoro_name">ATOMA Pomodoro Fokus</string>
+    <string name="widget_notes_name">ATOMA Catatan Cepat</string>
+
+    <!-- App Shortcuts -->
+    <string name="shortcut_tasks_short">Tugas Hari Ini</string>
+    <string name="shortcut_tasks_long">Buka Daftar Tugas Hari Ini</string>
+    <string name="shortcut_pomodoro_short">Mulai Pomodoro</string>
+    <string name="shortcut_pomodoro_long">Mulai Sesi Fokus Pomodoro</string>
+    <string name="shortcut_journal_short">Catatan / Jurnal</string>
+    <string name="shortcut_journal_long">Tulis Catatan atau Jurnal Baru</string>
 </resources>

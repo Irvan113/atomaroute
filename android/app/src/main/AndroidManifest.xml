@@ -22,7 +22,50 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
+
         </activity>
+
+        <!-- ATOMA To-Do List Widget -->
+        <receiver
+            android:name=".TodoWidgetProvider"
+            android:label="@string/widget_todo_name"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_todo_info" />
+        </receiver>
+
+        <!-- ATOMA Pomodoro Widget -->
+        <receiver
+            android:name=".PomodoroWidgetProvider"
+            android:label="@string/widget_pomodoro_name"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_pomodoro_info" />
+        </receiver>
+
+        <!-- ATOMA Catatan & Jurnal Widget -->
+        <receiver
+            android:name=".NotesWidgetProvider"
+            android:label="@string/widget_notes_name"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_notes_info" />
+        </receiver>
 
         <provider
             android:name="androidx.core.content.FileProvider"

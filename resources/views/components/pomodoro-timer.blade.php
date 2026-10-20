@@ -1553,8 +1553,9 @@
 
                     try {
                         const urlParams = new URLSearchParams(window.location.search);
-                        if (urlParams.get('action') === 'pomodoro') {
+                        if (urlParams.get('action') === 'pomodoro' || urlParams.get('focus') === '1') {
                             this.show = true;
+                            this.widgetTab = 'pomodoro';
                         }
                     } catch (e) {}
 

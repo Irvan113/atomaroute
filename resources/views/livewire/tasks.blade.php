@@ -3482,6 +3482,15 @@ new #[Layout('layouts.app')] class extends Component {
 
 <div class="relative pb-24"
      x-data="{}"
+     x-init="
+        try {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('action') === 'new' || params.get('new') === '1') {
+                $wire.openAddTaskModal();
+                setTimeout(() => { const el = document.querySelector('[x-ref=titleInput]'); if (el) el.focus(); }, 150);
+            }
+        } catch(e) {}
+     "
      @open-new-task-modal.window="$wire.openAddTaskModal(); setTimeout(() => { const el = document.querySelector('[x-ref=titleInput]'); if (el) el.focus(); }, 120)"
      @focus-quick-search.window="const el = document.querySelector('[x-ref=quickAddInput]'); if (el) { el.focus(); el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }">
     <style>

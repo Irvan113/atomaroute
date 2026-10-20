@@ -1219,6 +1219,12 @@ new #[Layout('layouts.app')] class extends Component {
          currentTab: @entangle('activeTab').live
      }"
      x-init="
+         try {
+             const p = new URLSearchParams(window.location.search);
+             if (p.get('action') === 'new' || p.get('new') === '1') {
+                 $wire.openCreateModal();
+             }
+         } catch(e) {}
          window.__atomaJournalTab = currentTab;
          window.dispatchEvent(new CustomEvent('journal-tab-changed', { detail: { tab: currentTab } }));
          $watch('currentTab', val => {
