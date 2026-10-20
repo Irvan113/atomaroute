@@ -23,7 +23,18 @@ class GoogleAuthController extends Controller
             ]);
         }
 
+        $platform = $request->query('platform');
+        $userAgent = $request->header('User-Agent', '');
+        $isMobileApp = $platform === 'mobile_app'
+            || $request->header('X-Requested-With') === 'com.atoma.app'
+            || str_contains($userAgent, 'Capacitor')
+            || (str_contains($userAgent, 'Android') && str_contains($userAgent, 'wv'));
+
         $state = \Illuminate\Support\Str::random(40);
+        if ($isMobileApp) {
+            $state .= ':mobile_app';
+            session(['is_mobile_app' => true]);
+        }
         session(['oauth_state' => $state]);
 
         $scopes = [
@@ -67,6 +78,9 @@ class GoogleAuthController extends Controller
                 'type' => 'error'
             ]);
         }
+
+        $isMobileApp = (is_string($receivedState) && str_ends_with($receivedState, ':mobile_app'))
+            || session()->pull('is_mobile_app', false);
 
         $code = $request->query('code');
         if (empty($code)) {
@@ -178,6 +192,16 @@ class GoogleAuthController extends Controller
             // 4. Log in the user
             Auth::login($user, remember: true);
             $request->session()->regenerate();
+
+            if ($isMobileApp) {
+                $token = \Illuminate\Support\Str::random(64);
+                \Illuminate\Support\Facades\Cache::put("mobile_auth_{$token}", $user->id, now()->addMinutes(10));
+                return response()->view('auth.mobile-handoff', [
+                    'token' => $token,
+                    'user' => $user,
+                    'appDeepLink' => "atomaroute://login-callback?token={$token}",
+                ]);
+            }
 
             return redirect()->intended(route('dashboard'))->with('toast', [
                 'message' => __('Berhasil masuk dengan Google!'),

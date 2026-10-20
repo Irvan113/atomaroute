@@ -42,7 +42,7 @@ $register = function () {
 <div>
     <!-- Google Sign Up -->
     <div class="mb-6">
-        <a href="{{ route('auth.google') }}" 
+        <a id="google-register-btn" href="{{ route('auth.google') }}" 
            class="w-full flex items-center justify-center gap-3 px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-2xl bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-sm shadow-xs hover:bg-slate-50 dark:hover:bg-slate-750 hover:border-slate-300 dark:hover:border-slate-600 transition-all hover:-translate-y-0.5 active:scale-98 group">
             <svg class="w-5 h-5 group-hover:scale-110 transition-transform shrink-0" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17Z"/>
@@ -52,6 +52,14 @@ $register = function () {
             </svg>
             <span>{{ __('Daftar dengan Google') }}</span>
         </a>
+        <script>
+            (function() {
+                var btn = document.getElementById('google-register-btn');
+                if (btn && (window.Capacitor || navigator.userAgent.indexOf('wv') !== -1 || navigator.userAgent.indexOf('Capacitor') !== -1)) {
+                    btn.href = "{{ route('auth.google') }}?platform=mobile_app";
+                }
+            })();
+        </script>
 
         <!-- Divider -->
         <div class="relative flex items-center justify-center my-6">

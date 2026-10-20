@@ -21,6 +21,25 @@ Route::get('lang/{locale}', function ($locale) {
 Route::middleware(['guest'])->group(function () {
     Route::get('/auth/google', [\App\Http\Controllers\GoogleAuthController::class, 'redirectToGoogle'])->name('auth.google');
     Route::get('/auth/google/callback', [\App\Http\Controllers\GoogleAuthController::class, 'handleGoogleCallback'])->name('auth.google.callback');
+    Route::get('/mobile-auth-token-login', function (\Illuminate\Http\Request $request) {
+        $token = $request->query('token');
+        if ($token && \Illuminate\Support\Facades\Cache::has("mobile_auth_{$token}")) {
+            $userId = \Illuminate\Support\Facades\Cache::pull("mobile_auth_{$token}");
+            $user = \App\Models\User::find($userId);
+            if ($user) {
+                \Illuminate\Support\Facades\Auth::login($user, remember: true);
+                $request->session()->regenerate();
+                return redirect()->route('dashboard')->with('toast', [
+                    'message' => __('Berhasil masuk dengan Google di aplikasi ATOMA!'),
+                    'type' => 'success'
+                ]);
+            }
+        }
+        return redirect()->route('login')->with('toast', [
+            'message' => __('Tautan otentikasi aplikasi telah kedaluwarsa atau tidak valid. Silakan coba lagi.'),
+            'type' => 'error'
+        ]);
+    })->name('mobile.auth.token');
 });
 
 Route::view('dashboard', 'dashboard')->middleware(['auth', 'verified'])->name('dashboard');

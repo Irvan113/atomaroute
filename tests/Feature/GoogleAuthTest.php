@@ -170,4 +170,54 @@ class GoogleAuthTest extends TestCase
         $response->assertRedirect('/dashboard');
         $this->assertAuthenticatedAs($googleUser);
     }
+
+    public function test_mobile_google_auth_returns_handoff_view_and_deep_link(): void
+    {
+        Config::set('services.google.client_id', 'test_client_id');
+        Config::set('services.google.client_secret', 'test_secret');
+
+        $state = 'valid_mobile_oauth_state:mobile_app';
+
+        Http::fake([
+            'https://oauth2.googleapis.com/token' => Http::response([
+                'access_token' => 'mock_mobile_access_token',
+            ], 200),
+            'https://www.googleapis.com/oauth2/v3/userinfo' => Http::response([
+                'sub' => 'google_sub_mobile_4004',
+                'name' => 'Mobile User',
+                'email' => 'mobile.user@example.com',
+                'picture' => 'https://lh3.googleusercontent.com/a/avatar_mobile.jpg',
+                'email_verified' => true,
+            ], 200),
+        ]);
+
+        $response = $this->withSession(['oauth_state' => $state, 'is_mobile_app' => true])
+            ->get('/auth/google/callback?state=' . urlencode($state) . '&code=mock_code_mobile');
+
+        $response->assertStatus(200);
+        $response->assertSee('atomaroute://login-callback?token=');
+        $response->assertSee('Buka Aplikasi ATOMA');
+        $this->assertAuthenticated();
+    }
+
+    public function test_mobile_auth_token_login_authenticates_user_successfully(): void
+    {
+        $user = User::factory()->create();
+        $token = 'test_valid_mobile_token_12345';
+        \Illuminate\Support\Facades\Cache::put("mobile_auth_{$token}", $user->id, now()->addMinutes(5));
+
+        $response = $this->get('/mobile-auth-token-login?token=' . $token);
+
+        $response->assertRedirect('/dashboard');
+        $this->assertAuthenticatedAs($user);
+        $this->assertFalse(\Illuminate\Support\Facades\Cache::has("mobile_auth_{$token}"));
+    }
+
+    public function test_mobile_auth_token_login_rejects_expired_or_invalid_token(): void
+    {
+        $response = $this->get('/mobile-auth-token-login?token=invalid_token');
+
+        $response->assertRedirect('/login');
+        $this->assertGuest();
+    }
 }
