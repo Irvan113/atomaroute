@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/widget_bg_card"
     android:orientation="vertical"
-    android:padding="14dp">
+    android:padding="12dp">
 
     <!-- Header Row -->
     <LinearLayout
@@ -15,8 +15,8 @@
         android:orientation="horizontal">
 
         <ImageView
-            android:layout_width="22dp"
-            android:layout_height="22dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:contentDescription="@string/app_name"
             android:src="@drawable/ic_widget_timer" />
 
@@ -27,10 +27,11 @@
             android:layout_weight="1"
             android:text="ATOMA Pomodoro"
             android:textColor="@color/widget_text_primary"
-            android:textSize="14sp"
+            android:textSize="13sp"
             android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/widget_pomodoro_status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/widget_btn_surface"
@@ -38,54 +39,71 @@
             android:paddingTop="3dp"
             android:paddingEnd="8dp"
             android:paddingBottom="3dp"
-            android:text="@string/widget_pomodoro_status"
+            android:text="FOKUS 25M"
             android:textColor="#FB7185"
             android:textSize="10sp"
             android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- Subtitle / Prompt -->
-    <TextView
+    <!-- Center Timer Display -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:ellipsize="end"
-        android:maxLines="1"
-        android:text="@string/widget_pomodoro_sub"
-        android:textColor="@color/widget_text_secondary"
-        android:textSize="11sp" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <Chronometer
+            android:id="@+id/widget_pomodoro_chronometer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:countDown="true"
+            android:textColor="#FFFFFF"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/widget_pomodoro_sub"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="Fokus kerja tanpa distraksi"
+            android:textColor="@color/widget_text_secondary"
+            android:textSize="10sp" />
+    </LinearLayout>
 
     <!-- Action Buttons Row -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
-        <!-- Button 1: Mulai Pomodoro -->
+        <!-- Button 1: Toggle Mulai / Jeda -->
         <TextView
-            android:id="@+id/btn_start_pomodoro"
+            android:id="@+id/btn_pomodoro_toggle"
             android:layout_width="0dp"
-            android:layout_height="36dp"
+            android:layout_height="32dp"
             android:layout_weight="1"
-            android:layout_marginEnd="8dp"
+            android:layout_marginEnd="6dp"
             android:background="@drawable/widget_btn_rose"
             android:gravity="center"
-            android:text="@string/widget_btn_start_pomodoro"
+            android:text="Mulai"
             android:textColor="#FFFFFF"
             android:textSize="11sp"
             android:textStyle="bold" />
 
-        <!-- Button 2: Buka Ambience / Playlist -->
+        <!-- Button 2: Reset Timer -->
         <TextView
-            android:id="@+id/btn_open_pomodoro"
+            android:id="@+id/btn_pomodoro_reset"
             android:layout_width="0dp"
-            android:layout_height="36dp"
+            android:layout_height="32dp"
             android:layout_weight="1"
             android:background="@drawable/widget_btn_surface"
             android:gravity="center"
-            android:text="@string/widget_btn_open_music"
+            android:text="Reset"
             android:textColor="@color/widget_text_primary"
             android:textSize="11sp"
             android:textStyle="bold" />

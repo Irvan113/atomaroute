@@ -220,4 +220,36 @@ class GoogleAuthTest extends TestCase
         $response->assertRedirect('/login');
         $this->assertGuest();
     }
+
+    public function test_apk_stateless_google_auth_callback_without_session(): void
+    {
+        Config::set('services.google.client_id', 'test_client_id');
+        Config::set('services.google.client_secret', 'test_secret');
+
+        $state = 'atoma_apk_stateless_token_999';
+        \Illuminate\Support\Facades\Cache::put("oauth_apk_state_{$state}", true, now()->addMinutes(15));
+
+        Http::fake([
+            'https://oauth2.googleapis.com/token' => Http::response([
+                'access_token' => 'mock_mobile_access_token',
+            ], 200),
+            'https://www.googleapis.com/oauth2/v3/userinfo' => Http::response([
+                'sub' => 'google_sub_mobile_stateless',
+                'name' => 'Stateless Mobile User',
+                'email' => 'stateless.mobile@example.com',
+                'picture' => 'https://lh3.googleusercontent.com/a/avatar_mobile.jpg',
+                'email_verified' => true,
+            ], 200),
+        ]);
+
+        // Request callback with NO session cookies (simulating external Chrome callback)
+        $response = $this->get('/auth/google/callback?state=' . urlencode($state) . '&code=mock_code_mobile');
+
+        $response->assertStatus(200);
+        $response->assertSee('atomaroute://auth-callback?token=');
+        $response->assertSee('intent://auth-callback?token=');
+        $response->assertSee('Lanjutkan ke Aplikasi ATOMA');
+        $this->assertAuthenticated();
+        $this->assertFalse(\Illuminate\Support\Facades\Cache::has("oauth_apk_state_{$state}"));
+    }
 }

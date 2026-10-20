@@ -23,16 +23,17 @@ class GoogleAuthController extends Controller
             ]);
         }
 
-        $platform = $request->query('platform');
+        $platform = $request->query('platform') ?: $request->query('source');
         $userAgent = $request->header('User-Agent', '');
-        $isMobileApp = $platform === 'mobile_app'
+        $isMobileApp = in_array($platform, ['apk', 'mobile_app', 'app'])
             || $request->header('X-Requested-With') === 'com.atoma.app'
             || str_contains($userAgent, 'Capacitor')
             || (str_contains($userAgent, 'Android') && str_contains($userAgent, 'wv'));
 
         $state = \Illuminate\Support\Str::random(40);
         if ($isMobileApp) {
-            $state .= ':mobile_app';
+            $state = 'atoma_apk_' . $state;
+            \Illuminate\Support\Facades\Cache::put("oauth_apk_state_{$state}", true, now()->addMinutes(15));
             session(['is_mobile_app' => true]);
         }
         session(['oauth_state' => $state]);
@@ -71,16 +72,28 @@ class GoogleAuthController extends Controller
         // Validate state for CSRF protection
         $savedState = session()->pull('oauth_state');
         $receivedState = $request->query('state');
+        $isMobileApp = false;
 
-        if (empty($savedState) || empty($receivedState) || !hash_equals($savedState, $receivedState)) {
+        if (is_string($receivedState) && str_starts_with($receivedState, 'atoma_apk_')) {
+            $cacheKey = "oauth_apk_state_{$receivedState}";
+            if (\Illuminate\Support\Facades\Cache::has($cacheKey)) {
+                \Illuminate\Support\Facades\Cache::forget($cacheKey);
+                $isMobileApp = true;
+            } elseif (!empty($savedState) && hash_equals($savedState, $receivedState)) {
+                $isMobileApp = true;
+            }
+        } elseif (is_string($receivedState) && str_ends_with($receivedState, ':mobile_app')) {
+            if (!empty($savedState) && hash_equals($savedState, $receivedState)) {
+                $isMobileApp = true;
+            }
+        } elseif (!empty($savedState) && is_string($receivedState) && hash_equals($savedState, $receivedState)) {
+            $isMobileApp = session()->pull('is_mobile_app', false);
+        } else {
             return redirect()->route('login')->with('toast', [
                 'message' => __('Sesi otentikasi kedaluwarsa atau tidak valid. Silakan coba lagi.'),
                 'type' => 'error'
             ]);
         }
-
-        $isMobileApp = (is_string($receivedState) && str_ends_with($receivedState, ':mobile_app'))
-            || session()->pull('is_mobile_app', false);
 
         $code = $request->query('code');
         if (empty($code)) {

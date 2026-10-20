@@ -1092,6 +1092,38 @@
                     }, 400);
                 });
             })();
+
+            // Native Android Widget Real-Time Synchronization Bridge
+            (function() {
+                window.syncAtomaWidget = function() {
+                    if (window.AtomaBridge && window.AtomaBridge.syncTasksToWidget) {
+                        fetch('/api/widget/summary', { credentials: 'same-origin' })
+                            .then(r => r.json())
+                            .then(data => {
+                                if (data && data.success && window.AtomaBridge && window.AtomaBridge.syncTasksToWidget) {
+                                    window.AtomaBridge.syncTasksToWidget(JSON.stringify(data.tasks), data.remaining_count);
+                                }
+                            })
+                            .catch(() => {});
+                    }
+                };
+
+                if (window.AtomaBridge) {
+                    window.syncAtomaWidget();
+                }
+                document.addEventListener('DOMContentLoaded', () => {
+                    if (window.AtomaBridge) window.syncAtomaWidget();
+                });
+                document.addEventListener('livewire:navigated', () => {
+                    if (window.AtomaBridge) window.syncAtomaWidget();
+                });
+                window.addEventListener('tasks-updated', () => {
+                    if (window.AtomaBridge) window.syncAtomaWidget();
+                });
+                window.addEventListener('task-completed', () => {
+                    if (window.AtomaBridge) window.syncAtomaWidget();
+                });
+            })();
         </script>
 
         {{-- Atoma PRO Subscription Upgrade Modal --}}

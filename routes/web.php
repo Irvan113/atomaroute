@@ -335,6 +335,45 @@ Route::middleware(['auth', 'throttle:60,1'])->group(function () {
         return response()->json(['success' => true]);
     });
 
+    Route::get('/api/widget/summary', function () {
+        $user = auth()->user();
+        $userTz = $user->timezone ?? config('app.timezone', 'Asia/Jakarta');
+        $today = \Carbon\Carbon::today($userTz)->toDateString();
+
+        $tasks = $user->tasks()
+            ->whereDate('date', $today)
+            ->where('is_completed', false)
+            ->orderByRaw("CASE priority WHEN 'urgent' THEN 1 WHEN 'high' THEN 2 WHEN 'medium' THEN 3 ELSE 4 END")
+            ->orderBy('start_time', 'asc')
+            ->limit(5)
+            ->get(['id', 'title', 'priority', 'start_time', 'deadline']);
+
+        $remainingCount = $user->tasks()
+            ->whereDate('date', $today)
+            ->where('is_completed', false)
+            ->count();
+
+        $completedCount = $user->tasks()
+            ->whereDate('date', $today)
+            ->where('is_completed', true)
+            ->count();
+
+        return response()->json([
+            'success' => true,
+            'today' => $today,
+            'remaining_count' => $remainingCount,
+            'completed_count' => $completedCount,
+            'tasks' => $tasks->map(function ($task) {
+                return [
+                    'id' => $task->id,
+                    'title' => $task->title,
+                    'priority' => $task->priority,
+                    'time' => $task->start_time ?: $task->deadline ?: '',
+                ];
+            }),
+        ]);
+    });
+
     Route::post('/api/community-quest/claim', function () {
         $result = \App\Services\CommunityQuestService::claimReward(auth()->user());
         return response()->json($result, $result['success'] ? 200 : 422);

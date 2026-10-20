@@ -49,6 +49,7 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.atoma.app.ACTION_SYNC_TODOS" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
@@ -62,6 +63,8 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.atoma.app.ACTION_TOGGLE_TIMER" />
+                <action android:name="com.atoma.app.ACTION_RESET_TIMER" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"

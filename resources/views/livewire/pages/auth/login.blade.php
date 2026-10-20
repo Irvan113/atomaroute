@@ -41,8 +41,17 @@ $login = function () {
         <script>
             (function() {
                 var btn = document.getElementById('google-login-btn');
-                if (btn && (window.Capacitor || navigator.userAgent.indexOf('wv') !== -1 || navigator.userAgent.indexOf('Capacitor') !== -1)) {
-                    btn.href = "{{ route('auth.google') }}?platform=mobile_app";
+                var apkUrl = "{{ route('auth.google') }}?platform=apk&source=apk";
+                if (btn) {
+                    if (window.AtomaBridge || window.Capacitor || navigator.userAgent.indexOf('wv') !== -1 || navigator.userAgent.indexOf('Capacitor') !== -1) {
+                        btn.href = apkUrl;
+                    }
+                    btn.addEventListener('click', function(e) {
+                        if (window.AtomaBridge && window.AtomaBridge.openBrowser) {
+                            e.preventDefault();
+                            window.AtomaBridge.openBrowser(apkUrl);
+                        }
+                    });
                 }
             })();
         </script>
