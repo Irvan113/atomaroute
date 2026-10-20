@@ -34,7 +34,7 @@ database/*.sqlite-wal
 database/*.sqlite-shm
 
 # Scratch & one-off test scripts
-test*.php
+/test*.php
 *.zip
 *.tar.gz
 atoma-deploy.zip
