@@ -3,6 +3,7 @@ package com.atoma.app;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import com.getcapacitor.Bridge;
 import com.getcapacitor.BridgeActivity;
 
 public class MainActivity extends BridgeActivity {
@@ -22,15 +23,15 @@ public class MainActivity extends BridgeActivity {
 
     private void handleDeepLink(Intent intent) {
         if (intent == null) return;
-        Uri uri = intent.getData();
+        final Uri uri = intent.getData();
         if (uri != null) {
-            final String url = uri.toString();
-            if (this.bridge != null && this.bridge.getWebView() != null) {
-                this.bridge.getWebView().post(new Runnable() {
+            final Bridge b = getBridge();
+            if (b != null && b.getWebView() != null) {
+                b.getWebView().post(new Runnable() {
                     @Override
                     public void run() {
                         try {
-                            bridge.getWebView().loadUrl(url);
+                            b.getWebView().loadUrl(uri.toString());
                         } catch (Exception ignored) {}
                     }
                 });

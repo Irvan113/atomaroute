@@ -39,7 +39,7 @@
             android:paddingTop="3dp"
             android:paddingEnd="8dp"
             android:paddingBottom="3dp"
-            android:text="25:00 Fokus"
+            android:text="@string/widget_pomodoro_status"
             android:textColor="#FB7185"
             android:textSize="10sp"
             android:textStyle="bold" />
@@ -52,7 +52,7 @@
         android:layout_marginTop="6dp"
         android:ellipsize="end"
         android:maxLines="1"
-        android:text="Hilangkan distraksi & raih deep focus harianmu!"
+        android:text="@string/widget_pomodoro_sub"
         android:textColor="@color/widget_text_secondary"
         android:textSize="11sp" />
 
@@ -72,7 +72,7 @@
             android:layout_weight="1"
             android:background="@drawable/widget_btn_rose"
             android:gravity="center"
-            android:text="⚡ Mulai Fokus"
+            android:text="@string/widget_btn_start_pomodoro"
             android:textColor="#FFFFFF"
             android:textSize="11sp"
             android:textStyle="bold" />
@@ -89,7 +89,7 @@
             android:layout_weight="1"
             android:background="@drawable/widget_btn_surface"
             android:gravity="center"
-            android:text="🎵 Lo-Fi Musik"
+            android:text="@string/widget_btn_open_music"
             android:textColor="@color/widget_text_primary"
             android:textSize="11sp"
             android:textStyle="bold" />

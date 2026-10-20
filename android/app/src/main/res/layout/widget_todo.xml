@@ -39,7 +39,7 @@
             android:paddingTop="3dp"
             android:paddingEnd="8dp"
             android:paddingBottom="3dp"
-            android:text="Tugas Aktif"
+            android:text="@string/widget_todo_status"
             android:textColor="#60A5FA"
             android:textSize="10sp"
             android:textStyle="bold" />
@@ -52,7 +52,7 @@
         android:layout_marginTop="6dp"
         android:ellipsize="end"
         android:maxLines="1"
-        android:text="Selesaikan target harianmu & pertahankan streak!"
+        android:text="@string/widget_todo_sub"
         android:textColor="@color/widget_text_secondary"
         android:textSize="11sp" />
 
@@ -72,7 +72,7 @@
             android:layout_weight="1"
             android:background="@drawable/widget_btn_blue"
             android:gravity="center"
-            android:text="📋 Buka Tugas"
+            android:text="@string/widget_btn_tasks"
             android:textColor="#FFFFFF"
             android:textSize="11sp"
             android:textStyle="bold" />
@@ -89,7 +89,7 @@
             android:layout_weight="1"
             android:background="@drawable/widget_btn_surface"
             android:gravity="center"
-            android:text="➕ Tambah Baru"
+            android:text="@string/widget_btn_add_task"
             android:textColor="@color/widget_text_primary"
             android:textSize="11sp"
             android:textStyle="bold" />

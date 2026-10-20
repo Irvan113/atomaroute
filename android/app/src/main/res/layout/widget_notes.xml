@@ -39,7 +39,7 @@
             android:paddingTop="3dp"
             android:paddingEnd="8dp"
             android:paddingBottom="3dp"
-            android:text="Jurnal &amp; Memo"
+            android:text="@string/widget_notes_status"
             android:textColor="#34D399"
             android:textSize="10sp"
             android:textStyle="bold" />
@@ -52,7 +52,7 @@
         android:layout_marginTop="6dp"
         android:ellipsize="end"
         android:maxLines="1"
-        android:text="Abadikan ide, evaluasi, &amp; insight harianmu secara cepat."
+        android:text="@string/widget_notes_sub"
         android:textColor="@color/widget_text_secondary"
         android:textSize="11sp" />
 
@@ -72,7 +72,7 @@
             android:layout_weight="1"
             android:background="@drawable/widget_btn_emerald"
             android:gravity="center"
-            android:text="✍️ Tulis Catatan"
+            android:text="@string/widget_btn_new_note"
             android:textColor="#FFFFFF"
             android:textSize="11sp"
             android:textStyle="bold" />
@@ -89,7 +89,7 @@
             android:layout_weight="1"
             android:background="@drawable/widget_btn_surface"
             android:gravity="center"
-            android:text="📖 Buka Jurnal"
+            android:text="@string/widget_btn_open_journal"
             android:textColor="@color/widget_text_primary"
             android:textSize="11sp"
             android:textStyle="bold" />

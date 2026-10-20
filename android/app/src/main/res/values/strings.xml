@@ -17,4 +17,18 @@
     <string name="shortcut_pomodoro_long">Mulai Sesi Fokus Pomodoro</string>
     <string name="shortcut_journal_short">Catatan / Jurnal</string>
     <string name="shortcut_journal_long">Tulis Catatan atau Jurnal Baru</string>
+
+    <!-- Widget UI Strings -->
+    <string name="widget_btn_tasks">Buka Tugas</string>
+    <string name="widget_btn_add_task">Tambah Baru</string>
+    <string name="widget_btn_start_pomodoro">Mulai Fokus</string>
+    <string name="widget_btn_open_music">Lo-Fi Musik</string>
+    <string name="widget_btn_new_note">Tulis Catatan</string>
+    <string name="widget_btn_open_journal">Buka Jurnal</string>
+    <string name="widget_todo_sub">Selesaikan target harianmu dan pertahankan streak!</string>
+    <string name="widget_pomodoro_sub">Hilangkan distraksi dan raih deep focus harianmu!</string>
+    <string name="widget_notes_sub">Abadikan ide, evaluasi, dan insight harianmu secara cepat.</string>
+    <string name="widget_todo_status">Tugas Aktif</string>
+    <string name="widget_pomodoro_status">25:00 Fokus</string>
+    <string name="widget_notes_status">Jurnal &amp; Memo</string>
 </resources>
