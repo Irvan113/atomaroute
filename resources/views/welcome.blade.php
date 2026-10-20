@@ -418,6 +418,87 @@
                     </div>
                 </div>
             </div>
+
+            <!-- PANDUAN CEPAT INSTALASI & SOLUSI KENDALA -->
+            <div class="mt-14 max-w-5xl mx-auto bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-xl text-left">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200/80 dark:border-slate-800">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-2xl bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                            <x-icon.shield-check class="w-5 h-5" />
+                        </div>
+                        <div>
+                            <h4 class="text-base sm:text-lg font-black text-slate-900 dark:text-white">
+                                {{ __('Panduan Instalasi Cepat & Solusi Kendala') }}
+                            </h4>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                                {{ __('Solusi jika muncul peringatan keamanan bawaan saat pertama kali menginstal APK atau EXE.') }}
+                            </p>
+                        </div>
+                    </div>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold w-fit">
+                        <x-icon.info class="w-3.5 h-3.5 text-atoma-blue" />
+                        <span>{{ __('100% Aman & Bebas Malware') }}</span>
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    <!-- Kolom Solusi Android APK -->
+                    <div class="rounded-2xl bg-slate-50 dark:bg-slate-800/50 p-5 border border-slate-200/70 dark:border-slate-700/60">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                            <h5 class="text-sm font-black text-slate-900 dark:text-white">
+                                {{ __('Android: Jika "Aplikasi Tidak Terpasang"') }}
+                            </h5>
+                        </div>
+                        <ol class="space-y-2.5 text-xs text-slate-600 dark:text-slate-300 font-medium">
+                            <li class="flex items-start gap-2">
+                                <span class="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 font-bold flex items-center justify-center shrink-0 text-[11px]">1</span>
+                                <span><strong class="text-slate-900 dark:text-white">{{ __('Hapus Aplikasi Lama:') }}</strong> {{ __('Jika pernah menginstal versi ATOMA sebelumnya di HP, hapus (uninstall) terlebih dahulu agar tidak terjadi konflik tanda tangan sistem.') }}</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 font-bold flex items-center justify-center shrink-0 text-[11px]">2</span>
+                                <span><strong class="text-slate-900 dark:text-white">{{ __('Izinkan Sumber Tidak Dikenal:') }}</strong> {{ __('Saat membuka file APK, izinkan browser / file manager untuk menginstal aplikasi.') }}</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 font-bold flex items-center justify-center shrink-0 text-[11px]">3</span>
+                                <span><strong class="text-slate-900 dark:text-white">{{ __('Play Protect:') }}</strong> {{ __('Jika Play Protect menampilkan peringatan, klik "Rincian lainnya" lalu pilih') }} <span class="text-emerald-600 dark:text-emerald-400 font-bold">"{{ __('Tetap instal') }}"</span>.</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 font-bold flex items-center justify-center shrink-0 text-[11px]">4</span>
+                                <span><strong class="text-slate-900 dark:text-white">{{ __('Pasang Widget:') }}</strong> {{ __('Setelah terpasang, tahan layar beranda HP > pilih menu Widget > cari ATOMA untuk memasang Widget To-Do, Pomodoro, atau Catatan!') }}</span>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <!-- Kolom Solusi Windows EXE -->
+                    <div class="rounded-2xl bg-slate-50 dark:bg-slate-800/50 p-5 border border-slate-200/70 dark:border-slate-700/60">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+                            <h5 class="text-sm font-black text-slate-900 dark:text-white">
+                                {{ __('Windows: Jika Layar Biru "SmartScreen"') }}
+                            </h5>
+                        </div>
+                        <ol class="space-y-2.5 text-xs text-slate-600 dark:text-slate-300 font-medium">
+                            <li class="flex items-start gap-2">
+                                <span class="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-bold flex items-center justify-center shrink-0 text-[11px]">1</span>
+                                <span><strong class="text-slate-900 dark:text-white">{{ __('Klik "Info selengkapnya":') }}</strong> {{ __('Pada jendela biru "Windows protected your PC", klik teks bertuliskan') }} <span class="text-blue-600 dark:text-blue-400 font-bold">"{{ __('Info selengkapnya') }}" / "More info"</span>.</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-bold flex items-center justify-center shrink-0 text-[11px]">2</span>
+                                <span><strong class="text-slate-900 dark:text-white">{{ __('Klik "Tetap jalankan":') }}</strong> {{ __('Tombol') }} <span class="text-blue-600 dark:text-blue-400 font-bold">"{{ __('Tetap jalankan') }}" / "Run anyway"</span> {{ __('akan muncul di sudut bawah, klik tombol tersebut untuk membuka ATOMA.') }}</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-bold flex items-center justify-center shrink-0 text-[11px]">3</span>
+                                <span><strong class="text-slate-900 dark:text-white">{{ __('Pilihan Versi Portable:') }}</strong> {{ __('Jika tidak ingin melewati wizard installer, unduh') }} <a href="{{ route('download.exe-portable') }}" class="text-atoma-blue underline font-bold">{{ __('Versi Portable') }}</a> {{ __('yang langsung aktif seketika.') }}</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-bold flex items-center justify-center shrink-0 text-[11px]">4</span>
+                                <span><strong class="text-slate-900 dark:text-white">{{ __('System Tray Aktif:') }}</strong> {{ __('Aplikasi tetap siaga di System Tray (sudut kanan bawah dekat jam) sehingga alarm fokus tidak pernah mati.') }}</span>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
