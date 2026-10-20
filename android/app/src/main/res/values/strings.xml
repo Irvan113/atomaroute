@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">ATOMA</string>
+    <string name="title_activity_main">ATOMA</string>
+    <string name="package_name">com.atoma.app</string>
+    <string name="custom_url_scheme">com.atoma.app</string>
+</resources>

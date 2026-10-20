@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" fill="none" class="w-full h-full">
+  <defs>
+    <filter id="dia-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#000000" flood-opacity="0.45"/>
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0284c7" flood-opacity="0.5"/>
+    </filter>
+    <linearGradient id="dia-left" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="30%" stop-color="#bae6fd"/>
+      <stop offset="70%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+    <linearGradient id="dia-right" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="50%" stop-color="#0284c7"/>
+      <stop offset="100%" stop-color="#082f49"/>
+    </linearGradient>
+    <linearGradient id="dia-dark" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0c2338"/>
+      <stop offset="100%" stop-color="#020d18"/>
+    </linearGradient>
+    <linearGradient id="dia-cyan-bright" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="40%" stop-color="#5edfff"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+  </defs>
+
+  <g filter="url(#dia-shadow)">
+    <!-- Triple Cybernetic Wings -->
+    <path d="M14 42 L34 28 L34 52 L14 66 Z" fill="url(#dia-left)"/>
+    <path d="M146 42 L126 28 L126 52 L146 66 Z" fill="url(#dia-right)"/>
+
+    <path d="M10 68 L30 54 L30 78 L10 92 Z" fill="url(#dia-left)" opacity="0.9"/>
+    <path d="M150 68 L130 54 L130 78 L150 92 Z" fill="url(#dia-right)" opacity="0.9"/>
+
+    <path d="M16 94 L32 82 L32 104 L16 116 Z" fill="url(#dia-left)" opacity="0.75"/>
+    <path d="M144 94 L128 82 L128 104 L144 116 Z" fill="url(#dia-right)" opacity="0.75"/>
+
+    <!-- Main Shield Frame -->
+    <polygon points="80,12 30,38 30,102 80,146" fill="url(#dia-left)"/>
+    <polygon points="80,12 130,38 130,102 80,146" fill="url(#dia-right)"/>
+
+    <!-- Inner Shield Cavity -->
+    <polygon points="80,22 40,45 40,96 80,132" fill="url(#dia-dark)"/>
+    <polygon points="80,22 120,45 120,96 80,132" fill="#010a14"/>
+
+    <!-- Sharp Hexagonal Diamond Crystal Core -->
+    <polygon points="80,44 102,62 102,90 80,108 58,90 58,62" fill="url(#dia-cyan-bright)"/>
+    <!-- Facet cuts -->
+    <polygon points="80,44 102,62 80,76" fill="#ffffff" opacity="0.7"/>
+    <polygon points="80,44 58,62 80,76" fill="#ffffff" opacity="0.9"/>
+    <polygon points="58,62 58,90 80,76" fill="#0284c7" opacity="0.6"/>
+    <polygon points="102,62 102,90 80,76" fill="#0369a1" opacity="0.7"/>
+    <polygon points="80,108 58,90 80,76" fill="#0284c7" opacity="0.8"/>
+    <polygon points="80,108 102,90 80,76" fill="#0c4a6e" opacity="0.9"/>
+</g>
+</svg>

@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" fill="none" class="w-full h-full">
+  <defs>
+    <filter id="p2-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="5" flood-color="#000000" flood-opacity="0.36"/>
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#3e64ff" flood-opacity="0.35"/>
+    </filter>
+    <linearGradient id="p2-left-leg" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="50%" stop-color="#3e64ff"/>
+      <stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+    <linearGradient id="p2-left-facet" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#bae6fd"/>
+      <stop offset="100%" stop-color="#3e64ff"/>
+    </linearGradient>
+    <linearGradient id="p2-right-leg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4f46e5"/>
+      <stop offset="60%" stop-color="#4338ca"/>
+      <stop offset="100%" stop-color="#312e81"/>
+    </linearGradient>
+    <linearGradient id="p2-crossbar" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#3e64ff"/>
+      <stop offset="100%" stop-color="#1e1b4b"/>
+    </linearGradient>
+  </defs>
+
+  <g filter="url(#p2-shadow)">
+    <!-- Left Leg Outer -->
+    <path d="M40 128 L64 128 L92 36 L68 36 Z" fill="url(#p2-left-leg)"/>
+    <!-- Left Leg Beveled Inner Ridge (Sword Facet) -->
+    <polygon points="68,36 80,36 58,128 48,128" fill="url(#p2-left-facet)" opacity="0.6"/>
+
+    <!-- Crossbar Fold Ribbon -->
+    <path d="M56 96 L106 96 L98 80 L50 80 Z" fill="url(#p2-crossbar)"/>
+    <!-- Sharp Shadow under Right Overlap -->
+    <polygon points="86,80 106,96 96,96 80,80" fill="#000000" opacity="0.38"/>
+
+    <!-- Right Leg Overlapping Fold -->
+    <path d="M68 36 L92 36 L120 128 L96 128 L85 86 L74 86 Z" fill="url(#p2-right-leg)"/>
+
+    <!-- Crisp Spine Highlight Line -->
+    <line x1="80" y1="36" x2="108" y2="128" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" opacity="0.55"/>
+  </g>
+</svg>

@@ -1,0 +1,200 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   1. VIEW TRANSITIONS & SMOOTH PAGE TRANSITIONS (0% Backend Overhead)
+   ========================================================================== */
+@media (prefers-reduced-motion: no-preference) {
+    @view-transition {
+        navigation: auto;
+    }
+
+    ::view-transition-old(root) {
+        animation: 160ms cubic-bezier(0.4, 0, 0.2, 1) both atoma-page-fade-out;
+    }
+
+    ::view-transition-new(root) {
+        animation: 200ms cubic-bezier(0, 0, 0.2, 1) both atoma-page-fade-in;
+    }
+
+    @keyframes atoma-page-fade-out {
+        from {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        to {
+            opacity: 0;
+            transform: translateY(-4px) scale(0.995);
+        }
+    }
+
+    @keyframes atoma-page-fade-in {
+        from {
+            opacity: 0;
+            transform: translateY(6px) scale(0.995);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+        animation: none !important;
+    }
+}
+
+/* ==========================================================================
+   2. SMOOTH SCROLLING & MOMENTUM TOUCH BEHAVIOR
+   ========================================================================== */
+html {
+    scroll-behavior: smooth;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    scroll-behavior: smooth;
+}
+
+* {
+    -webkit-overflow-scrolling: touch;
+}
+
+/* ==========================================================================
+   3. SLEEK MODERN CUSTOM SCROLLBARS (LIGHT & DARK THEMES)
+   ========================================================================== */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.35);
+    border-radius: 9999px;
+    transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(156, 163, 175, 0.65);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+    background: rgba(107, 114, 128, 0.35);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+    background: rgba(107, 114, 128, 0.65);
+}
+
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(156, 163, 175, 0.35) transparent;
+}
+
+.dark * {
+    scrollbar-color: rgba(107, 114, 128, 0.35) transparent;
+}
+
+/* Utilities to cleanly hide scrollbar while preserving scroll functionality */
+.no-scrollbar::-webkit-scrollbar,
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.no-scrollbar,
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* ==========================================================================
+   4. ATOMA DESIGN SYSTEM & CARDS INTERACTION
+   ========================================================================== */
+@layer utilities {
+    .atoma-gradient {
+        background-image: linear-gradient(135deg, #3E64FF 0%, #5EDFFF 100%);
+    }
+    .atoma-gradient-subtle {
+        background-image: linear-gradient(135deg, #ECFCFF 0%, #ffffff 100%);
+    }
+    .dark .atoma-gradient-subtle {
+        background-image: linear-gradient(135deg, #121d36 0%, #0b1329 100%);
+    }
+    .atoma-glow {
+        box-shadow: 0 10px 25px -5px rgba(62, 100, 255, 0.3), 0 8px 10px -6px rgba(94, 223, 255, 0.2);
+    }
+    .atoma-card {
+        border-radius: 1rem;
+        border: 1px solid rgba(178, 252, 255, 0.3);
+        transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), 
+                    box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), 
+                    border-color 0.15s ease,
+                    background-color 0.15s ease;
+    }
+    .atoma-card:hover {
+        transform: translateY(-1.5px);
+    }
+    .atoma-card:active {
+        transform: scale(0.99);
+    }
+    .dark .atoma-card {
+        border: 1px solid rgba(62, 100, 255, 0.2);
+    }
+
+    /* Break words gracefully inside cards */
+    .break-words-fluid {
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        word-break: break-word;
+    }
+}
+
+/* ==========================================================================
+   5. CLEAN INTERNAL NOTE LINKS & SMOOTH MINI NOTE SCROLLING
+   ========================================================================== */
+.journal-note-link {
+    color: #2563eb !important;
+    text-decoration: underline !important;
+    text-decoration-color: rgba(96, 165, 250, 0.6) !important;
+    text-underline-offset: 3px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 1px !important;
+    display: inline !important;
+    border-radius: 0 !important;
+    transition: color 0.15s ease, text-decoration-color 0.15s ease !important;
+}
+
+.dark .journal-note-link {
+    color: #60a5fa !important;
+    text-decoration-color: rgba(96, 165, 250, 0.4) !important;
+}
+
+.journal-note-link:hover {
+    color: #1d4ed8 !important;
+    text-decoration-color: #1d4ed8 !important;
+}
+
+.dark .journal-note-link:hover {
+    color: #93c5fd !important;
+    text-decoration-color: #93c5fd !important;
+}
+
+/* Smooth native scrolling container for note & mini note without tile discarding or checkerboarding */
+.fast-scroll-viewport {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+}

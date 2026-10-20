@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
+  <!-- Minimalist Soft Container -->
+  <rect x="14" y="14" width="100" height="100" rx="28" fill="#eef2ff" stroke="#c7d2fe" stroke-width="2.5"/>
+
+  <!-- Left Hemisphere -->
+  <path d="M60 38 C52 36 42 42 40 52 C38 60 42 66 40 72 C38 80 44 88 54 88 C58 88 60 86 60 82 Z" 
+        fill="#818cf8"/>
+
+  <!-- Right Hemisphere -->
+  <path d="M68 38 C76 36 86 42 88 52 C90 60 86 66 88 72 C90 80 84 88 74 88 C70 88 68 86 68 82 Z" 
+        fill="#6366f1"/>
+
+  <!-- Clean Minimalist Fissure & Groove Lines -->
+  <line x1="64" y1="36" x2="64" y2="86" stroke="#4338ca" stroke-width="3" stroke-linecap="round"/>
+  <path d="M44 54 C50 56 54 54 58 52" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  <path d="M44 70 C50 72 54 70 58 66" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  <path d="M84 54 C78 56 74 54 70 52" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  <path d="M84 70 C78 72 74 70 70 66" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+</svg>

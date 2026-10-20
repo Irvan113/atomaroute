@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 60" fill="none" class="w-full h-full">
+  <defs>
+    <linearGradient id="logo-left-stem" x1="0%" y1="100%" x2="70%" y2="0%">
+      <stop offset="0%" stop-color="#00F0FF"/>
+      <stop offset="50%" stop-color="#00A3FF"/>
+      <stop offset="100%" stop-color="#3E64FF"/>
+    </linearGradient>
+    <linearGradient id="logo-right-stem" x1="20%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3E64FF"/>
+      <stop offset="50%" stop-color="#7048E8"/>
+      <stop offset="100%" stop-color="#9B51E0"/>
+    </linearGradient>
+    <linearGradient id="logo-crossbar" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00C8FF"/>
+      <stop offset="50%" stop-color="#4F46E5"/>
+      <stop offset="100%" stop-color="#7E22CE"/>
+    </linearGradient>
+    <linearGradient id="logo-text-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#3E64FF"/>
+      <stop offset="100%" stop-color="#00C8FF"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Logo Mark (left side, centered vertically) -->
+  <g transform="translate(6, 4) scale(0.52)">
+    <path d="M 22 76 C 19 76 17 73.5 18 70.5 L 43 20 C 44.5 17 47.5 17 49 20 L 59 40 L 35 76 Z" 
+          fill="url(#logo-left-stem)"/>
+    <path d="M 45 19 C 47 16 50 16 52 19 L 81 70.5 C 82.5 73.5 80.5 76 77 76 L 62 76 C 60 76 58.5 74.5 57.5 72.5 L 51 58 L 38 32 L 45 19 Z" 
+          fill="url(#logo-right-stem)"/>
+    <path d="M 32 64 C 31 64 30.2 63.3 30.5 62.3 L 34.5 53.5 C 35 52.5 36 52 37 52 L 67 52 C 68.5 52 69.5 53.5 69 55 L 65.5 62.5 C 65 63.5 64 64 63 64 Z" 
+          fill="url(#logo-crossbar)"/>
+  </g>
+
+  <!-- ATOMA Typography -->
+  <text x="68" y="38" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="28" letter-spacing="2" fill="url(#logo-text-grad)">ATOMA</text>
+</svg>

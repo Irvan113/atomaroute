@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none" class="w-full h-full">
+  <defs>
+    <filter id="t5-shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#0f172a" flood-opacity="0.55"/>
+      <feDropShadow dx="0" dy="2" stdDeviation="5" flood-color="#d946ef" flood-opacity="0.45"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#eab308" flood-opacity="0.3"/>
+    </filter>
+
+    <filter id="t5-glow" x="-35%" y="-35%" width="170%" height="170%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+
+    <!-- Imperial Mythic Gold Gradients -->
+    <linearGradient id="t5-gold-crown" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="25%" stop-color="#fef08a"/>
+      <stop offset="60%" stop-color="#eab308"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+
+    <linearGradient id="t5-gold-shadow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#b45309"/>
+      <stop offset="50%" stop-color="#78350f"/>
+      <stop offset="100%" stop-color="#451a03"/>
+    </linearGradient>
+
+    <!-- Obsidian & Cosmic Velvet Cavity -->
+    <radialGradient id="t5-cavity-bg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#2e1065"/>
+      <stop offset="65%" stop-color="#0f0728"/>
+      <stop offset="100%" stop-color="#030014"/>
+    </radialGradient>
+
+    <!-- Supernova Violet / Magenta Diamond Gradients -->
+    <linearGradient id="t5-gem-top" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="35%" stop-color="#f5d0fe"/>
+      <stop offset="70%" stop-color="#e879f9"/>
+      <stop offset="100%" stop-color="#c084fc"/>
+    </linearGradient>
+
+    <linearGradient id="t5-gem-left" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e879f9"/>
+      <stop offset="50%" stop-color="#d946ef"/>
+      <stop offset="100%" stop-color="#86198f"/>
+    </linearGradient>
+
+    <linearGradient id="t5-gem-right" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f43f5e"/>
+      <stop offset="50%" stop-color="#c026d3"/>
+      <stop offset="100%" stop-color="#701a75"/>
+    </linearGradient>
+
+    <linearGradient id="t5-gem-table" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="45%" stop-color="#fae8ff"/>
+      <stop offset="85%" stop-color="#f0abfc"/>
+      <stop offset="100%" stop-color="#e879f9"/>
+    </linearGradient>
+  </defs>
+  <g>
+    <!-- 2. CENTER GEMSTONE: RADIANT COSMIC SUPERNOVA BRILLIANT DIAMOND -->
+    <g filter="url(#t5-glow)">
+      <!-- Multi-Faceted Brilliant Octahedron -->
+      <polygon points="100,64 128,105 100,98" fill="url(#t5-gem-top)"/>
+      <polygon points="100,64 100,98 72,105" fill="url(#t5-gem-top)" opacity="0.95"/>
+      
+      <polygon points="100,146 100,112 128,105" fill="url(#t5-gem-right)"/>
+      <polygon points="100,146 72,105 100,112" fill="url(#t5-gem-left)"/>
+
+      <!-- Radiant Diamond Table -->
+      <polygon points="100,74 120,105 100,136 80,105" fill="url(#t5-gem-table)"/>
+
+      <!-- Supernova Starburst Highlights -->
+      <polygon points="100,79 105,101 123,105 105,109 100,131 95,109 77,105 95,101" fill="#ffffff" opacity="0.7"/>
+      <polygon points="100,88 108,98 118,105 108,112 100,122 92,112 82,105 92,98" fill="#ffffff" opacity="0.4"/>
+
+      <!-- Brilliant Light Axis -->
+      <line x1="100" y1="74" x2="80" y2="105" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.95"/>
+      <line x1="100" y1="64" x2="100" y2="146" stroke="#ffffff" stroke-width="1.2" stroke-dasharray="8 6" opacity="0.6"/>
+
+      <!-- Primary Crown Sparkle Star -->
+      <path d="M100 58 Q100 63 105 63 Q100 63 100 68 Q100 63 95 63 Q100 63 100 58 Z" fill="#ffffff"/>
+      <!-- Side Sparkle Stars -->
+      <path d="M72 101 Q72 104 74 104 Q72 104 72 107 Q72 104 70 104 Q72 104 72 101 Z" fill="#ffffff"/>
+      <path d="M128 101 Q128 104 130 104 Q128 104 128 107 Q128 104 126 104 Q128 104 128 101 Z" fill="#ffffff"/>
+    </g>
+  
+  </g>
+</svg>

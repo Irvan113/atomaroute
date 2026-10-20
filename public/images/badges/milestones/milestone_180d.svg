@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" fill="none" class="w-full h-full">
+  <defs>
+    <filter id="m180-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#000000" flood-opacity="0.45"/>
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#f59e0b" flood-opacity="0.4"/>
+    </filter>
+    <linearGradient id="m180-gold-l" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fffbeb"/>
+      <stop offset="35%" stop-color="#fde047"/>
+      <stop offset="70%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="m180-gold-r" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="50%" stop-color="#b45309"/>
+      <stop offset="100%" stop-color="#78350f"/>
+    </linearGradient>
+    <linearGradient id="m180-banner" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="50%" stop-color="#ea580c"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+    <linearGradient id="m180-core" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#381503"/>
+      <stop offset="100%" stop-color="#140600"/>
+    </linearGradient>
+  </defs>
+
+  <g filter="url(#m180-shadow)">
+    <!-- Triple Chevron Golden Laurel Frame -->
+    <polygon points="80,10 134,38 134,100 80,128 26,100 26,38" fill="url(#m180-gold-l)"/>
+    <polygon points="80,10 134,38 134,100 80,128" fill="url(#m180-gold-r)"/>
+
+    <!-- Wing Finials -->
+    <polygon points="14,48 28,38 28,64 14,74" fill="url(#m180-gold-l)"/>
+    <polygon points="146,48 132,38 132,64 146,74" fill="url(#m180-gold-r)"/>
+    <polygon points="10,74 24,64 24,88 10,98" fill="url(#m180-gold-l)"/>
+    <polygon points="150,74 136,64 136,88 150,98" fill="url(#m180-gold-r)"/>
+
+    <!-- Inner Dark Shield -->
+    <polygon points="80,20 122,44 122,94 80,116 38,94 38,44" fill="url(#m180-core)"/>
+
+    <!-- Golden Target Ring -->
+    <circle cx="80" cy="68" r="31" fill="none" stroke="#fde047" stroke-width="3.5" stroke-dasharray="175 20" stroke-linecap="round"/>
+    <circle cx="80" cy="68" r="25" fill="#200a00"/>
+
+    <!-- Number 180 -->
+    <text x="80" y="76" font-family="system-ui, -apple-system, sans-serif" font-size="22" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="-1">180</text>
+    <text x="80" y="53" font-family="system-ui, -apple-system, sans-serif" font-size="8.5" font-weight="900" fill="#fde047" text-anchor="middle" letter-spacing="1">HARI</text>
+
+    <!-- Folded Banner -->
+    <path d="M12 122 L34 108 L34 128 L12 142 Z" fill="#b45309"/>
+    <path d="M148 122 L126 108 L126 128 L148 142 Z" fill="#78350f"/>
+
+    <polygon points="24,114 136,114 130,134 30,134" fill="url(#m180-banner)"/>
+    <text x="80" y="128" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="0.5">SETENGAH TAHUN &gt;80%</text>
+  </g>
+</svg>

@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" fill="none" class="w-full h-full">
+  <defs>
+    <filter id="t100-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="7" stdDeviation="6" flood-color="#78350f" flood-opacity="0.6"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#fbbf24" flood-opacity="0.45"/>
+    </filter>
+    <linearGradient id="t100-plate" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#241806"/>
+      <stop offset="100%" stop-color="#0f0a02"/>
+    </linearGradient>
+    <linearGradient id="t100-rim" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="40%" stop-color="#f59e0b"/>
+      <stop offset="80%" stop-color="#d97706"/>
+      <stop offset="100%" stop-color="#78350f"/>
+    </linearGradient>
+    <linearGradient id="t100-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fffbeb"/>
+      <stop offset="50%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Heraldic Tournament Shield Outer -->
+  <path d="M80 10 L140 32 L132 106 L80 150 L28 106 L20 32 Z" fill="url(#t100-plate)" stroke="url(#t100-rim)" stroke-width="5" stroke-linejoin="round" filter="url(#t100-glow)"/>
+  <path d="M80 22 L128 40 L122 98 L80 136 L38 98 L32 40 Z" stroke="#fbbf24" stroke-opacity="0.3" stroke-width="1.5" fill="none"/>
+
+  <!-- Centurion Winged Crest & Triple Fold Checkmark -->
+  <g transform="translate(0, -2)">
+    <!-- Laurel Wings Left & Right -->
+    <polygon points="36,54 52,66 40,82 28,70" fill="#d97706" opacity="0.8"/>
+    <polygon points="124,54 108,66 120,82 132,70" fill="#b45309" opacity="0.8"/>
+    
+    <!-- Imperial Crown above checkmark -->
+    <polygon points="80,26 88,40 100,34 92,50 80,44 68,50 60,34 72,40" fill="#fef08a"/>
+
+    <!-- Prominent Folded Centurion Checkmark -->
+    <path d="M42 86 L66 110 L76 100 L52 76 Z" fill="#fef08a"/>
+    <path d="M66 110 L122 54 L112 44 L56 98 Z" fill="url(#t100-gold)"/>
+    <!-- Fold Shadow -->
+    <polygon points="66,110 56,98 76,100" fill="#78350f"/>
+    <!-- Center Crystal Diamond -->
+    <polygon points="80,68 88,80 80,92 72,80" fill="#ffffff"/>
+  </g>
+
+  <!-- 100 Badge Pill -->
+  <rect x="52" y="122" width="56" height="20" rx="10" fill="url(#t100-rim)" stroke="#fffbeb" stroke-width="1.5"/>
+  <text x="80" y="136" text-anchor="middle" fill="#451a03" font-family="system-ui, sans-serif" font-weight="900" font-size="11" letter-spacing="1">100</text>
+</svg>

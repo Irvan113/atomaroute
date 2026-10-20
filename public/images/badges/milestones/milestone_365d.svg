@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" fill="none" class="w-full h-full">
+  <defs>
+    <filter id="m365-shadow" x="-25%" y="-25%" width="150%" height="150%">
+      <feDropShadow dx="0" dy="9" stdDeviation="7" flood-color="#000000" flood-opacity="0.55"/>
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#d946ef" flood-opacity="0.5"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#38bdf8" flood-opacity="0.4"/>
+    </filter>
+    <linearGradient id="m365-crown-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="30%" stop-color="#fef08a"/>
+      <stop offset="70%" stop-color="#eab308"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+    <linearGradient id="m365-wreath-l" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f5ff"/>
+      <stop offset="50%" stop-color="#3e64ff"/>
+      <stop offset="100%" stop-color="#9333ea"/>
+    </linearGradient>
+    <linearGradient id="m365-wreath-r" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#9333ea"/>
+      <stop offset="60%" stop-color="#6b21a8"/>
+      <stop offset="100%" stop-color="#2e1065"/>
+    </linearGradient>
+    <linearGradient id="m365-banner" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00f5ff"/>
+      <stop offset="30%" stop-color="#3e64ff"/>
+      <stop offset="70%" stop-color="#d946ef"/>
+      <stop offset="100%" stop-color="#fbbf24"/>
+    </linearGradient>
+  </defs>
+
+  <g filter="url(#m365-shadow)">
+    <!-- Top Apex Triple Crown Spire -->
+    <polygon points="80,2 90,16 70,16" fill="url(#m365-crown-gold)"/>
+    <polygon points="56,8 66,20 50,20" fill="url(#m365-crown-gold)"/>
+    <polygon points="104,8 110,20 94,20" fill="url(#m365-crown-gold)"/>
+
+    <!-- Grand Majestic Wreath Frame -->
+    <polygon points="80,12 136,38 136,102 80,130 24,102 24,38" fill="url(#m365-wreath-l)"/>
+    <polygon points="80,12 136,38 136,102 80,130" fill="url(#m365-wreath-r)"/>
+
+    <!-- Outer Multi-Layer Wings -->
+    <polygon points="12,44 26,34 26,60 12,70" fill="url(#m365-crown-gold)"/>
+    <polygon points="148,44 134,34 134,60 148,70" fill="url(#m365-crown-gold)"/>
+    <polygon points="8,70 22,60 22,86 8,96" fill="url(#m365-wreath-l)"/>
+    <polygon points="152,70 138,60 138,86 152,96" fill="url(#m365-wreath-r)"/>
+
+    <!-- Deep Cosmic Dark Inset -->
+    <polygon points="80,22 124,46 124,96 80,118 36,96 36,46" fill="#080214"/>
+
+    <!-- Radiant Diamond Target Ring -->
+    <circle cx="80" cy="70" r="31" fill="none" stroke="#00f5ff" stroke-width="3" stroke-dasharray="190 5" stroke-linecap="round"/>
+    <circle cx="80" cy="70" r="25" fill="#150428"/>
+
+    <!-- Number 365 -->
+    <text x="80" y="78" font-family="system-ui, -apple-system, sans-serif" font-size="22" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="-1">365</text>
+    <text x="80" y="54" font-family="system-ui, -apple-system, sans-serif" font-size="8.5" font-weight="900" fill="#fde047" text-anchor="middle" letter-spacing="1">1 TAHUN</text>
+
+    <!-- Folded Imperial Banner -->
+    <path d="M10 124 L32 110 L32 130 L10 144 Z" fill="#6b21a8"/>
+    <path d="M150 124 L128 110 L128 130 L150 144 Z" fill="#b45309"/>
+
+    <polygon points="22,116 138,116 132,136 28,136" fill="url(#m365-banner)"/>
+    <text x="80" y="130" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="0.5">LEGENDARIS 365D &gt;80%</text>
+  </g>
+</svg>

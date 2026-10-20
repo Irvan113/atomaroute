@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <defs>
+    <linearGradient id="flag-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#c084fc"/>
+      <stop offset="40%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#6d28d9"/>
+    </linearGradient>
+    <linearGradient id="base-steps" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#4338ca"/>
+    </linearGradient>
+  </defs>
+  <!-- Summit / Stepped Pedestal -->
+  <path d="M6 42 L42 42 L38 36 L10 36 Z" fill="#4338ca" opacity="0.35"/>
+  <path d="M12 36 L36 36 L32 30 L16 30 Z" fill="url(#base-steps)"/>
+  
+  <!-- Flagpole -->
+  <line x1="18" y1="8" x2="18" y2="34" stroke="#e2e8f0" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Gold Finial Ball -->
+  <circle cx="18" cy="8" r="3" fill="#f59e0b"/>
+
+  <!-- Milestone Pennant / Triangular Flag -->
+  <path d="M18 10 L38 18 L18 26 Z" fill="url(#flag-grad)"/>
+  <!-- Star on Flag -->
+  <polygon points="25,18 26.2,15.6 28.5,15.6 26.7,17.2 27.4,19.5 25,18.2 22.6,19.5 23.3,17.2 21.5,15.6 23.8,15.6" fill="#ffffff"/>
+</svg>

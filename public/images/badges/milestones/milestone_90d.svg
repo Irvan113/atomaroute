@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" fill="none" class="w-full h-full">
+  <defs>
+    <filter id="m90-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="7" stdDeviation="5" flood-color="#000000" flood-opacity="0.4"/>
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#3e64ff" flood-opacity="0.35"/>
+    </filter>
+    <linearGradient id="m90-wreath-l" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#bae6fd"/>
+      <stop offset="40%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+    <linearGradient id="m90-wreath-r" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3e64ff"/>
+      <stop offset="60%" stop-color="#1d4ed8"/>
+      <stop offset="100%" stop-color="#1e1b4b"/>
+    </linearGradient>
+    <linearGradient id="m90-banner" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="50%" stop-color="#3e64ff"/>
+      <stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+    <linearGradient id="m90-core" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0c2338"/>
+      <stop offset="100%" stop-color="#030c14"/>
+    </linearGradient>
+  </defs>
+
+  <g filter="url(#m90-shadow)">
+    <!-- Outer Dual-Tiered Geometric Chevron Wreath -->
+    <polygon points="80,12 132,40 132,98 80,126 28,98 28,40" fill="url(#m90-wreath-l)"/>
+    <polygon points="80,12 132,40 132,98 80,126" fill="url(#m90-wreath-r)"/>
+
+    <!-- Side Chevron Wings -->
+    <polygon points="18,52 30,42 30,68 18,78" fill="url(#m90-wreath-l)"/>
+    <polygon points="142,52 130,42 130,68 142,78" fill="url(#m90-wreath-r)"/>
+
+    <!-- Inner Dark Plate -->
+    <polygon points="80,22 120,44 120,92 80,114 40,92 40,44" fill="url(#m90-core)"/>
+
+    <!-- Target Progress Dial -->
+    <circle cx="80" cy="68" r="30" fill="none" stroke="#38bdf8" stroke-width="3" stroke-dasharray="160 30" stroke-linecap="round"/>
+    <circle cx="80" cy="68" r="24" fill="#071b2d"/>
+
+    <!-- Number 90 -->
+    <text x="80" y="77" font-family="system-ui, -apple-system, sans-serif" font-size="26" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="-1">90</text>
+    <text x="80" y="52" font-family="system-ui, -apple-system, sans-serif" font-size="9" font-weight="900" fill="#7dd3fc" text-anchor="middle" letter-spacing="1">HARI</text>
+
+    <!-- Folded Banner -->
+    <path d="M14 122 L36 108 L36 128 L14 142 Z" fill="#0284c7"/>
+    <path d="M146 122 L124 108 L124 128 L146 142 Z" fill="#1e3a8a"/>
+
+    <polygon points="26,114 134,114 128,134 32,134" fill="url(#m90-banner)"/>
+    <text x="80" y="128" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="0.5">1 KUARTAL • &gt;80%</text>
+  </g>
+</svg>

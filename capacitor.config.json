@@ -1,0 +1,16 @@
+{
+  "appId": "com.atoma.app",
+  "appName": "ATOMA",
+  "webDir": "public",
+  "server": {
+    "url": "https://atomaroute.com",
+    "cleartext": false
+  },
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_icon_config_sample",
+      "iconColor": "#6366F1",
+      "sound": "chime.wav"
+    }
+  }
+}

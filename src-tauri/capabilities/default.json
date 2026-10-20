@@ -1,0 +1,18 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Default capability for ATOMA main window and remote access",
+  "windows": [
+    "main"
+  ],
+  "remote": {
+    "urls": [
+      "https://atomaroute.com/*"
+    ]
+  },
+  "permissions": [
+    "core:default",
+    "opener:default",
+    "notification:default"
+  ]
+}

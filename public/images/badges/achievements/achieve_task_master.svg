@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" fill="none" class="w-full h-full">
+  <defs>
+    <filter id="ac-tm-sh" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#000000" flood-opacity="0.35"/>
+      <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#00f5ff" flood-opacity="0.3"/>
+    </filter>
+    <linearGradient id="ac-tm-c1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f5ff"/>
+      <stop offset="100%" stop-color="#3e64ff"/>
+    </linearGradient>
+    <linearGradient id="ac-tm-c2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3e64ff"/>
+      <stop offset="100%" stop-color="#1e1b4b"/>
+    </linearGradient>
+  </defs>
+  <g filter="url(#ac-tm-sh)">
+    <!-- Outer Hexagonal Frame -->
+    <polygon points="80,16 130,44 130,100 80,128 30,100 30,44" fill="#0c1833" stroke="#3e64ff" stroke-width="2.5"/>
+    <!-- Folded Lightning Checkmark -->
+    <path d="M72 32 L102 32 L66 82 L96 82 L52 128 L64 88 L44 88 Z" fill="url(#ac-tm-c1)"/>
+    <polygon points="66,82 96,82 78,82" fill="url(#ac-tm-c2)"/>
+    <polygon points="72,32 102,32 86,54 58,54" fill="#ffffff" opacity="0.3"/>
+  </g>
+</svg>

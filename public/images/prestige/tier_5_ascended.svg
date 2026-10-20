@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <defs>
+    <filter id="ascended-glow" x="-25%" y="-25%" width="150%" height="150%">
+      <feDropShadow dx="0" dy="5" stdDeviation="8" flood-color="#f59e0b" flood-opacity="0.55"/>
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#d97706" flood-opacity="0.45"/>
+    </filter>
+    <linearGradient id="ascended-gold-light" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="30%" stop-color="#fef08a"/>
+      <stop offset="70%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="ascended-gold-dark" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="50%" stop-color="#d97706"/>
+      <stop offset="100%" stop-color="#78350f"/>
+    </linearGradient>
+    <linearGradient id="ascended-velvet" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#7c3aed"/>
+      <stop offset="100%" stop-color="#4c1d95"/>
+    </linearGradient>
+  </defs>
+
+  <g filter="url(#ascended-glow)">
+    <!-- Celestial Halo Aura Rings Behind Crown -->
+    <ellipse cx="60" cy="46" rx="46" ry="14" stroke="#fef08a" stroke-width="1.8" stroke-dasharray="4 3" opacity="0.65"/>
+    <circle cx="60" cy="22" r="3" fill="#ffffff" opacity="0.9"/>
+
+    <!-- Velvet Arch Dome Behind Crown -->
+    <path d="M30 76 C 30 52, 42 42, 60 42 C 78 42, 90 52, 90 76 Z" fill="url(#ascended-velvet)" opacity="0.4"/>
+
+    <!-- Imperial 5-Point Crown Body -->
+    <path d="M22 78 
+             L 24 44 
+             L 40 60 
+             L 60 30 
+             L 80 60 
+             L 96 44 
+             L 98 78 
+             Z" 
+          fill="url(#ascended-gold-light)"/>
+
+    <!-- Crown Shaded Insets & Facets -->
+    <!-- Center Peak Facet -->
+    <polygon points="60,30 50,66 70,66" fill="#fef08a" opacity="0.8"/>
+    <polygon points="60,30 40,60 50,66" fill="#d97706" opacity="0.35"/>
+    <polygon points="60,30 80,60 70,66" fill="#b45309" opacity="0.35"/>
+    
+    <!-- Left Wing Facet -->
+    <polygon points="24,44 40,60 36,78 22,78" fill="#d97706" opacity="0.25"/>
+    <!-- Right Wing Facet -->
+    <polygon points="96,44 80,60 84,78 98,78" fill="#78350f" opacity="0.35"/>
+
+    <!-- Crown Base Circlet Band -->
+    <rect x="20" y="76" width="80" height="14" rx="3.5" fill="url(#ascended-gold-dark)"/>
+    <rect x="22" y="78" width="76" height="10" rx="2" fill="url(#ascended-gold-light)"/>
+
+    <!-- Gem Jewels on Crown Peaks -->
+    <circle cx="24" cy="44" r="3.5" fill="#38bdf8"/>
+    <circle cx="24" cy="44" r="1.5" fill="#ffffff"/>
+
+    <circle cx="60" cy="30" r="4.5" fill="#f43f5e"/>
+    <circle cx="60" cy="30" r="2" fill="#ffffff"/>
+
+    <circle cx="96" cy="44" r="3.5" fill="#38bdf8"/>
+    <circle cx="96" cy="44" r="1.5" fill="#ffffff"/>
+
+    <!-- Circlet Inset Jewels -->
+    <circle cx="34" cy="83" r="2.5" fill="#f43f5e"/>
+    <circle cx="47" cy="83" r="2.5" fill="#38bdf8"/>
+    <circle cx="60" cy="83" r="3.2" fill="#8b5cf6"/>
+    <circle cx="60" cy="83" r="1.2" fill="#ffffff"/>
+    <circle cx="73" cy="83" r="2.5" fill="#38bdf8"/>
+    <circle cx="86" cy="83" r="2.5" fill="#f43f5e"/>
+
+    <!-- Glint Cross Star on Center Crest -->
+    <g transform="translate(60, 20) scale(0.85)">
+      <polygon points="0,-12 3,-3 12,0 3,3 0,12 -3,3 -12,0 -3,-3" fill="#ffffff"/>
+      <circle cx="0" cy="0" r="2" fill="#fef08a"/>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
+  <!-- Minimalist Soft Container -->
+  <rect x="14" y="14" width="100" height="100" rx="28" fill="#eef2ff" stroke="#c7d2fe" stroke-width="2.5"/>
+
+  <!-- Minimalist Shield / Crest -->
+  <path d="M64 26 C82 26 94 34 94 48 C94 74 76 96 64 102 C52 96 34 74 34 48 C34 34 46 26 64 26 Z" 
+        fill="#ffffff" 
+        stroke="#4f46e5" 
+        stroke-width="3.5" 
+        stroke-linejoin="round"/>
+
+  <!-- Inner Soft Inset Crest -->
+  <path d="M64 34 C76 34 84 40 84 50 C84 70 70 86 64 90 C58 86 44 70 44 50 C44 40 52 34 64 34 Z" 
+        fill="#e0e7ff" 
+        opacity="0.6"/>
+
+  <!-- Minimalist Star Emblem -->
+  <polygon points="64,44 68,54 78,55 70,62 73,72 64,66 55,72 58,62 50,55 60,54" 
+           fill="#6366f1"/>
+
+  <!-- Star Core Highlight -->
+  <circle cx="64" cy="59" r="2.5" fill="#ffffff"/>
+</svg>

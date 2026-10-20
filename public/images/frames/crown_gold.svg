@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 70" fill="none">
+  <defs>
+    <!-- Gold Gradients -->
+    <linearGradient id="goldGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFBEB"/>
+      <stop offset="25%" stop-color="#FDE047"/>
+      <stop offset="50%" stop-color="#EAB308"/>
+      <stop offset="75%" stop-color="#CA8A04"/>
+      <stop offset="100%" stop-color="#854D0E"/>
+    </linearGradient>
+    <linearGradient id="goldFacetLight" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FEF08A"/>
+      <stop offset="100%" stop-color="#FACC15"/>
+    </linearGradient>
+    <linearGradient id="goldFacetMid" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FACC15"/>
+      <stop offset="100%" stop-color="#EAB308"/>
+    </linearGradient>
+    <linearGradient id="goldFacetDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#CA8A04"/>
+      <stop offset="100%" stop-color="#713F12"/>
+    </linearGradient>
+    <linearGradient id="rubyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCA5A5"/>
+      <stop offset="40%" stop-color="#EF4444"/>
+      <stop offset="100%" stop-color="#7F1D1D"/>
+    </linearGradient>
+    <linearGradient id="cyanGemGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#67E8F9"/>
+      <stop offset="50%" stop-color="#06B6D4"/>
+      <stop offset="100%" stop-color="#164E63"/>
+    </linearGradient>
+    <filter id="crownShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#78350F" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <!-- Base Crown Geometry with Facets -->
+  <g filter="url(#crownShadow)">
+    <!-- Back Arch / Base Band -->
+    <path d="M15 54 Q50 62 85 54 L88 48 Q50 56 12 48 Z" fill="url(#goldFacetDark)"/>
+    <path d="M16 52 Q50 60 84 52 L86 47 Q50 55 14 47 Z" fill="url(#goldFacetMid)"/>
+
+    <!-- Left Outer Spire -->
+    <polygon points="12,48 20,40 18,22 28,38 32,46" fill="url(#goldFacetDark)"/>
+    <polygon points="18,22 25,32 20,40" fill="url(#goldFacetLight)"/>
+    
+    <!-- Right Outer Spire -->
+    <polygon points="88,48 80,40 82,22 72,38 68,46" fill="url(#goldFacetDark)"/>
+    <polygon points="82,22 75,32 80,40" fill="url(#goldFacetLight)"/>
+
+    <!-- Left Mid Spire -->
+    <polygon points="28,38 36,14 44,38 36,44" fill="url(#goldFacetLight)"/>
+    <polygon points="36,14 44,38 40,46 32,46" fill="url(#goldFacetMid)"/>
+
+    <!-- Right Mid Spire -->
+    <polygon points="72,38 64,14 56,38 64,44" fill="url(#goldFacetMid)"/>
+    <polygon points="64,14 56,38 60,46 68,46" fill="url(#goldFacetDark)"/>
+
+    <!-- Center Grand Spire -->
+    <!-- Left face -->
+    <polygon points="50,4 38,36 50,48" fill="url(#goldFacetLight)"/>
+    <!-- Right face -->
+    <polygon points="50,4 62,36 50,48" fill="url(#goldFacetMid)"/>
+    <!-- Center ridge facet -->
+    <polygon points="50,4 47,38 50,48 53,38" fill="#FEF9C3" opacity="0.6"/>
+
+    <!-- Crown Base Rim Front Plate -->
+    <path d="M18 50 Q50 58 82 50 L84 56 Q50 64 16 56 Z" fill="url(#goldFacetLight)"/>
+    <path d="M20 52 Q50 60 80 52 L82 55 Q50 63 18 55 Z" fill="url(#goldFacetMid)"/>
+
+    <!-- Jewels on Spires -->
+    <!-- Center Spire Imperial Star Diamond -->
+    <polygon points="50,2 52,6 56,8 52,10 50,14 48,10 44,8 48,6" fill="#FFFBEB"/>
+    <polygon points="50,5 51,7 53,8 51,9 50,11 49,9 47,8 49,7" fill="url(#rubyGrad)"/>
+
+    <!-- Left Spire Diamond -->
+    <polygon points="36,13 38,15 36,18 34,15" fill="url(#cyanGemGrad)"/>
+    <!-- Right Spire Diamond -->
+    <polygon points="64,13 66,15 64,18 62,15" fill="url(#cyanGemGrad)"/>
+    
+    <!-- Outer Tip Pearls -->
+    <circle cx="18" cy="22" r="2.5" fill="url(#goldFacetLight)"/>
+    <circle cx="18" cy="22" r="1.2" fill="#FFF"/>
+    <circle cx="82" cy="22" r="2.5" fill="url(#goldFacetLight)"/>
+    <circle cx="82" cy="22" r="1.2" fill="#FFF"/>
+
+    <!-- Central Crest Royal Medallion -->
+    <polygon points="50,28 57,36 50,44 43,36" fill="url(#goldFacetDark)"/>
+    <polygon points="50,30 55,36 50,42 45,36" fill="url(#rubyGrad)"/>
+    <!-- Medallion inner sparkle -->
+    <polygon points="50,33 52,36 50,39 48,36" fill="#FEE2E2" opacity="0.8"/>
+
+    <!-- Band Jewels -->
+    <!-- Center Ruby -->
+    <circle cx="50" cy="56" r="2.5" fill="url(#rubyGrad)"/>
+    <circle cx="49.2" cy="55.2" r="0.8" fill="#FFF"/>
+    <!-- Left Emerald / Cyan -->
+    <circle cx="35" cy="54.5" r="2" fill="url(#cyanGemGrad)"/>
+    <circle cx="34.5" cy="54" r="0.7" fill="#FFF"/>
+    <!-- Right Emerald / Cyan -->
+    <circle cx="65" cy="54.5" r="2" fill="url(#cyanGemGrad)"/>
+    <circle cx="64.5" cy="54" r="0.7" fill="#FFF"/>
+    <!-- Left Outer Ruby -->
+    <circle cx="24" cy="52.5" r="1.8" fill="url(#rubyGrad)"/>
+    <!-- Right Outer Ruby -->
+    <circle cx="76" cy="52.5" r="1.8" fill="url(#rubyGrad)"/>
+
+    <!-- Subtle Glints / Sparkles -->
+    <path d="M48 6 Q50 3 52 6 Q55 8 52 10 Q50 13 48 10 Q45 8 48 6 Z" fill="#FFF" opacity="0.7"/>
+    <circle cx="72" cy="28" r="1" fill="#FFF" opacity="0.8"/>
+    <circle cx="28" cy="28" r="1" fill="#FFF" opacity="0.8"/>
+  </g>
+</svg>

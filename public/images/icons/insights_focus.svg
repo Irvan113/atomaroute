@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
+  <!-- Minimalist Soft Container -->
+  <rect x="14" y="14" width="100" height="100" rx="28" fill="#fff1f2" stroke="#fecdd3" stroke-width="2.5"/>
+
+  <!-- Hourglass Outer Body -->
+  <path d="M44 32 H84 C84 50 72 58 64 64 C72 70 84 78 84 96 H44 C44 78 56 70 64 64 C56 58 44 50 44 32 Z" 
+        fill="#ffffff" 
+        stroke="#f43f5e" 
+        stroke-width="3.5" 
+        stroke-linejoin="round"/>
+
+  <!-- Top & Bottom Plates -->
+  <rect x="38" y="28" width="52" height="6" rx="3" fill="#e11d48"/>
+  <rect x="38" y="94" width="52" height="6" rx="3" fill="#e11d48"/>
+
+  <!-- Top Sand -->
+  <path d="M50 40 H78 C76 48 70 54 64 56 C58 54 52 48 50 40 Z" fill="#fbbf24"/>
+
+  <!-- Bottom Sand Pile -->
+  <path d="M50 92 C50 82 78 82 78 92 Z" fill="#fbbf24"/>
+
+  <!-- Dropping Sand Grains -->
+  <circle cx="64" cy="68" r="2" fill="#f59e0b"/>
+  <circle cx="64" cy="74" r="1.5" fill="#f59e0b"/>
+</svg>

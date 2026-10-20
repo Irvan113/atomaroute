@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
+  <defs>
+    <!-- Soft Mint Shield Gradient -->
+    <linearGradient id="ss-chill-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ecfdf5"/>
+      <stop offset="100%" stop-color="#d1fae5"/>
+    </linearGradient>
+
+    <!-- Warm Chill Flame Gradient -->
+    <linearGradient id="ss-chill-flame" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="50%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#fde68a"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Cozy Outer Aura / Rounded Badge -->
+  <rect x="14" y="14" width="100" height="100" rx="36" fill="url(#ss-chill-bg)" stroke="#a7f3d0" stroke-width="2.5"/>
+
+  <!-- Friendly Rounded Soft Shield Contour -->
+  <path d="M64 26 C82 26 94 34 94 48 C94 74 76 96 64 102 C52 96 34 74 34 48 C34 34 46 26 64 26 Z" 
+        fill="#ffffff" 
+        stroke="#10b981" 
+        stroke-width="3" 
+        stroke-linejoin="round"/>
+
+  <!-- Cute Relaxed Flame Mascot -->
+  <!-- Outer Warm Flame -->
+  <path d="M64 42 C67 50 76 56 76 68 C76 78 68 86 64 88 C60 86 52 78 52 68 C52 56 61 50 64 42 Z" 
+        fill="url(#ss-chill-flame)"/>
+
+  <!-- Inner Soft Golden Core -->
+  <path d="M64 54 C66 60 70 64 70 71 C70 77 66 81 64 82 C62 81 58 77 58 71 C58 64 62 60 64 54 Z" 
+        fill="#fef3c7"/>
+
+  <!-- Relaxed Sleeping/Smiling Chill Eyes (^ ‿ ^) -->
+  <!-- Left Eye -->
+  <path d="M59 67 Q61.5 64 63 67" stroke="#b45309" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <!-- Right Eye -->
+  <path d="M65 67 Q66.5 64 69 67" stroke="#b45309" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <!-- Cute Peaceful Smile -->
+  <path d="M62 72 Q64 74.5 66 72" stroke="#b45309" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+
+  <!-- Soft Pink Blush Cheeks -->
+  <circle cx="58" cy="71" r="2.2" fill="#fca5a5" opacity="0.8"/>
+  <circle cx="70" cy="71" r="2.2" fill="#fca5a5" opacity="0.8"/>
+
+  <!-- Peaceful Floating Sparkles (Chill Vibe) -->
+  <!-- Gentle Star Top-Right -->
+  <path d="M82 32 L83.5 35.5 L87 37 L83.5 38.5 L82 42 L80.5 38.5 L77 37 L80.5 35.5 Z" fill="#10b981"/>
+  <!-- Gentle Star Bottom-Left -->
+  <circle cx="44" cy="84" r="2.5" fill="#34d399"/>
+  <!-- Gentle Sparkle Dot -->
+  <circle cx="84" cy="62" r="2" fill="#f59e0b"/>
+</svg>

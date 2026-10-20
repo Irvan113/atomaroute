@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <defs>
+    <linearGradient id="sparkle-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="30%" stop-color="#fef08a"/>
+      <stop offset="70%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="sparkle-cyan" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e0f2fe"/>
+      <stop offset="50%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+  </defs>
+  <!-- Main Center Sparkle -->
+  <g transform="translate(22, 20)">
+    <polygon points="0,-16 3.5,-4 16,0 3.5,4 0,16 -3.5,4 -16,0 -3.5,-4" fill="url(#sparkle-gold)"/>
+    <circle cx="0" cy="0" r="2.5" fill="#ffffff"/>
+  </g>
+  <!-- Secondary Top-Right Sparkle -->
+  <g transform="translate(36, 12) scale(0.65)">
+    <polygon points="0,-14 3,-3 14,0 3,3 0,14 -3,3 -14,0 -3,-3" fill="url(#sparkle-cyan)"/>
+    <circle cx="0" cy="0" r="2" fill="#ffffff"/>
+  </g>
+  <!-- Little Bottom-Left Sparkle -->
+  <g transform="translate(10, 34) scale(0.5)">
+    <polygon points="0,-12 2.5,-2.5 12,0 2.5,2.5 0,12 -2.5,2.5 -12,0 -2.5,-2.5" fill="url(#sparkle-cyan)"/>
+  </g>
+  <!-- Floating Micro Star Dot -->
+  <circle cx="34" cy="36" r="2" fill="#fbbf24"/>
+  <circle cx="12" cy="12" r="1.5" fill="#fef08a"/>
+</svg>

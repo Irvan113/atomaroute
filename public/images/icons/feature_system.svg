@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <defs>
+    <linearGradient id="sys-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="50%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+    <linearGradient id="sys-ring" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+  </defs>
+  <!-- Outer Tech Ring -->
+  <circle cx="24" cy="24" r="20" stroke="url(#sys-ring)" stroke-width="2.5" stroke-dasharray="8 4" opacity="0.85"/>
+  <!-- Middle Ring -->
+  <circle cx="24" cy="24" r="13" stroke="url(#sys-grad)" stroke-width="2" opacity="0.9"/>
+  <!-- Crosshairs -->
+  <line x1="24" y1="4" x2="24" y2="10" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="24" y1="38" x2="24" y2="44" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="4" y1="24" x2="10" y2="24" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="38" y1="24" x2="44" y2="24" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Center Bulls-eye Core -->
+  <circle cx="24" cy="24" r="6" fill="url(#sys-grad)"/>
+  <circle cx="24" cy="24" r="2.5" fill="#ffffff"/>
+</svg>

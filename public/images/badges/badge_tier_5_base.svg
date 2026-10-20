@@ -1,0 +1,145 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none" class="w-full h-full">
+  <defs>
+    <filter id="t5-shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#0f172a" flood-opacity="0.55"/>
+      <feDropShadow dx="0" dy="2" stdDeviation="5" flood-color="#d946ef" flood-opacity="0.45"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#eab308" flood-opacity="0.3"/>
+    </filter>
+
+    <filter id="t5-glow" x="-35%" y="-35%" width="170%" height="170%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+
+    <!-- Imperial Mythic Gold Gradients -->
+    <linearGradient id="t5-gold-crown" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="25%" stop-color="#fef08a"/>
+      <stop offset="60%" stop-color="#eab308"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+
+    <linearGradient id="t5-gold-shadow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#b45309"/>
+      <stop offset="50%" stop-color="#78350f"/>
+      <stop offset="100%" stop-color="#451a03"/>
+    </linearGradient>
+
+    <!-- Obsidian & Cosmic Velvet Cavity -->
+    <radialGradient id="t5-cavity-bg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#2e1065"/>
+      <stop offset="65%" stop-color="#0f0728"/>
+      <stop offset="100%" stop-color="#030014"/>
+    </radialGradient>
+
+    <!-- Supernova Violet / Magenta Diamond Gradients -->
+    <linearGradient id="t5-gem-top" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="35%" stop-color="#f5d0fe"/>
+      <stop offset="70%" stop-color="#e879f9"/>
+      <stop offset="100%" stop-color="#c084fc"/>
+    </linearGradient>
+
+    <linearGradient id="t5-gem-left" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e879f9"/>
+      <stop offset="50%" stop-color="#d946ef"/>
+      <stop offset="100%" stop-color="#86198f"/>
+    </linearGradient>
+
+    <linearGradient id="t5-gem-right" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f43f5e"/>
+      <stop offset="50%" stop-color="#c026d3"/>
+      <stop offset="100%" stop-color="#701a75"/>
+    </linearGradient>
+
+    <linearGradient id="t5-gem-table" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="45%" stop-color="#fae8ff"/>
+      <stop offset="85%" stop-color="#f0abfc"/>
+      <stop offset="100%" stop-color="#e879f9"/>
+    </linearGradient>
+  </defs>
+
+  <g filter="url(#t5-shadow)">
+    <!-- 0. CELESTIAL HALO RING BEHIND CREST -->
+    <circle cx="100" cy="105" r="58" fill="none" stroke="#fbbf24" stroke-width="1.8" stroke-dasharray="10 5" opacity="0.6"/>
+    <circle cx="100" cy="105" r="54" fill="none" stroke="#d946ef" stroke-width="1" opacity="0.4"/>
+
+    <!-- 1. BASE FRAME: GRAND IMPERIAL 4-TIERED WINGED CROWN -->
+    <!-- Top Crown Triple Spire -->
+    <polygon points="100,16 109,34 91,34" fill="url(#t5-gold-crown)"/>
+    <polygon points="80,22 88,36 75,36" fill="url(#t5-gold-shadow)"/>
+    <polygon points="120,22 125,36 112,36" fill="url(#t5-gold-shadow)"/>
+
+    <!-- Left Wing Tier 1 (Ascended Spire) -->
+    <path d="M52 64 L4 70 C1 71 0 74 1 77 L10 90 C11 92 14 93 17 92 L52 83 Z" fill="url(#t5-gold-crown)"/>
+    <path d="M50 66 L6 72 L14 88 L50 81 Z" fill="#ffffff" opacity="0.75"/>
+    
+    <!-- Left Wing Tier 2 (Imperial Mid) -->
+    <path d="M50 85 L8 98 C6 99 5 102 6 105 L15 119 C16 121 19 122 22 121 L50 110 Z" fill="url(#t5-gold-shadow)"/>
+
+    <!-- Left Wing Tier 3 (Swept Feather) -->
+    <path d="M48 112 L18 126 C16 127 15 130 16 133 L24 146 C25 149 28 150 31 149 L48 137 Z" fill="url(#t5-gold-crown)"/>
+
+    <!-- Left Wing Tier 4 (Base Talon) -->
+    <path d="M46 139 L28 152 C26 153 26 156 27 158 L33 167 C34 169 37 170 39 169 L48 160 Z" fill="url(#t5-gold-shadow)"/>
+
+    <!-- Right Wing Tier 1 (Ascended Spire) -->
+    <path d="M148 64 L196 70 C199 71 200 74 199 77 L190 90 C189 92 186 93 183 92 L148 83 Z" fill="url(#t5-gold-crown)"/>
+    <path d="M150 66 L194 72 L186 88 L150 81 Z" fill="#ffffff" opacity="0.75"/>
+
+    <!-- Right Wing Tier 2 (Imperial Mid) -->
+    <path d="M150 85 L192 98 C194 99 195 102 194 105 L185 119 C184 121 181 122 178 121 L150 110 Z" fill="url(#t5-gold-shadow)"/>
+
+    <!-- Right Wing Tier 3 (Swept Feather) -->
+    <path d="M152 112 L182 126 C184 127 185 130 184 133 L176 146 C175 149 172 150 169 149 L152 137 Z" fill="url(#t5-gold-crown)"/>
+
+    <!-- Right Wing Tier 4 (Base Talon) -->
+    <path d="M154 139 L172 152 C174 153 174 156 173 158 L167 167 C166 169 163 170 161 169 L152 160 Z" fill="url(#t5-gold-shadow)"/>
+
+    <!-- Main Imperial Crown Medallion -->
+    <polygon points="100,30 170,68 170,142 100,180 30,142 30,68" fill="url(#t5-gold-shadow)"/>
+    <polygon points="100,34 165,71 165,139 100,175 35,139 35,71" fill="url(#t5-gold-crown)"/>
+
+    <!-- 3D Bevel Facets -->
+    <polygon points="100,34 165,71 149,81 100,52 51,81 35,71" fill="#ffffff" opacity="0.9"/>
+    <polygon points="100,175 165,139 149,129 100,158 51,129 35,139" fill="#451a03" opacity="0.85"/>
+    <polygon points="35,71 51,81 51,129 35,139" fill="#b45309" opacity="0.7"/>
+    <polygon points="165,71 149,81 149,129 165,139" fill="#78350f" opacity="0.8"/>
+
+    <!-- Deep Cosmic Velvet Cavity -->
+    <polygon points="100,52 149,81 149,129 100,158 51,129 51,81" fill="url(#t5-cavity-bg)"/>
+    <polygon points="100,52 149,81 149,129 100,158 51,129 51,81" stroke="#d946ef" stroke-width="2" stroke-opacity="0.9"/>
+
+    <!-- ATOMA Atomic Orbit Accents -->
+    <ellipse cx="100" cy="105" rx="39" ry="18" fill="none" stroke="#fbbf24" stroke-width="1.2" stroke-dasharray="6 3" opacity="0.8" transform="rotate(-15 100 105)"/>
+    <ellipse cx="100" cy="105" rx="39" ry="18" fill="none" stroke="#e879f9" stroke-width="1" stroke-dasharray="4 4" opacity="0.6" transform="rotate(25 100 105)"/>
+
+    <!-- 2. CENTER GEMSTONE: RADIANT COSMIC SUPERNOVA BRILLIANT DIAMOND -->
+    <g filter="url(#t5-glow)">
+      <!-- Multi-Faceted Brilliant Octahedron -->
+      <polygon points="100,64 128,105 100,98" fill="url(#t5-gem-top)"/>
+      <polygon points="100,64 100,98 72,105" fill="url(#t5-gem-top)" opacity="0.95"/>
+      
+      <polygon points="100,146 100,112 128,105" fill="url(#t5-gem-right)"/>
+      <polygon points="100,146 72,105 100,112" fill="url(#t5-gem-left)"/>
+
+      <!-- Radiant Diamond Table -->
+      <polygon points="100,74 120,105 100,136 80,105" fill="url(#t5-gem-table)"/>
+
+      <!-- Supernova Starburst Highlights -->
+      <polygon points="100,79 105,101 123,105 105,109 100,131 95,109 77,105 95,101" fill="#ffffff" opacity="0.7"/>
+      <polygon points="100,88 108,98 118,105 108,112 100,122 92,112 82,105 92,98" fill="#ffffff" opacity="0.4"/>
+
+      <!-- Brilliant Light Axis -->
+      <line x1="100" y1="74" x2="80" y2="105" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.95"/>
+      <line x1="100" y1="64" x2="100" y2="146" stroke="#ffffff" stroke-width="1.2" stroke-dasharray="8 6" opacity="0.6"/>
+
+      <!-- Primary Crown Sparkle Star -->
+      <path d="M100 58 Q100 63 105 63 Q100 63 100 68 Q100 63 95 63 Q100 63 100 58 Z" fill="#ffffff"/>
+      <!-- Side Sparkle Stars -->
+      <path d="M72 101 Q72 104 74 104 Q72 104 72 107 Q72 104 70 104 Q72 104 72 101 Z" fill="#ffffff"/>
+      <path d="M128 101 Q128 104 130 104 Q128 104 128 107 Q128 104 126 104 Q128 104 128 101 Z" fill="#ffffff"/>
+    </g>
+  </g>
+</svg>

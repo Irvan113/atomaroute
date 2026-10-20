@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none" class="w-full h-full">
+  <defs>
+    <filter id="t2-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="7" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.38"/>
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#818cf8" flood-opacity="0.25"/>
+    </filter>
+
+    <filter id="t2-glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+
+    <linearGradient id="t2-wing-outer" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="40%" stop-color="#cbd5e1"/>
+      <stop offset="100%" stop-color="#64748b"/>
+    </linearGradient>
+
+    <linearGradient id="t2-wing-inner" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f1f5f9"/>
+      <stop offset="50%" stop-color="#94a3b8"/>
+      <stop offset="100%" stop-color="#475569"/>
+    </linearGradient>
+
+    <linearGradient id="t2-mount-chrome" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="25%" stop-color="#e2e8f0"/>
+      <stop offset="60%" stop-color="#94a3b8"/>
+      <stop offset="100%" stop-color="#475569"/>
+    </linearGradient>
+
+    <radialGradient id="t2-cavity-bg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#1e1b4b"/>
+      <stop offset="65%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </radialGradient>
+
+    <linearGradient id="t2-gem-top" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="40%" stop-color="#e0e7ff"/>
+      <stop offset="100%" stop-color="#c084fc"/>
+    </linearGradient>
+
+    <linearGradient id="t2-gem-left" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#c084fc"/>
+      <stop offset="100%" stop-color="#6366f1"/>
+    </linearGradient>
+
+    <linearGradient id="t2-gem-right" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#4338ca"/>
+    </linearGradient>
+
+    <linearGradient id="t2-gem-table" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="50%" stop-color="#f5f3ff"/>
+      <stop offset="100%" stop-color="#ddd6fe"/>
+    </linearGradient>
+  </defs>
+
+  <g filter="url(#t2-shadow)">
+    <!-- 1. BASE FRAME: DUAL-TIERED SWEPT SILVER WINGS -->
+    <!-- Left Wing Tier 1 (Upper) -->
+    <path d="M52 82 L15 88 C12 89 10 93 11 96 L18 108 C19 110 22 111 25 110 L52 100 Z" fill="url(#t2-wing-outer)"/>
+    <path d="M50 84 L17 90 L22 106 L50 98 Z" fill="#ffffff" opacity="0.75"/>
+    
+    <!-- Left Wing Tier 2 (Lower) -->
+    <path d="M48 104 L24 114 C22 115 21 118 22 121 L28 132 C29 135 32 136 35 135 L50 126 Z" fill="url(#t2-wing-inner)"/>
+
+    <!-- Right Wing Tier 1 (Upper) -->
+    <path d="M148 82 L185 88 C188 89 190 93 189 96 L182 108 C181 110 178 111 175 110 L148 100 Z" fill="url(#t2-wing-outer)"/>
+    <path d="M150 84 L183 90 L178 106 L150 98 Z" fill="#ffffff" opacity="0.75"/>
+
+    <!-- Right Wing Tier 2 (Lower) -->
+    <path d="M152 104 L176 114 C178 115 179 118 178 121 L172 132 C171 135 168 136 165 135 L150 126 Z" fill="url(#t2-wing-inner)"/>
+
+    <!-- Hexagonal Chrome Medallion Frame -->
+    <polygon points="100,36 162,72 162,138 100,174 38,138 38,72" fill="#475569"/>
+    <polygon points="100,39 158,74 158,135 100,170 42,135 42,74" fill="url(#t2-mount-chrome)"/>
+
+    <!-- 3D Bevel Rim Cuts -->
+    <polygon points="100,39 158,74 145,82 100,56 55,82 42,74" fill="#ffffff" opacity="0.8"/>
+    <polygon points="100,170 158,135 145,127 100,153 55,127 42,135" fill="#1e293b" opacity="0.7"/>
+    <polygon points="42,74 55,82 55,127 42,135" fill="#94a3b8" opacity="0.5"/>
+    <polygon points="158,74 145,82 145,127 158,135" fill="#475569" opacity="0.6"/>
+
+    <!-- Recessed Indigo Cavity -->
+    <polygon points="100,56 145,82 145,127 100,153 55,127 55,82" fill="url(#t2-cavity-bg)"/>
+    <polygon points="100,56 145,82 145,127 100,153 55,127 55,82" stroke="#818cf8" stroke-width="1.5" stroke-opacity="0.6"/>
+
+    <!-- ATOMA Atomic Orbit Accent -->
+    <ellipse cx="100" cy="105" rx="35" ry="17" fill="none" stroke="#c084fc" stroke-width="1" stroke-dasharray="5 3" opacity="0.5" transform="rotate(-15 100 105)"/>
+
+    <!-- 2. CENTER GEMSTONE: AMETHYST / LAVENDER DIAMOND -->
+    <g filter="url(#t2-glow)">
+      <!-- Faceted Octahedron Gemstone -->
+      <polygon points="100,68 126,105 100,99" fill="url(#t2-gem-top)"/>
+      <polygon points="100,68 100,99 74,105" fill="url(#t2-gem-top)" opacity="0.9"/>
+      
+      <polygon points="100,142 100,111 126,105" fill="url(#t2-gem-right)"/>
+      <polygon points="100,142 74,105 100,111" fill="url(#t2-gem-left)"/>
+
+      <!-- Center Diamond Table -->
+      <polygon points="100,77 118,105 100,133 82,105" fill="url(#t2-gem-table)"/>
+
+      <!-- Brilliant Reflection -->
+      <polygon points="100,81 104,102 120,105 104,108 100,129 96,108 80,105 96,102" fill="#ffffff" opacity="0.55"/>
+      <line x1="100" y1="77" x2="82" y2="105" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" opacity="0.9"/>
+      <path d="M100 64 Q100 68 104 68 Q100 68 100 72 Q100 68 96 68 Q100 68 100 64 Z" fill="#ffffff"/>
+    </g>
+  </g>
+</svg>

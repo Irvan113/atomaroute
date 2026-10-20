@@ -1,0 +1,50 @@
+*.log
+.DS_Store
+.env
+.env.backup
+.env.production
+.phpactor.json
+.phpunit.result.cache
+/.fleet
+/.idea
+/.nova
+/.phpunit.cache
+/.vscode
+/.zed
+/auth.json
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+/vendor
+Homestead.json
+Homestead.yaml
+Thumbs.db
+
+**/caddy
+frankenphp
+frankenphp-worker.php
+
+# SQLite databases & temp journals
+database/*.sqlite
+database/*.sqlite-journal
+database/*.sqlite-wal
+database/*.sqlite-shm
+
+# Scratch & one-off test scripts
+test*.php
+*.zip
+*.tar.gz
+atoma-deploy.zip
+
+# Rust / Tauri build artifacts
+src-tauri/target/
+
+# Android build artifacts & local properties
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties
+.gradle/

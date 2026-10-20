@@ -1,0 +1,63 @@
+name: Continuous Integration & Tests
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  tests:
+    name: Run Pest & PHPUnit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo, sqlite3, pdo_sqlite, bcmath, curl, zip, pcntl
+          coverage: none
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Check Composer Cache Directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer Dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install Composer Dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Install NPM Dependencies & Build Assets
+        run: |
+          npm ci
+          npm run build
+
+      - name: Prepare Environment & SQLite Database
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          touch database/database.sqlite
+
+      - name: Execute Automated Test Suite
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: database/database.sqlite
+          CACHE_STORE: array
+          SESSION_DRIVER: array
+          QUEUE_CONNECTION: sync
+        run: php artisan test

@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" fill="none" class="w-full h-full">
+  <defs>
+    <filter id="strk100-glow" x="-25%" y="-25%" width="150%" height="150%">
+      <feDropShadow dx="0" dy="8" stdDeviation="7" flood-color="#000000" flood-opacity="0.65"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="7" flood-color="#a855f7" flood-opacity="0.6"/>
+    </filter>
+    <linearGradient id="s100-plate" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#170d2b"/>
+      <stop offset="50%" stop-color="#0a0514"/>
+      <stop offset="100%" stop-color="#020008"/>
+    </linearGradient>
+    <linearGradient id="s100-rim" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0abfc"/>
+      <stop offset="35%" stop-color="#a855f7"/>
+      <stop offset="70%" stop-color="#ec4899"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+    <linearGradient id="s100-flame-l" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f5d0fe"/>
+      <stop offset="50%" stop-color="#c084fc"/>
+      <stop offset="100%" stop-color="#7e22ce"/>
+    </linearGradient>
+    <linearGradient id="s100-flame-r" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e879f9"/>
+      <stop offset="50%" stop-color="#9333ea"/>
+      <stop offset="100%" stop-color="#3b0764"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Geometric Diamond Outer Frame -->
+  <polygon points="80,8 142,32 152,80 142,128 80,152 18,128 8,80 18,32" fill="url(#s100-plate)" stroke="url(#s100-rim)" stroke-width="5" stroke-linejoin="round" filter="url(#strk100-glow)"/>
+  <polygon points="80,18 132,38 140,80 132,122 80,142 28,122 20,80 28,38" stroke="#c084fc" stroke-opacity="0.3" stroke-width="1.5" fill="none"/>
+
+  <!-- Grandmaster Cosmic Titan Flame with Crown -->
+  <g id="titan-flame" transform="translate(0, -4)">
+    <!-- Flanking Astral Wings -->
+    <path d="M44 48 L68 76 L48 112 L24 82 Z" fill="#7e22ce" opacity="0.8"/>
+    <path d="M116 48 L136 82 L112 112 L92 76 Z" fill="#9333ea" opacity="0.8"/>
+    
+    <!-- Central Grand Flame -->
+    <path d="M80 14 L102 62 L80 120 L58 62 Z" fill="url(#s100-flame-l)"/>
+    <path d="M80 14 L102 62 L80 120 Z" fill="url(#s100-flame-r)"/>
+
+    <!-- Imperial Crown Facet -->
+    <polygon points="80,14 86,28 98,24 90,38 80,48 70,38 62,24 74,28" fill="#f0abfc"/>
+
+    <!-- Prismatic Core -->
+    <polygon points="80,46 90,74 80,102 70,74" fill="#ffffff"/>
+    <polygon points="80,46 90,74 80,102" fill="#c084fc" opacity="0.8"/>
+  </g>
+
+  <!-- Tier 100 Label Pill -->
+  <rect x="52" y="124" width="56" height="20" rx="10" fill="url(#s100-rim)" stroke="#ffffff" stroke-width="1.5"/>
+  <text x="80" y="138" text-anchor="middle" fill="#ffffff" font-family="system-ui, sans-serif" font-weight="900" font-size="11" letter-spacing="1">100D</text>
+</svg>

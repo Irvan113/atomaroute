@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Mode Offline — ATOMA</title>
+    <link rel="icon" type="image/png" href="/images/atoma_icon.png">
+    <meta name="theme-color" content="#3E64FF">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --primary: #3E64FF;
+            --primary-hover: #2b4edb;
+            --border: #334155;
+            --badge-bg: rgba(239, 68, 68, 0.15);
+            --badge-text: #f87171;
+            --badge-border: rgba(239, 68, 68, 0.3);
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --bg-color: #f8fafc;
+                --card-bg: #ffffff;
+                --text-main: #0f172a;
+                --text-muted: #64748b;
+                --primary: #3E64FF;
+                --primary-hover: #2b4edb;
+                --border: #e2e8f0;
+                --badge-bg: #fee2e2;
+                --badge-text: #dc2626;
+                --badge-border: #fca5a5;
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .container {
+            max-width: 440px;
+            width: 100%;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 1.5rem;
+            padding: 2.25rem 2rem;
+            text-align: center;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo-wrap {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 1.5rem;
+        }
+
+        .logo-wrap img {
+            width: 76px;
+            height: 76px;
+            border-radius: 1.25rem;
+            display: block;
+            box-shadow: 0 10px 15px -3px rgba(62, 100, 255, 0.2);
+        }
+
+        .status-dot {
+            position: absolute;
+            bottom: -4px;
+            right: -4px;
+            width: 22px;
+            height: 22px;
+            background: #ef4444;
+            border: 3px solid var(--card-bg);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.35rem 0.85rem;
+            border-radius: 9999px;
+            background: var(--badge-bg);
+            color: var(--badge-text);
+            border: 1px solid var(--badge-border);
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            letter-spacing: 0.025em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            font-size: 1.35rem;
+            font-weight: 800;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.02em;
+        }
+
+        p {
+            font-size: 0.925rem;
+            line-height: 1.55;
+            color: var(--text-muted);
+            margin-bottom: 1.75rem;
+        }
+
+        .tip-box {
+            background: rgba(62, 100, 255, 0.08);
+            border: 1px dashed var(--primary);
+            border-radius: 1rem;
+            padding: 0.85rem 1rem;
+            font-size: 0.825rem;
+            color: var(--text-main);
+            margin-bottom: 1.75rem;
+            text-align: left;
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-start;
+        }
+
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            padding: 0.85rem 1.25rem;
+            background: var(--primary);
+            color: #ffffff;
+            border: none;
+            border-radius: 0.875rem;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            box-shadow: 0 4px 6px -1px rgba(62, 100, 255, 0.25);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 0.75rem 1.25rem;
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            border-radius: 0.875rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .btn-secondary:hover {
+            color: var(--text-main);
+            border-color: var(--text-muted);
+        }
+
+        .pulse {
+            width: 8px;
+            height: 8px;
+            background: currentColor;
+            border-radius: 50%;
+            animation: pulse-dot 1.5s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.8); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-wrap">
+            <img src="/images/atoma_icon.png" alt="ATOMA Logo">
+            <div class="status-dot">✕</div>
+        </div>
+
+        <div class="badge">
+            <span class="pulse"></span>
+            Koneksi Terputus
+        </div>
+
+        <h1>Kamu Sedang Offline</h1>
+        <p>
+            Jangan khawatir! Seluruh catatan lokal, daftar tugas yang tersimpan di memori perangkat, serta timer Pomodoro tetap dapat kamu gunakan.
+        </p>
+
+        <div class="tip-box">
+            <span style="font-size: 1.2rem;">💡</span>
+            <div>
+                <strong>Sinkronisasi Otomatis:</strong> Saat perangkat kembali tersambung ke internet, halaman ini akan otomatis memuat ulang tanpa menghilangkan progresmu.
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="btn-primary" onclick="window.location.reload()">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                Coba Hubungkan Ulang
+            </button>
+            <a href="/" class="btn-secondary">
+                Kembali ke Beranda
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Auto reload the moment connection is restored
+        window.addEventListener('online', function() {
+            window.location.reload();
+        });
+    </script>
+</body>
+</html>

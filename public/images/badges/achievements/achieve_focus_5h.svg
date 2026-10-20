@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" fill="none" class="w-full h-full">
+  <defs>
+    <filter id="f5h-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#881337" flood-opacity="0.5"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#f43f5e" flood-opacity="0.35"/>
+    </filter>
+    <linearGradient id="f5h-plate" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2a0812"/>
+      <stop offset="100%" stop-color="#120307"/>
+    </linearGradient>
+    <linearGradient id="f5h-rim" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fecdd3"/>
+      <stop offset="50%" stop-color="#f43f5e"/>
+      <stop offset="100%" stop-color="#9f1239"/>
+    </linearGradient>
+    <linearGradient id="f5h-ruby" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fda4af"/>
+      <stop offset="50%" stop-color="#e11d48"/>
+      <stop offset="100%" stop-color="#881337"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Circular Target Plate -->
+  <circle cx="80" cy="80" r="68" fill="url(#f5h-plate)" stroke="url(#f5h-rim)" stroke-width="4.5" filter="url(#f5h-glow)"/>
+  <circle cx="80" cy="80" r="54" stroke="#f43f5e" stroke-opacity="0.3" stroke-width="1.5" fill="none"/>
+
+  <!-- Concentric Origami Focus Target -->
+  <g transform="translate(0, -2)">
+    <!-- 4 Cardinal Target Pointers -->
+    <polygon points="80,24 85,36 80,42 75,36" fill="#fda4af"/>
+    <polygon points="80,126 85,114 80,108 75,114" fill="#9f1239"/>
+    <polygon points="28,75 40,80 34,85 28,80" fill="#fda4af"/>
+    <polygon points="132,75 120,80 126,85 132,80" fill="#9f1239"/>
+
+    <!-- Concentric Faceted Octagon Rings -->
+    <polygon points="80,38 110,50 122,80 110,110 80,122 50,110 38,80 50,50" fill="url(#f5h-ruby)" stroke="#fda4af" stroke-width="1.5"/>
+    <polygon points="80,50 101,59 110,80 101,101 80,110 59,101 50,80 59,59" fill="#120307"/>
+
+    <!-- Central Focus Core Crystal -->
+    <polygon points="80,58 96,80 80,102 64,80" fill="url(#f5h-ruby)"/>
+    <polygon points="80,58 96,80 80,102" fill="#fda4af" opacity="0.6"/>
+    <circle cx="80" cy="80" r="6" fill="#ffffff"/>
+  </g>
+
+  <!-- 5H Label -->
+  <rect x="58" y="122" width="44" height="18" rx="9" fill="#9f1239" stroke="#fecdd3" stroke-width="1.5"/>
+  <text x="80" y="135" text-anchor="middle" fill="#ffffff" font-family="system-ui, sans-serif" font-weight="900" font-size="10" letter-spacing="1">5H</text>
+</svg>

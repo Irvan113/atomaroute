@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" fill="none" class="w-full h-full">
+  <defs>
+    <filter id="tf-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#064e3b" flood-opacity="0.5"/>
+    </filter>
+    <linearGradient id="tf-plate" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#062e24"/>
+      <stop offset="100%" stop-color="#02140f"/>
+    </linearGradient>
+    <linearGradient id="tf-rim" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6ee7b7"/>
+      <stop offset="50%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#047857"/>
+    </linearGradient>
+    <linearGradient id="tf-chk-l" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a7f3d0"/>
+      <stop offset="100%" stop-color="#10b981"/>
+    </linearGradient>
+    <linearGradient id="tf-chk-r" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Hexagon Outer -->
+  <polygon points="80,12 138,45 138,115 80,148 22,115 22,45" fill="url(#tf-plate)" stroke="url(#tf-rim)" stroke-width="4.5" stroke-linejoin="round" filter="url(#tf-glow)"/>
+  <polygon points="80,22 128,50 128,110 80,138 32,110 32,50" stroke="#10b981" stroke-opacity="0.3" stroke-width="1.5" fill="none"/>
+
+  <!-- Clean Origami Single Checkmark -->
+  <g transform="translate(0, -2)">
+    <!-- Short arm -->
+    <path d="M42 80 L66 104 L74 94 L50 70 Z" fill="url(#tf-chk-l)"/>
+    <!-- Long arm -->
+    <path d="M66 104 L120 48 L110 38 L58 92 Z" fill="url(#tf-chk-r)"/>
+    <!-- Fold Shading -->
+    <polygon points="66,104 58,92 74,94" fill="#047857"/>
+    <!-- Diamond Highlight -->
+    <polygon points="66,104 110,38 120,48" fill="#ffffff" opacity="0.2"/>
+  </g>
+
+  <!-- Label -->
+  <rect x="62" y="122" width="36" height="16" rx="8" fill="#065f46" stroke="#34d399" stroke-width="1.2"/>
+  <text x="80" y="134" text-anchor="middle" fill="#a7f3d0" font-family="system-ui, sans-serif" font-weight="900" font-size="9" letter-spacing="1">1ST</text>
+</svg>

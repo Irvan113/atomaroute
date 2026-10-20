@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <defs>
+    <linearGradient id="mn-moon" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="40%" stop-color="#93c5fd"/>
+      <stop offset="100%" stop-color="#6366f1"/>
+    </linearGradient>
+    <filter id="mn-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#818cf8" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <!-- Ambient Sky Glow -->
+  <circle cx="22" cy="24" r="14" fill="#6366f1" opacity="0.15"/>
+
+  <!-- Crescent Moon -->
+  <path d="M28 8 C18 9 10 17 10 27 C10 37 18 45 28 45 C32 45 35 44 38 42 C30 40 24 33 24 25 C24 17 30 10 38 8 C35 8 31 8 28 8 Z" 
+        fill="url(#mn-moon)" 
+        filter="url(#mn-glow)"/>
+
+  <!-- Celestial Stars -->
+  <!-- Big Star -->
+  <path d="M38 14 L39 17 L42 18 L39 19 L38 22 L37 19 L34 18 L37 17 Z" fill="#5EDFFF"/>
+  <!-- Mini Stars -->
+  <circle cx="42" cy="28" r="1.5" fill="#ffffff"/>
+  <circle cx="34" cy="34" r="1.2" fill="#93c5fd"/>
+  <circle cx="20" cy="14" r="1" fill="#c7d2fe"/>
+</svg>

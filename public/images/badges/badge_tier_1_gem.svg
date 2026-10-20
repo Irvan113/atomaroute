@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none" class="w-full h-full">
+  <defs>
+    <filter id="t1-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.35"/>
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#0284c7" flood-opacity="0.2"/>
+    </filter>
+
+    <filter id="t1-glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="3.5" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+
+    <linearGradient id="t1-mount-main" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="30%" stop-color="#cbd5e1"/>
+      <stop offset="70%" stop-color="#94a3b8"/>
+      <stop offset="100%" stop-color="#64748b"/>
+    </linearGradient>
+
+    <linearGradient id="t1-mount-trim" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fdba74"/>
+      <stop offset="50%" stop-color="#d97706"/>
+      <stop offset="100%" stop-color="#92400e"/>
+    </linearGradient>
+
+    <linearGradient id="t1-mount-bevel-light" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#e2e8f0" stop-opacity="0.25"/>
+    </linearGradient>
+
+    <linearGradient id="t1-mount-bevel-dark" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#475569" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#1e293b" stop-opacity="0.85"/>
+    </linearGradient>
+
+    <radialGradient id="t1-cavity-bg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#0c2e44"/>
+      <stop offset="65%" stop-color="#071b29"/>
+      <stop offset="100%" stop-color="#030e17"/>
+    </radialGradient>
+
+    <linearGradient id="t1-gem-top" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="35%" stop-color="#b2fcff"/>
+      <stop offset="100%" stop-color="#5edfff"/>
+    </linearGradient>
+
+    <linearGradient id="t1-gem-left" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5edfff"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+
+    <linearGradient id="t1-gem-right" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0369a1"/>
+    </linearGradient>
+
+    <linearGradient id="t1-gem-table" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="50%" stop-color="#ecfcff"/>
+      <stop offset="100%" stop-color="#a5f3fc"/>
+    </linearGradient>
+  </defs>
+  <g>
+    <!-- 2. CENTER GEMSTONE: FACETED ICE-CYAN DIAMOND -->
+    <g filter="url(#t1-glow)">
+      <!-- Top Apex Facet -->
+      <polygon points="100,70 125,105 100,99" fill="url(#t1-gem-top)"/>
+      <polygon points="100,70 100,99 75,105" fill="url(#t1-gem-top)" opacity="0.9"/>
+      
+      <!-- Bottom Apex Facet -->
+      <polygon points="100,140 100,111 125,105" fill="url(#t1-gem-right)"/>
+      <polygon points="100,140 75,105 100,111" fill="url(#t1-gem-left)"/>
+
+      <!-- Center Table Facet -->
+      <polygon points="100,79 117,105 100,131 83,105" fill="url(#t1-gem-table)"/>
+
+      <!-- Star Glint & Specular Highlights -->
+      <polygon points="100,83 103,102 118,105 103,108 100,127 97,108 82,105 97,102" fill="#ffffff" opacity="0.5"/>
+      <line x1="100" y1="79" x2="83" y2="105" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" opacity="0.85"/>
+      
+      <!-- Sparkle Star at Top Vertex -->
+      <path d="M100 66 Q100 70 103 70 Q100 70 100 74 Q100 70 97 70 Q100 70 100 66 Z" fill="#ffffff"/>
+    </g>
+  
+  </g>
+</svg>

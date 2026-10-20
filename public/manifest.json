@@ -1,0 +1,68 @@
+{
+  "name": "ATOMA - Adaptive Focus & Skill Roadmap",
+  "short_name": "ATOMA",
+  "description": "Master skills & daily focus with AI-guided adaptive roadmaps and gamified Pomodoro",
+  "id": "/",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "background_color": "#0f172a",
+  "theme_color": "#3E64FF",
+  "orientation": "portrait-primary",
+  "categories": ["productivity", "education", "utilities"],
+  "icons": [
+    {
+      "src": "/images/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/images/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/images/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/images/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Tugas Hari Ini",
+      "short_name": "Tugas",
+      "description": "Lihat dan selesaikan daftar tugas hari ini",
+      "url": "/tasks",
+      "icons": [{ "src": "/images/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Fokus Pomodoro",
+      "short_name": "Pomodoro",
+      "description": "Mulai sesi fokus dan musik lo-fi",
+      "url": "/dashboard?action=pomodoro",
+      "icons": [{ "src": "/images/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Roadmap Milestone",
+      "short_name": "Milestone",
+      "description": "Cek progres belajar dan target keahlian",
+      "url": "/skills",
+      "icons": [{ "src": "/images/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
