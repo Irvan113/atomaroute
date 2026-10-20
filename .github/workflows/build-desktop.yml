@@ -30,19 +30,10 @@ jobs:
       - name: Build Vite Assets
         run: npm run build
 
-      - name: Build Tauri Windows EXE
-        uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tagName: ${{ github.ref_name }}
-          releaseName: 'ATOMA Desktop ${{ github.ref_name }}'
-          releaseBody: 'ATOMA Desktop Windows Installer (.exe)'
-          releaseDraft: false
-          prerelease: false
+      - name: Build Tauri Windows Binary & Installer
+        run: npx tauri build
 
       - name: Upload Windows Installer Artifact
-        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: atoma-windows-installer
@@ -50,4 +41,4 @@ jobs:
             src-tauri/target/release/bundle/nsis/*.exe
             src-tauri/target/release/bundle/msi/*.msi
             src-tauri/target/release/atoma.exe
-          if-no-files-found: warn
+          if-no-files-found: error
