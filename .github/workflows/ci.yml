@@ -52,13 +52,6 @@ jobs:
           cp .env.example .env
           php artisan key:generate
           touch database/database.sqlite
-          php artisan migrate --force
 
       - name: Execute Automated Test Suite
-        env:
-          DB_CONNECTION: sqlite
-          DB_DATABASE: database/database.sqlite
-          CACHE_STORE: array
-          SESSION_DRIVER: array
-          QUEUE_CONNECTION: sync
         run: php artisan test
