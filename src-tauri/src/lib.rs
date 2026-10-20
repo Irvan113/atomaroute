@@ -10,58 +10,59 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_notification::init())
         .setup(|app| {
-            let show_i = MenuItem::with_id(app, "show", "Buka ATOMA", true, None::<&str>)?;
-            let quit_i = MenuItem::with_id(app, "quit", "Keluar", true, None::<&str>)?;
-            let menu = Menu::with_items(app, &[&show_i, &quit_i])?;
+            if let Ok(show_i) = MenuItem::with_id(app, "show", "Buka ATOMA", true, None::<&str>) {
+                if let Ok(quit_i) = MenuItem::with_id(app, "quit", "Keluar", true, None::<&str>) {
+                    if let Ok(menu) = Menu::with_items(app, &[&show_i, &quit_i]) {
+                        let mut tray_builder = TrayIconBuilder::with_id("atoma-tray")
+                            .menu(&menu)
+                            .show_menu_on_left_click(false)
+                            .tooltip("ATOMA - Focus & Skill Roadmap")
+                            .on_menu_event(|app, event| {
+                                match event.id.as_ref() {
+                                    "show" => {
+                                        if let Some(window) = app.get_webview_window("main") {
+                                            let _ = window.show();
+                                            let _ = window.unminimize();
+                                            let _ = window.set_focus();
+                                        }
+                                    }
+                                    "quit" => {
+                                        app.exit(0);
+                                    }
+                                    _ => {}
+                                }
+                            })
+                            .on_tray_icon_event(|tray, event| {
+                                if let TrayIconEvent::Click {
+                                    button: MouseButton::Left,
+                                    button_state: MouseButtonState::Up,
+                                    ..
+                                } = event
+                                {
+                                    let app = tray.app_handle();
+                                    if let Some(window) = app.get_webview_window("main") {
+                                        let _ = window.show();
+                                        let _ = window.unminimize();
+                                        let _ = window.set_focus();
+                                    }
+                                }
+                            });
 
-            let mut tray_builder = TrayIconBuilder::with_id("atoma-tray")
-                .menu(&menu)
-                .show_menu_on_left_click(false)
-                .tooltip("ATOMA - Focus & Skill Roadmap")
-                .on_menu_event(|app, event| {
-                    match event.id.as_ref() {
-                        "show" => {
-                            if let Some(window) = app.get_webview_window("main") {
-                                let _ = window.show();
-                                let _ = window.unminimize();
-                                let _ = window.set_focus();
-                            }
+                        if let Some(icon) = app.default_window_icon() {
+                            tray_builder = tray_builder.icon(icon.clone());
+                        } else if let Ok(icon) = tauri::image::Image::from_bytes(include_bytes!("../icons/32x32.png")) {
+                            tray_builder = tray_builder.icon(icon);
                         }
-                        "quit" => {
-                            app.exit(0);
-                        }
-                        _ => {}
-                    }
-                })
-                .on_tray_icon_event(|tray, event| {
-                    if let TrayIconEvent::Click {
-                        button: MouseButton::Left,
-                        button_state: MouseButtonState::Up,
-                        ..
-                    } = event
-                    {
-                        let app = tray.app_handle();
-                        if let Some(window) = app.get_webview_window("main") {
-                            let _ = window.show();
-                            let _ = window.unminimize();
-                            let _ = window.set_focus();
-                        }
-                    }
-                });
 
-            if let Some(icon) = app.default_window_icon() {
-                tray_builder = tray_builder.icon(icon.clone());
-            } else if let Ok(icon) = tauri::image::Image::from_bytes(include_bytes!("../icons/32x32.png")) {
-                tray_builder = tray_builder.icon(icon);
+                        let _ = tray_builder.build(app);
+                    }
+                }
             }
 
-            if let Err(e) = tray_builder.build(app) {
-                eprintln!("Warning: Failed to initialize tray icon: {}", e);
-            }
-
-            // Ensure main window is shown and focused
+            // Ensure main window is shown, unminimized, and focused
             if let Some(window) = app.get_webview_window("main") {
                 let _ = window.show();
+                let _ = window.unminimize();
                 let _ = window.set_focus();
             }
 

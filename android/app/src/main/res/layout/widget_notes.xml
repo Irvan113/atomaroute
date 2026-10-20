@@ -70,16 +70,13 @@
             android:layout_width="0dp"
             android:layout_height="36dp"
             android:layout_weight="1"
+            android:layout_marginEnd="8dp"
             android:background="@drawable/widget_btn_emerald"
             android:gravity="center"
             android:text="@string/widget_btn_new_note"
             android:textColor="#FFFFFF"
             android:textSize="11sp"
             android:textStyle="bold" />
-
-        <View
-            android:layout_width="8dp"
-            android:layout_height="1dp" />
 
         <!-- Button 2: Buka Jurnal -->
         <TextView

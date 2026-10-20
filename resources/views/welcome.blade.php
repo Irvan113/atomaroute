@@ -285,15 +285,17 @@
                         </ul>
                     </div>
 
-                    <div class="mt-8 pt-4 border-t border-slate-100 dark:border-slate-800 space-y-2">
-                        <a href="{{ route('download.exe') }}" download 
+                    <div class="mt-8 pt-4 border-t border-slate-100 dark:border-slate-800 space-y-2.5">
+                        <a href="{{ route('download.exe-portable') }}" download 
                            class="w-full py-3 px-4 bg-atoma-blue hover:bg-blue-600 text-white rounded-2xl font-black text-sm text-center shadow-lg shadow-atoma-blue/20 transition-all flex items-center justify-center gap-2 cursor-pointer">
                             <x-icon.download class="w-4 h-4" />
-                            <span>{{ __('Download Installer (.exe)') }}</span>
+                            <span>{{ __('Unduh Versi Portable (12 MB)') }}</span>
                         </a>
-                        <div class="text-[10px] text-center text-slate-400 font-mono">{{ __('Windows 10 / 11 • Installer 2.5 MB') }}</div>
-                        <a href="{{ route('download.exe-portable') }}" download class="block text-center text-xs font-bold text-atoma-blue hover:underline pt-1">
-                            {{ __('Atau unduh Versi Portable (11 MB) →') }}
+                        <div class="text-[10px] text-center text-emerald-600 dark:text-emerald-400 font-bold font-mono">{{ __('★ Rekomendasi: Langsung Buka Tanpa Install') }}</div>
+                        <a href="{{ route('download.exe') }}" download 
+                           class="w-full py-2 px-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl font-bold text-xs text-center transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                            <x-icon.download class="w-3.5 h-3.5" />
+                            <span>{{ __('Atau Unduh Setup Installer (2.5 MB)') }}</span>
                         </a>
                     </div>
                 </div>
@@ -465,7 +467,11 @@
                             </li>
                             <li class="flex items-start gap-2">
                                 <span class="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 font-bold flex items-center justify-center shrink-0 text-[11px]">4</span>
-                                <span><strong class="text-slate-900 dark:text-white">{{ __('Pasang Widget:') }}</strong> {{ __('Setelah terpasang, tahan layar beranda HP > pilih menu Widget > cari ATOMA untuk memasang Widget To-Do, Pomodoro, atau Catatan!') }}</span>
+                                <span><strong class="text-slate-900 dark:text-white">{{ __('Pasang Widget:') }}</strong> {{ __('Tahan layar beranda HP > pilih Widget > cari ATOMA. Khusus HP Xiaomi/Redmi: gulir ke paling bawah layar lalu ketuk "Widget Klasik / Android Widgets" agar ATOMA muncul.') }}</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 font-bold flex items-center justify-center shrink-0 text-[11px]">5</span>
+                                <span><strong class="text-slate-900 dark:text-white">{{ __('Login Akun:') }}</strong> {{ __('Untuk login Google di HP, setelah memilih akun di Chrome, Anda akan dialihkan otomatis kembali ke aplikasi APK. Anda juga dapat langsung login dengan Email & Password.') }}</span>
                             </li>
                         </ol>
                     </div>
@@ -481,15 +487,15 @@
                         <ol class="space-y-2.5 text-xs text-slate-600 dark:text-slate-300 font-medium">
                             <li class="flex items-start gap-2">
                                 <span class="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-bold flex items-center justify-center shrink-0 text-[11px]">1</span>
-                                <span><strong class="text-slate-900 dark:text-white">{{ __('Klik "Info selengkapnya":') }}</strong> {{ __('Pada jendela biru "Windows protected your PC", klik teks bertuliskan') }} <span class="text-blue-600 dark:text-blue-400 font-bold">"{{ __('Info selengkapnya') }}" / "More info"</span>.</span>
+                                <span><strong class="text-slate-900 dark:text-white">{{ __('Gunakan Versi Portable (12 MB):') }}</strong> {{ __('Jika Setup Installer 2.5 MB memerlukan wizard, cukup gunakan') }} <a href="{{ route('download.exe-portable') }}" class="text-atoma-blue underline font-bold">{{ __('Versi Portable (12 MB)') }}</a> {{ __('yang bisa langsung di-double click tanpa instalasi.') }}</span>
                             </li>
                             <li class="flex items-start gap-2">
                                 <span class="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-bold flex items-center justify-center shrink-0 text-[11px]">2</span>
-                                <span><strong class="text-slate-900 dark:text-white">{{ __('Klik "Tetap jalankan":') }}</strong> {{ __('Tombol') }} <span class="text-blue-600 dark:text-blue-400 font-bold">"{{ __('Tetap jalankan') }}" / "Run anyway"</span> {{ __('akan muncul di sudut bawah, klik tombol tersebut untuk membuka ATOMA.') }}</span>
+                                <span><strong class="text-slate-900 dark:text-white">{{ __('Klik "Info selengkapnya":') }}</strong> {{ __('Jika muncul jendela biru SmartScreen, klik teks bertuliskan') }} <span class="text-blue-600 dark:text-blue-400 font-bold">"{{ __('Info selengkapnya') }}" / "More info"</span>.</span>
                             </li>
                             <li class="flex items-start gap-2">
                                 <span class="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-bold flex items-center justify-center shrink-0 text-[11px]">3</span>
-                                <span><strong class="text-slate-900 dark:text-white">{{ __('Pilihan Versi Portable:') }}</strong> {{ __('Jika tidak ingin melewati wizard installer, unduh') }} <a href="{{ route('download.exe-portable') }}" class="text-atoma-blue underline font-bold">{{ __('Versi Portable') }}</a> {{ __('yang langsung aktif seketika.') }}</span>
+                                <span><strong class="text-slate-900 dark:text-white">{{ __('Klik "Tetap jalankan":') }}</strong> {{ __('Tombol') }} <span class="text-blue-600 dark:text-blue-400 font-bold">"{{ __('Tetap jalankan') }}" / "Run anyway"</span> {{ __('akan muncul di sudut bawah, klik untuk membuka ATOMA.') }}</span>
                             </li>
                             <li class="flex items-start gap-2">
                                 <span class="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-bold flex items-center justify-center shrink-0 text-[11px]">4</span>
