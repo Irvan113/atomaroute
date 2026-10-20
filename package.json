@@ -3,6 +3,7 @@
     "private": true,
     "type": "module",
     "scripts": {
+        "tauri": "tauri",
         "build": "vite build",
         "dev": "vite",
         "tauri:dev": "tauri dev",
