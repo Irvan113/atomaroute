@@ -312,16 +312,16 @@ new #[Layout('layouts.app')] class extends Component {
                         <div class="p-4 rounded-2xl bg-gray-50 dark:bg-gray-750 border border-gray-200/70 dark:border-gray-700 flex flex-col items-center text-center justify-between min-h-[140px]">
                             <div class="text-[10px] uppercase font-black tracking-wider text-indigo-600 dark:text-indigo-400 mb-1">Frame Avatar</div>
                             @if($activeFrame)
-                                <div class="relative w-12 h-12 my-1 flex items-center justify-center">
+                                <div class="relative w-12 h-12 aspect-square shrink-0 my-1 flex items-center justify-center">
                                     @if($activeFrame === 'frame_gold')
-                                        <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 w-7 z-20 pointer-events-none drop-shadow-md">
+                                        <div class="absolute -top-[28%] left-1/2 -translate-x-1/2 w-[55%] z-20 pointer-events-none drop-shadow-md">
                                             <img src="{{ asset('images/frames/crown_gold.svg') }}" alt="Crown" class="w-full h-auto object-contain">
                                         </div>
-                                        <img src="{{ auth()->user()->avatar_url }}" class="w-12 h-12 rounded-full border-2 border-amber-400 ring-2 ring-yellow-300/80 shadow-[0_0_12px_rgba(245,158,11,0.8)] object-cover bg-white">
+                                        <img src="{{ auth()->user()->avatar_url }}" class="w-12 h-12 aspect-square rounded-full border-2 border-amber-400 ring-2 ring-yellow-300/80 shadow-[0_0_12px_rgba(245,158,11,0.8)] object-cover bg-white">
                                     @elseif($activeFrame === 'frame_neon')
-                                        <img src="{{ auth()->user()->avatar_url }}" class="w-12 h-12 rounded-full border-2 border-cyan-400 ring-2 ring-cyan-400/50 shadow-[0_0_10px_rgba(6,182,212,0.85)] object-cover bg-white">
+                                        <img src="{{ auth()->user()->avatar_url }}" class="w-12 h-12 aspect-square rounded-full border-2 border-cyan-400 ring-2 ring-cyan-400/50 shadow-[0_0_10px_rgba(6,182,212,0.85)] object-cover bg-white">
                                     @elseif($activeFrame === 'frame_fire')
-                                        <img src="{{ auth()->user()->avatar_url }}" class="w-12 h-12 rounded-full border-2 border-orange-500 ring-2 ring-amber-500/50 shadow-[0_0_10px_rgba(249,115,22,0.85)] animate-pulse object-cover bg-white">
+                                        <img src="{{ auth()->user()->avatar_url }}" class="w-12 h-12 aspect-square rounded-full border-2 border-orange-500 ring-2 ring-amber-500/50 shadow-[0_0_10px_rgba(249,115,22,0.85)] animate-pulse object-cover bg-white">
                                     @endif
                                 </div>
                                 <div class="text-xs font-black text-gray-900 dark:text-white capitalize mb-2">
@@ -621,11 +621,11 @@ new #[Layout('layouts.app')] class extends Component {
                         <div>
                             <div class="h-44 bg-gray-950 flex flex-col items-center justify-center relative overflow-hidden">
                                 <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-amber-900/60 via-gray-950 to-gray-950"></div>
-                                <div class="relative z-10 w-20 h-20 rounded-full border-4 border-amber-400 ring-2 ring-yellow-300/80 shadow-[0_0_25px_rgba(250,204,21,0.8)] p-0.5 group-hover:scale-105 transition-transform duration-300">
-                                    <div class="absolute -top-6 left-1/2 -translate-x-1/2 w-14 z-20 pointer-events-none drop-shadow-xl">
+                                <div class="relative z-10 w-20 h-20 aspect-square shrink-0 rounded-full border-4 border-amber-400 ring-2 ring-yellow-300/80 shadow-[0_0_25px_rgba(250,204,21,0.8)] p-0.5 group-hover:scale-105 transition-transform duration-300">
+                                    <div class="absolute -top-[28%] left-1/2 -translate-x-1/2 w-[55%] z-20 pointer-events-none drop-shadow-xl">
                                         <img src="{{ asset('images/frames/crown_gold.svg') }}" alt="Crown" class="w-full h-auto object-contain">
                                     </div>
-                                    <img src="{{ auth()->user()->avatar_url }}" alt="Avatar" class="w-full h-full rounded-full object-cover bg-white">
+                                    <img src="{{ auth()->user()->avatar_url }}" alt="Avatar" class="w-full h-full aspect-square rounded-full object-cover bg-white">
                                 </div>
                                 <div class="absolute top-4 left-4 bg-amber-950/40 backdrop-blur-md rounded-full px-2.5 py-0.5 text-amber-200 font-bold text-[10px] border border-amber-300/30 uppercase tracking-wider">
                                     Legendary

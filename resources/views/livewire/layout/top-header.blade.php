@@ -90,10 +90,10 @@ new class extends Component {
        x-init="updateClock(); setInterval(() => updateClock(), 1000)" 
        @profile-updated.window="$wire.refreshProfile(); $nextTick(() => { updateClock(); })"
        @sync-timezone.window="targetTz = $event.detail.tz; updateClock()"
-       class="h-8 px-2 sm:px-3 bg-gray-100/90 dark:bg-gray-700/60 rounded-xl text-[10px] sm:text-xs border border-gray-200/80 dark:border-gray-600/60 shadow-sm flex items-center space-x-1 sm:space-x-1.5 font-bold select-none">
-        <span class="text-indigo-600 dark:text-indigo-400 font-black tracking-wide" x-text="timeStr"></span>
+       class="h-8 px-2 sm:px-3 bg-gray-100/90 dark:bg-gray-700/60 rounded-xl text-[10px] sm:text-xs border border-gray-200/80 dark:border-gray-600/60 shadow-sm flex items-center space-x-1 sm:space-x-1.5 font-bold select-none min-w-0">
+        <span class="text-indigo-600 dark:text-indigo-400 font-black tracking-wide tabular-nums font-mono" x-text="timeStr"></span>
         <span class="text-gray-300 dark:text-gray-600 hidden sm:inline">•</span>
-        <span class="font-bold text-gray-700 dark:text-gray-300 hidden sm:inline" x-text="gmtStr"></span>
+        <span class="font-bold text-gray-700 dark:text-gray-300 hidden sm:inline tabular-nums font-mono" x-text="gmtStr"></span>
         <span class="hidden sm:inline text-gray-400 dark:text-gray-400 font-medium text-[10px] sm:text-xs truncate max-w-[120px]" x-text="`(${tzStr})`"></span>
     </div>
 
@@ -107,7 +107,7 @@ new class extends Component {
             @if($user->current_streak > 0)
                 <div class="absolute inset-0 bg-orange-400/20 blur-sm group-hover:bg-orange-400/30 transition-colors pointer-events-none"></div>
             @endif
-            <span class="text-orange-500 font-extrabold text-xs mr-0.5 relative z-10">{{ $user->current_streak }}d</span>
+            <span class="text-orange-500 font-extrabold text-xs mr-0.5 relative z-10 tabular-nums">{{ $user->current_streak }}d</span>
             <svg class="w-3.5 h-3.5 text-orange-500 relative z-10 {{ $user->current_streak > 0 ? 'animate-pulse drop-shadow-xs' : '' }}" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clip-rule="evenodd"></path></svg>
         </button>
         
@@ -148,16 +148,16 @@ new class extends Component {
         <div x-data="{ open: false, isDark: document.documentElement.classList.contains('dark') }" 
              @dark-mode-toggled.window="isDark = document.documentElement.classList.contains('dark')"
              class="relative shrink-0">
-            <button @click="open = !open" @click.away="open = false" class="w-8 h-8 flex items-center justify-center group cursor-pointer transition-transform active:scale-95 focus:outline-none relative select-none shrink-0">
+            <button @click="open = !open" @click.away="open = false" class="w-8 h-8 flex items-center justify-center group cursor-pointer transition-transform active:scale-95 focus:outline-none relative select-none shrink-0 aspect-square">
                 @if($activeFrame === 'frame_gold')
                     <!-- Custom Golden Crown Frame atop Header Avatar -->
-                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 w-6.5 z-20 pointer-events-none drop-shadow-md">
+                    <div class="absolute -top-[28%] left-1/2 -translate-x-1/2 w-[55%] z-20 pointer-events-none drop-shadow-md">
                         <img src="{{ asset('images/frames/crown_gold.svg') }}" alt="Crown" class="w-full h-auto object-contain">
                     </div>
                 @endif
-                <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}" class="h-8 w-8 rounded-full {{ $headerFrameClass }} object-cover bg-white shadow-sm transition-all">
+                <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}" class="h-8 w-8 rounded-full {{ $headerFrameClass }} object-cover bg-white shadow-sm transition-all aspect-square shrink-0">
                 @if($user->equipped_badge_details)
-                    <div class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-white dark:bg-gray-900 p-0.5 shadow-sm border border-gray-200 dark:border-gray-700 flex items-center justify-center z-20">
+                    <div class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-white dark:bg-gray-900 p-0.5 shadow-sm border border-gray-200 dark:border-gray-700 flex items-center justify-center z-20 aspect-square shrink-0">
                         <img src="{{ asset($user->equipped_badge_details['svg_path']) }}" class="w-full h-full object-contain">
                     </div>
                 @endif

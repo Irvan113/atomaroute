@@ -137,13 +137,16 @@ body {
     .atoma-card {
         border-radius: 1rem;
         border: 1px solid rgba(178, 252, 255, 0.3);
+        transform: translateZ(0);
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
         transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), 
                     box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), 
                     border-color 0.15s ease,
                     background-color 0.15s ease;
     }
     .atoma-card:hover {
-        transform: translateY(-1.5px);
+        transform: translateY(-2px);
     }
     .atoma-card:active {
         transform: scale(0.99);
@@ -152,11 +155,39 @@ body {
         border: 1px solid rgba(62, 100, 255, 0.2);
     }
 
+    /* Container query root utility */
+    .atoma-main-container {
+        container-type: inline-size;
+    }
+
+    /* Safe bottom navigation padding */
+    .pb-safe-nav {
+        padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+    }
+
     /* Break words gracefully inside cards */
     .break-words-fluid {
         overflow-wrap: break-word;
         word-wrap: break-word;
         word-break: break-word;
+    }
+}
+
+/* ==========================================================================
+   4B. GPU COMPOSITING & VIEW TRANSITIONS STABILIZATION
+   ========================================================================== */
+/* Bypass backdrop-filter during View Transitions to eliminate compositor flicker and frame drops */
+html:active-view-transition .atoma-card,
+html:active-view-transition [class*="backdrop-blur"] {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+/* Suppression of bottom nav and floating widgets during virtual keyboard on mobile */
+@media (max-height: 480px) and (hover: none) and (pointer: coarse) {
+    .atoma-bottom-nav,
+    .atoma-floating-pomodoro {
+        display: none !important;
     }
 }
 

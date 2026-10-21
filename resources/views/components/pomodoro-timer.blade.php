@@ -29,7 +29,7 @@
      @toggle-pip-window.window="togglePip()"
      @start-pomodoro-task.window="startFocusTask($event.detail)"
      @pomodoro-session-logged.window="fetchTodaySessions()"
-     class="fixed bottom-20 md:bottom-20 right-2 sm:right-4 md:right-8 left-2 sm:left-auto z-[9999] max-w-[calc(100vw-1rem)] sm:max-w-md pointer-events-none flex justify-center sm:block"
+     class="atoma-floating-pomodoro fixed bottom-20 md:bottom-20 right-2 sm:right-4 md:right-8 left-2 sm:left-auto z-[9999] max-w-[calc(100vw-1rem)] sm:max-w-md pointer-events-none flex justify-center sm:block"
      x-cloak>
     
     <!-- Timer Widget Card (Ultra-Clean, Responsive & Scrollable) -->
@@ -573,7 +573,7 @@
 
                     <!-- Center Content: Countdown & Subtitle -->
                     <div class="absolute inset-0 flex flex-col items-center justify-center text-center select-none px-2">
-                        <div class="text-[42px] font-black font-mono tracking-tight text-gray-900 dark:text-white drop-shadow-xs" x-text="formattedTime"></div>
+                        <div class="text-[42px] font-black font-mono tracking-tight tabular-nums text-gray-900 dark:text-white drop-shadow-xs" x-text="formattedTime"></div>
                         <div class="text-[10px] text-gray-500 dark:text-gray-400 font-bold mt-0.5 max-w-[180px] truncate" 
                              x-text="mode === 'flowtime' ? '🌊 Ritme Flowtime Bebas' : (isTaskConnected ? currentSelectedTask.title : 'Tetap fokus & tuntaskan!')"></div>
                         
@@ -1258,7 +1258,7 @@
 
             <!-- Info: Countdown, Daily Target, Streak & Title -->
             <div class="flex flex-col min-w-0 pr-1 cursor-pointer" @click="onFloatClick()">
-                <div class="flex items-center gap-1.5 font-black text-xs font-mono tracking-tight leading-none">
+                <div class="flex items-center gap-1.5 font-black text-xs font-mono tracking-tight leading-none tabular-nums">
                     <span x-text="formattedTime" :class="isRunning ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-900 dark:text-white'"></span>
                     
                     <!-- Daily Target Sessions Badge -->

@@ -182,13 +182,13 @@
                                 $frameEffect = '<div class="absolute inset-0 rounded-full border-2 border-orange-500 animate-pulse pointer-events-none z-10"></div>';
                             } elseif (auth()->user()->active_frame === 'frame_gold') {
                                 $frameClass = 'border-2 border-amber-400 ring-2 ring-yellow-300/80 shadow-[0_0_15px_rgba(250,204,21,0.6)]';
-                                $frameEffect = '<div class="absolute -top-5 left-1/2 -translate-x-1/2 w-10 sm:w-12 z-20 drop-shadow-md pointer-events-none"><img src="' . asset('images/frames/crown_gold.svg') . '" alt="Crown" class="w-full h-auto object-contain"></div><div class="absolute inset-0 rounded-full border-2 border-amber-400 pointer-events-none z-10"></div>';
+                                $frameEffect = '<div class="absolute -top-[28%] left-1/2 -translate-x-1/2 w-[55%] z-20 drop-shadow-md pointer-events-none"><img src="' . asset('images/frames/crown_gold.svg') . '" alt="Crown" class="w-full h-auto object-contain"></div><div class="absolute inset-0 rounded-full border-2 border-amber-400 pointer-events-none z-10"></div>';
                             }
                         @endphp
                         
-                        <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full relative bg-gray-100 dark:bg-gray-700 {{ $frameClass }} p-0.5">
+                        <div class="w-16 h-16 sm:w-20 sm:h-20 aspect-square shrink-0 rounded-full relative bg-gray-100 dark:bg-gray-700 {{ $frameClass }} p-0.5">
                             {!! $frameEffect !!}
-                            <img src="{{ auth()->user()->avatar_url }}" alt="{{ auth()->user()->name }}" class="w-full h-full rounded-full object-cover bg-white dark:bg-gray-800">
+                            <img src="{{ auth()->user()->avatar_url }}" alt="{{ auth()->user()->name }}" class="w-full h-full aspect-square rounded-full object-cover bg-white dark:bg-gray-800">
                         </div>
 
                         <!-- Level Badge -->

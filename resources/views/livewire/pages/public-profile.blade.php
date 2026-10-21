@@ -119,15 +119,15 @@ new #[Layout('layouts.app')] class extends Component {
                                 $frameEffect = '<div class="absolute inset-0 rounded-full border-4 border-amber-400 pointer-events-none z-10"></div>';
                             }
                         @endphp
-                        <div class="relative shrink-0">
+                        <div class="relative shrink-0 aspect-square">
                             @if($user->active_frame === 'frame_gold')
-                                <div class="absolute -top-7 sm:-top-8 left-1/2 -translate-x-1/2 w-16 sm:w-20 z-20 pointer-events-none drop-shadow-xl">
+                                <div class="absolute -top-[28%] left-1/2 -translate-x-1/2 w-[55%] z-20 pointer-events-none drop-shadow-xl">
                                     <img src="{{ asset('images/frames/crown_gold.svg') }}" alt="Crown" class="w-full h-auto object-contain">
                                 </div>
                             @endif
-                            <div class="w-28 h-28 sm:w-32 sm:h-32 rounded-full p-1 bg-white dark:bg-gray-800 relative overflow-hidden {{ $frameClass }}">
+                            <div class="w-28 h-28 sm:w-32 sm:h-32 aspect-square shrink-0 rounded-full p-1 bg-white dark:bg-gray-800 relative overflow-hidden {{ $frameClass }}">
                                 {!! $frameEffect !!}
-                                <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}" class="w-full h-full rounded-full object-cover bg-white relative z-0">
+                                <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}" class="w-full h-full aspect-square rounded-full object-cover bg-white relative z-0">
                             </div>
                             <!-- Level Badge Pill -->
                             <div class="absolute -bottom-1 -right-1 z-30 bg-gradient-to-r from-amber-400 to-amber-500 text-yellow-950 font-black text-xs px-2.5 py-1 rounded-full border-2 border-white dark:border-gray-800 shadow-md flex items-center gap-1">

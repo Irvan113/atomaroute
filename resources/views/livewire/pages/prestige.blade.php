@@ -117,14 +117,14 @@ new #[Layout('layouts.app')] class extends Component {
                         $frameClass = 'border-4 border-amber-400 ring-2 ring-yellow-300/80 shadow-[0_0_18px_rgba(245,158,11,0.8)]';
                     }
                 @endphp
-                <div class="relative shrink-0">
+                <div class="relative shrink-0 aspect-square">
                     @if($activeFrame === 'frame_gold')
-                        <div class="absolute -top-4 left-1/2 -translate-x-1/2 w-10 z-20 pointer-events-none drop-shadow-md">
+                        <div class="absolute -top-[28%] left-1/2 -translate-x-1/2 w-[55%] z-20 pointer-events-none drop-shadow-md">
                             <img src="{{ asset('images/frames/crown_gold.svg') }}" alt="Crown" class="w-full h-auto object-contain">
                         </div>
                     @endif
-                    <div class="h-20 w-20 sm:h-24 sm:w-24 rounded-full {{ $frameClass }} overflow-hidden bg-white dark:bg-gray-700">
-                        <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}" class="w-full h-full object-cover">
+                    <div class="h-20 w-20 sm:h-24 sm:w-24 aspect-square shrink-0 rounded-full {{ $frameClass }} overflow-hidden bg-white dark:bg-gray-700">
+                        <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}" class="w-full h-full aspect-square object-cover">
                     </div>
                 </div>
 

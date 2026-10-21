@@ -292,7 +292,7 @@
         });
     </script>
     </head>
-    <body class="font-sans antialiased bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col md:flex-row h-screen overflow-hidden" 
+    <body class="font-sans antialiased bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col md:flex-row min-h-[100dvh] h-[100dvh] overflow-hidden" 
           x-data="{ sidebarCollapsed: localStorage.getItem('sidebarCollapsed') === 'true' }" 
           x-init="$watch('sidebarCollapsed', val => localStorage.setItem('sidebarCollapsed', val))" 
           @toggle-sidebar.window="sidebarCollapsed = !sidebarCollapsed">
@@ -301,12 +301,12 @@
         <div id="atoma-nav-progress" class="fixed top-0 left-0 h-[2.5px] w-0 bg-gradient-to-r from-atoma-blue via-atoma-cyan to-indigo-500 z-[9999] transition-all duration-300 ease-out opacity-0 pointer-events-none shadow-[0_0_8px_rgba(62,100,255,0.7)]"></div>
 
         <!-- Navigation (Left on Desktop, Bottom on Mobile) -->
-        <aside :class="sidebarCollapsed ? 'flex md:hidden' : 'flex md:flex md:w-72 lg:w-80'" class="fixed bottom-0 w-full md:relative border-t md:border-t-0 md:border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shrink-0 z-20 flex-col h-[calc(4rem+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] md:h-full md:pb-0 transition-all duration-300">
+        <aside :class="sidebarCollapsed ? 'flex md:hidden' : 'flex md:flex md:w-20 xl:w-72'" class="atoma-bottom-nav fixed bottom-0 w-full md:relative border-t md:border-t-0 md:border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shrink-0 z-20 flex-col h-[calc(4rem+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] md:h-full md:pb-0 transition-all duration-300">
             <livewire:layout.navigation />
         </aside>
 
         <!-- Main Content (Right on Desktop) -->
-        <main class="flex-1 overflow-y-auto overflow-x-hidden w-full relative pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] md:pb-0 min-w-0 scroll-smooth">
+        <main class="atoma-main-container @container flex-1 overflow-y-auto overflow-x-hidden w-full relative pb-safe-nav md:pb-0 min-w-0 scroll-smooth">
             @auth
                 <livewire:layout.top-header />
             @endauth
