@@ -896,37 +896,13 @@
                         }
                     }
 
-                    // Desktop Tauri (Strong Attention, Unminimize, Always-on-Top & Alert)
-                    if (window.AtomaPlatform.isTauri()) {
+                    // Desktop Tauri Native Notification Banner
+                    if (window.AtomaPlatform.isTauri() && window.__TAURI__?.notification?.sendNotification) {
                         try {
-                            // 1. Invoke native Rust strong alert (unminimizes, flashes taskbar, temporary always-on-top)
-                            if (window.__TAURI__?.core?.invoke) {
-                                window.__TAURI__.core.invoke('trigger_strong_alert').catch(() => {});
-                            } else if (window.__TAURI__?.invoke) {
-                                window.__TAURI__.invoke('trigger_strong_alert').catch(() => {});
-                            }
-
-                            // 2. Window API direct fallback
-                            const currentWin = window.__TAURI__?.window?.getCurrentWindow?.() || (typeof window.__TAURI_INTERNALS__ !== 'undefined' && window.__TAURI__?.getCurrentWindow?.());
-                            if (currentWin) {
-                                currentWin.show?.().catch(() => {});
-                                currentWin.unminimize?.().catch(() => {});
-                                currentWin.setAlwaysOnTop?.(true).then(() => {
-                                    setTimeout(() => {
-                                        currentWin.setAlwaysOnTop?.(false).catch(() => {});
-                                    }, 5000);
-                                }).catch(() => {});
-                                currentWin.requestUserAttention?.(2).catch(() => {});
-                                currentWin.setFocus?.().catch(() => {});
-                            }
-
-                            // 3. Send system notification banner
-                            if (window.__TAURI__?.notification?.sendNotification) {
-                                window.__TAURI__.notification.sendNotification({ title, body });
-                            }
+                            window.__TAURI__.notification.sendNotification({ title, body });
                             return;
                         } catch (e) {
-                            console.warn('[ATOMA Desktop] Strong alert error:', e);
+                            console.warn('[ATOMA Desktop] Notification error:', e);
                         }
                     }
 

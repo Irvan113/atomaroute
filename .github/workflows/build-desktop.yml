@@ -2,11 +2,6 @@ name: Build Desktop App (.EXE)
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    tags:
-      - 'v*'
 
 jobs:
   build-windows:
