@@ -824,17 +824,33 @@
                 },
 
                 // Schedule a local notification (e.g. for task deadline or reminder)
-                async schedule({ id, title, body, at, sound = 'chime' }) {
+                async schedule({ id, title, body, at, epoch_ms = null, sound = 'chime' }) {
                     await this.init();
                     const triggerDate = at instanceof Date ? at : new Date(at);
                     if (isNaN(triggerDate.getTime()) || triggerDate <= new Date()) {
                         return false;
                     }
+                    const notifId = typeof id === 'number' ? id : (Math.abs(parseInt(id, 10)) || Math.floor(Math.random() * 1000000));
+                    const triggerEpoch = epoch_ms || triggerDate.getTime();
 
-                    // Android Native Exact Alarm via Capacitor
+                    // 1. Android Direct Native AlarmManager via AtomaBridge (100% reliable, works even when app killed)
+                    if (window.AtomaBridge && typeof window.AtomaBridge.scheduleNativeReminder === 'function') {
+                        try {
+                            window.AtomaBridge.scheduleNativeReminder(
+                                notifId,
+                                title || '⚠️ Pengingat Tugas ATOMA',
+                                body || 'Waktunya menyelesaikan target fokus Anda!',
+                                triggerEpoch
+                            );
+                            return true;
+                        } catch (e) {
+                            console.warn('[ATOMA Native] Bridge alarm error:', e);
+                        }
+                    }
+
+                    // 2. Android Native Exact Alarm via Capacitor LocalNotifications
                     if (window.AtomaPlatform.isCapacitor() && window.Capacitor?.Plugins?.LocalNotifications) {
                         try {
-                            const notifId = typeof id === 'number' ? id : (Math.abs(parseInt(id, 10)) || Math.floor(Math.random() * 1000000));
                             await window.Capacitor.Plugins.LocalNotifications.schedule({
                                 notifications: [{
                                     id: notifId,
@@ -857,9 +873,18 @@
 
                 // Cancel scheduled notification
                 async cancel(id) {
+                    const notifId = typeof id === 'number' ? id : (Math.abs(parseInt(id, 10)) || 0);
+
+                    // 1. Direct Native Alarm Cancel via AtomaBridge
+                    if (window.AtomaBridge && typeof window.AtomaBridge.cancelNativeReminder === 'function') {
+                        try {
+                            window.AtomaBridge.cancelNativeReminder(notifId);
+                        } catch (e) {}
+                    }
+
+                    // 2. Capacitor LocalNotifications Cancel
                     if (window.AtomaPlatform.isCapacitor() && window.Capacitor?.Plugins?.LocalNotifications) {
                         try {
-                            const notifId = typeof id === 'number' ? id : (Math.abs(parseInt(id, 10)) || 0);
                             await window.Capacitor.Plugins.LocalNotifications.cancel({
                                 notifications: [{ id: notifId }]
                             });
@@ -1113,6 +1138,11 @@
                                             data.latest_journal.date || '',
                                             data.latest_journal.id || 0
                                         );
+                                    }
+                                    if (Array.isArray(data.reminders) && window.AtomaNativeNotification) {
+                                        data.reminders.forEach(rem => {
+                                            window.AtomaNativeNotification.schedule(rem);
+                                        });
                                     }
                                 }
                             })

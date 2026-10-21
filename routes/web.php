@@ -3,7 +3,12 @@
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
-Route::view('/', 'welcome');
+Route::get('/', function () {
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
+    return view('welcome');
+});
 Route::view('guide', 'guide')->name('guide');
 Route::view('terms', 'terms')->name('terms');
 
@@ -362,6 +367,33 @@ Route::middleware(['auth', 'throttle:60,1'])->group(function () {
             ->latest('created_at')
             ->first(['id', 'title', 'content', 'created_at']);
 
+        $now = \Carbon\Carbon::now($userTz);
+        $reminders = $user->tasks()
+            ->whereDate('date', $today)
+            ->where('is_completed', false)
+            ->whereNotNull('deadline')
+            ->where('deadline', '!=', '')
+            ->get(['id', 'title', 'deadline', 'date'])
+            ->filter(function ($t) use ($today, $userTz, $now) {
+                try {
+                    $dt = \Carbon\Carbon::parse("{$today} {$t->deadline}", $userTz);
+                    return $dt->isAfter($now);
+                } catch (\Throwable $e) {
+                    return false;
+                }
+            })
+            ->map(function ($t) use ($today, $userTz) {
+                $dt = \Carbon\Carbon::parse("{$today} {$t->deadline}", $userTz);
+                return [
+                    'id' => (int) $t->id,
+                    'title' => '⚠️ Pengingat Deadline: ' . $t->title,
+                    'body' => 'Deadline tugas ini adalah pukul ' . $t->deadline . '. Selesaikan sekarang!',
+                    'at' => $dt->toIso8601String(),
+                    'epoch_ms' => $dt->getTimestamp() * 1000,
+                ];
+            })
+            ->values();
+
         return response()->json([
             'success' => true,
             'today' => $today,
@@ -375,6 +407,7 @@ Route::middleware(['auth', 'throttle:60,1'])->group(function () {
                     'time' => $task->start_time ?: $task->deadline ?: '',
                 ];
             }),
+            'reminders' => $reminders,
             'latest_journal' => $latestJournal ? [
                 'id' => $latestJournal->id,
                 'title' => $latestJournal->title ?: 'Catatan Harian',
