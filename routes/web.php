@@ -358,6 +358,10 @@ Route::middleware(['auth', 'throttle:60,1'])->group(function () {
             ->where('is_completed', true)
             ->count();
 
+        $latestJournal = $user->journals()
+            ->latest('created_at')
+            ->first(['id', 'title', 'content', 'created_at']);
+
         return response()->json([
             'success' => true,
             'today' => $today,
@@ -371,6 +375,50 @@ Route::middleware(['auth', 'throttle:60,1'])->group(function () {
                     'time' => $task->start_time ?: $task->deadline ?: '',
                 ];
             }),
+            'latest_journal' => $latestJournal ? [
+                'id' => $latestJournal->id,
+                'title' => $latestJournal->title ?: 'Catatan Harian',
+                'snippet' => \Illuminate\Support\Str::limit(strip_tags($latestJournal->content), 120),
+                'date' => \Carbon\Carbon::parse($latestJournal->created_at)->locale('id')->isoFormat('D MMM YYYY, HH:mm'),
+            ] : null,
+        ]);
+    });
+
+    Route::post('/api/widget/toggle-task', function (\Illuminate\Http\Request $request) {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
+
+        $taskId = $request->input('task_id');
+        $task = $user->tasks()->find($taskId);
+        if (!$task) {
+            return response()->json(['success' => false, 'message' => 'Task not found'], 404);
+        }
+
+        $newStatus = !$task->is_completed;
+        $task->is_completed = $newStatus;
+        if ($newStatus) {
+            $task->is_completed_overdue = $task->isOverdue();
+            $task->save();
+            \App\Services\TaskXpService::evaluateTaskCompletion($task, $user);
+        } else {
+            $task->is_completed_overdue = false;
+            $task->save();
+        }
+
+        $userTz = $user->timezone ?? config('app.timezone', 'Asia/Jakarta');
+        $today = \Carbon\Carbon::today($userTz)->toDateString();
+        $remainingCount = $user->tasks()
+            ->whereDate('date', $today)
+            ->where('is_completed', false)
+            ->count();
+
+        return response()->json([
+            'success' => true,
+            'task_id' => $task->id,
+            'is_completed' => $task->is_completed,
+            'remaining_count' => $remainingCount,
         ]);
     });
 

@@ -870,10 +870,10 @@
                 },
 
                 // Trigger instant notification
-                async notifyNow({ title, body, sound = 'chime' }) {
+                async notifyNow({ title, body, sound = null }) {
                     await this.init();
 
-                    // Play audio effect
+                    // Play audio effect (defaults to user configured notification sound / custom)
                     if (window.AtomaAudio) {
                         window.AtomaAudio.play(sound);
                     }
@@ -896,12 +896,38 @@
                         }
                     }
 
-                    // Desktop Tauri
-                    if (window.AtomaPlatform.isTauri() && window.__TAURI__?.notification) {
+                    // Desktop Tauri (Strong Attention, Unminimize, Always-on-Top & Alert)
+                    if (window.AtomaPlatform.isTauri()) {
                         try {
-                            window.__TAURI__.notification.sendNotification({ title, body });
+                            // 1. Invoke native Rust strong alert (unminimizes, flashes taskbar, temporary always-on-top)
+                            if (window.__TAURI__?.core?.invoke) {
+                                window.__TAURI__.core.invoke('trigger_strong_alert').catch(() => {});
+                            } else if (window.__TAURI__?.invoke) {
+                                window.__TAURI__.invoke('trigger_strong_alert').catch(() => {});
+                            }
+
+                            // 2. Window API direct fallback
+                            const currentWin = window.__TAURI__?.window?.getCurrentWindow?.() || (typeof window.__TAURI_INTERNALS__ !== 'undefined' && window.__TAURI__?.getCurrentWindow?.());
+                            if (currentWin) {
+                                currentWin.show?.().catch(() => {});
+                                currentWin.unminimize?.().catch(() => {});
+                                currentWin.setAlwaysOnTop?.(true).then(() => {
+                                    setTimeout(() => {
+                                        currentWin.setAlwaysOnTop?.(false).catch(() => {});
+                                    }, 5000);
+                                }).catch(() => {});
+                                currentWin.requestUserAttention?.(2).catch(() => {});
+                                currentWin.setFocus?.().catch(() => {});
+                            }
+
+                            // 3. Send system notification banner
+                            if (window.__TAURI__?.notification?.sendNotification) {
+                                window.__TAURI__.notification.sendNotification({ title, body });
+                            }
                             return;
-                        } catch (e) {}
+                        } catch (e) {
+                            console.warn('[ATOMA Desktop] Strong alert error:', e);
+                        }
                     }
 
                     // Standard Web Notification fallback
@@ -1096,12 +1122,22 @@
             // Native Android Widget Real-Time Synchronization Bridge
             (function() {
                 window.syncAtomaWidget = function() {
-                    if (window.AtomaBridge && window.AtomaBridge.syncTasksToWidget) {
+                    if (window.AtomaBridge) {
                         fetch('/api/widget/summary', { credentials: 'same-origin' })
                             .then(r => r.json())
                             .then(data => {
-                                if (data && data.success && window.AtomaBridge && window.AtomaBridge.syncTasksToWidget) {
-                                    window.AtomaBridge.syncTasksToWidget(JSON.stringify(data.tasks), data.remaining_count);
+                                if (data && data.success && window.AtomaBridge) {
+                                    if (data.tasks && window.AtomaBridge.syncTasksToWidget) {
+                                        window.AtomaBridge.syncTasksToWidget(JSON.stringify(data.tasks), data.remaining_count);
+                                    }
+                                    if (data.latest_journal && window.AtomaBridge.syncNotesToWidget) {
+                                        window.AtomaBridge.syncNotesToWidget(
+                                            data.latest_journal.title || 'Catatan Harian',
+                                            data.latest_journal.snippet || '',
+                                            data.latest_journal.date || '',
+                                            data.latest_journal.id || 0
+                                        );
+                                    }
                                 }
                             })
                             .catch(() => {});
@@ -1121,6 +1157,12 @@
                     if (window.AtomaBridge) window.syncAtomaWidget();
                 });
                 window.addEventListener('task-completed', () => {
+                    if (window.AtomaBridge) window.syncAtomaWidget();
+                });
+                window.addEventListener('journal-saved', () => {
+                    if (window.AtomaBridge) window.syncAtomaWidget();
+                });
+                window.addEventListener('journal-updated', () => {
                     if (window.AtomaBridge) window.syncAtomaWidget();
                 });
             })();

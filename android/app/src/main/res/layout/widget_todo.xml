@@ -15,20 +15,34 @@
         android:orientation="horizontal">
 
         <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
             android:contentDescription="@string/app_name"
             android:src="@drawable/ic_widget_check" />
 
-        <TextView
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_weight="1"
-            android:text="ATOMA To-Do"
-            android:textColor="@color/widget_text_primary"
-            android:textSize="13sp"
-            android:textStyle="bold" />
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ATOMA To-Do"
+                android:textColor="@color/widget_text_primary"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/widget_todo_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hari ini"
+                android:textColor="@color/widget_text_secondary"
+                android:textSize="10sp" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/widget_todo_counter"
@@ -52,7 +66,7 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:gravity="center"
-        android:text="Semua tugas hari ini selesai. Mantap!"
+        android:text="🎉 Semua tugas hari ini selesai. Mantap!"
         android:textColor="@color/widget_text_secondary"
         android:textSize="11sp"
         android:visibility="gone" />
@@ -76,19 +90,18 @@
             android:orientation="horizontal"
             android:visibility="gone">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="•"
-                android:textColor="#60A5FA"
-                android:textSize="12sp"
-                android:textStyle="bold" />
+            <ImageView
+                android:id="@+id/todo_item_1_check"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:contentDescription="Check task"
+                android:src="@drawable/ic_widget_checkbox_uncheck" />
 
             <TextView
                 android:id="@+id/todo_item_1_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
+                android:layout_marginStart="8dp"
                 android:layout_weight="1"
                 android:ellipsize="end"
                 android:maxLines="1"
@@ -100,7 +113,12 @@
                 android:id="@+id/todo_item_1_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
+                android:layout_marginStart="6dp"
+                android:background="@drawable/widget_btn_surface"
+                android:paddingStart="6dp"
+                android:paddingTop="2dp"
+                android:paddingEnd="6dp"
+                android:paddingBottom="2dp"
                 android:text=""
                 android:textColor="@color/widget_text_secondary"
                 android:textSize="9sp" />
@@ -116,19 +134,18 @@
             android:orientation="horizontal"
             android:visibility="gone">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="•"
-                android:textColor="#38BDF8"
-                android:textSize="12sp"
-                android:textStyle="bold" />
+            <ImageView
+                android:id="@+id/todo_item_2_check"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:contentDescription="Check task"
+                android:src="@drawable/ic_widget_checkbox_uncheck" />
 
             <TextView
                 android:id="@+id/todo_item_2_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
+                android:layout_marginStart="8dp"
                 android:layout_weight="1"
                 android:ellipsize="end"
                 android:maxLines="1"
@@ -140,7 +157,12 @@
                 android:id="@+id/todo_item_2_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
+                android:layout_marginStart="6dp"
+                android:background="@drawable/widget_btn_surface"
+                android:paddingStart="6dp"
+                android:paddingTop="2dp"
+                android:paddingEnd="6dp"
+                android:paddingBottom="2dp"
                 android:text=""
                 android:textColor="@color/widget_text_secondary"
                 android:textSize="9sp" />
@@ -155,19 +177,18 @@
             android:orientation="horizontal"
             android:visibility="gone">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="•"
-                android:textColor="#A855F7"
-                android:textSize="12sp"
-                android:textStyle="bold" />
+            <ImageView
+                android:id="@+id/todo_item_3_check"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:contentDescription="Check task"
+                android:src="@drawable/ic_widget_checkbox_uncheck" />
 
             <TextView
                 android:id="@+id/todo_item_3_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
+                android:layout_marginStart="8dp"
                 android:layout_weight="1"
                 android:ellipsize="end"
                 android:maxLines="1"
@@ -179,7 +200,12 @@
                 android:id="@+id/todo_item_3_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
+                android:layout_marginStart="6dp"
+                android:background="@drawable/widget_btn_surface"
+                android:paddingStart="6dp"
+                android:paddingTop="2dp"
+                android:paddingEnd="6dp"
+                android:paddingBottom="2dp"
                 android:text=""
                 android:textColor="@color/widget_text_secondary"
                 android:textSize="9sp" />

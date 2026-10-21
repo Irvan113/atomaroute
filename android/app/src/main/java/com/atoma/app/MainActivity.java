@@ -140,6 +140,22 @@ public class MainActivity extends BridgeActivity {
         }
 
         @JavascriptInterface
+        public void syncNotesToWidget(String title, String snippet, String date, long noteId) {
+            try {
+                SharedPreferences prefs = context.getSharedPreferences("AtomaNotesPrefs", Context.MODE_PRIVATE);
+                prefs.edit()
+                    .putLong("latest_note_id", noteId)
+                    .putString("latest_note_title", title != null ? title : "")
+                    .putString("latest_note_snippet", snippet != null ? snippet : "")
+                    .putString("latest_note_date", date != null ? date : "")
+                    .putLong("last_updated", System.currentTimeMillis())
+                    .apply();
+
+                NotesWidgetProvider.updateAllWidgets(context);
+            } catch (Throwable ignored) {}
+        }
+
+        @JavascriptInterface
         public void syncPomodoro(boolean isRunning, long remainingMs) {
             try {
                 SharedPreferences prefs = context.getSharedPreferences("AtomaPomodoroPrefs", Context.MODE_PRIVATE);

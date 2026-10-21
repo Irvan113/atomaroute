@@ -50,6 +50,7 @@
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="com.atoma.app.ACTION_SYNC_TODOS" />
+                <action android:name="com.atoma.app.ACTION_TOGGLE_TASK" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
@@ -78,6 +79,7 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.atoma.app.ACTION_SYNC_NOTES" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"

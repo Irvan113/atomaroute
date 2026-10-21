@@ -633,6 +633,7 @@ new #[Layout('layouts.app')] class extends Component {
 
         $this->reset(['editingJournalId', 'title', 'content', 'reference_url', 'mood', 'tags', 'newTag', 'photos', 'selectedLinkedNoteIds', 'showCreateModal']);
         $this->dispatch('toast', message: $msg, type: 'success');
+        $this->dispatch('journal-saved');
     }
 
     #[On('delete-journal')]

@@ -52,43 +52,23 @@
             async handleFileUpload(event) {
                 const file = event.target.files[0];
                 if (!file) return;
+
+                if (file.size > 3.0 * 1024 * 1024) {
+                    window.dispatchEvent(new CustomEvent('toast', { detail: { message: '{{ __('Ukuran file maksimal 3 MB untuk nada notifikasi.') }}', type: 'error' } }));
+                    return;
+                }
                 
                 this.isProcessing = true;
-                this.optimizationStats = '{{ __('Mengompres & memotong audio ke 5 detik...') }}';
+                this.optimizationStats = '{{ __('Memproses audio jernih...') }}';
 
                 try {
                     const AudioCtx = window.AudioContext || window.webkitAudioContext;
                     const ctx = new AudioCtx();
                     const arrayBuffer = await file.arrayBuffer();
                     const decoded = await ctx.decodeAudioData(arrayBuffer);
-                    
-                    // Strategy 3: Cap at max 5.0 seconds duration
-                    const maxDuration = 5.0;
-                    const targetDuration = Math.min(decoded.duration, maxDuration);
-                    const targetSampleRate = 22050; // Resample to 22.05kHz for ~90% size reduction
-                    const targetSamples = Math.floor(targetDuration * targetSampleRate);
-                    
-                    // Mixdown channels into single mono track
-                    const monoBuffer = new Float32Array(targetSamples);
-                    const origRate = decoded.sampleRate;
-                    const ratio = origRate / targetSampleRate;
-                    const channels = decoded.numberOfChannels;
+                    const realDuration = decoded.duration;
 
-                    for (let i = 0; i < targetSamples; i++) {
-                        const origIdx = Math.floor(i * ratio);
-                        if (origIdx < decoded.length) {
-                            let sum = 0;
-                            for (let ch = 0; ch < channels; ch++) {
-                                sum += decoded.getChannelData(ch)[origIdx] || 0;
-                            }
-                            monoBuffer[i] = sum / channels;
-                        }
-                    }
-
-                    // Encode into compact 16-bit Mono WAV
-                    const wavBlob = this.encodeWAV(monoBuffer, targetSampleRate);
-                    
-                    // Convert Blob to Data URL
+                    // If file is under 2.5MB, preserve original encoded audio (MP3/WAV/OGG) to maintain 100% sound fidelity & exact duration
                     const reader = new FileReader();
                     reader.onload = (e) => {
                         const base64 = e.target.result;
@@ -96,10 +76,9 @@
                         localStorage.setItem('atoma_custom_sound_data', base64);
                         
                         const origKb = (file.size / 1024).toFixed(1);
-                        const newKb = (wavBlob.size / 1024).toFixed(1);
-                        const durSec = targetDuration.toFixed(1);
-                        const nameStr = `${file.name.substring(0, 18)} (${durSec}s • ${newKb} KB)`;
-                        const statsMsg = `✅ Dipotong maks ${durSec}s (${origKb} KB ➔ ${newKb} KB)`;
+                        const durSec = realDuration.toFixed(1);
+                        const nameStr = `${file.name.substring(0, 18)} (${durSec}s • ${origKb} KB)`;
+                        const statsMsg = `✅ Suara jernih original (${durSec}s • ${origKb} KB)`;
                         
                         localStorage.setItem('atoma_custom_sound_name', nameStr);
                         this.customSoundName = nameStr;
@@ -109,14 +88,14 @@
                         this.isProcessing = false;
                         this.saveSoundSettings();
                         this.testSound('custom');
-                        window.dispatchEvent(new CustomEvent('toast', { detail: { message: `Audio kustom dioptimasi ke ${durSec} detik (${newKb} KB)!`, type: 'success' } }));
+                        window.dispatchEvent(new CustomEvent('toast', { detail: { message: `Audio kustom aktif (${durSec} detik)!`, type: 'success' } }));
                     };
-                    reader.readAsDataURL(wavBlob);
+                    reader.readAsDataURL(file);
                 } catch (err) {
-                    console.error('Audio compression error:', err);
+                    console.error('Audio load error:', err);
                     this.isProcessing = false;
                     this.optimizationStats = '';
-                    window.dispatchEvent(new CustomEvent('toast', { detail: { message: '{{ __('Gagal memproses file audio. Coba file MP3/WAV lainnya.') }}', type: 'error' } }));
+                    window.dispatchEvent(new CustomEvent('toast', { detail: { message: '{{ __('Gagal membaca file audio. Pastikan format MP3, WAV, atau OGG valid.') }}', type: 'error' } }));
                 }
             },
             encodeWAV(samples, sampleRate) {
