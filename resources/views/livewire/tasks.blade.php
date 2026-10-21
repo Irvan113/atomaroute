@@ -3746,7 +3746,7 @@ new #[Layout('layouts.app')] class extends Component {
             </button>
 
             <!-- Insights Card -->
-            <a href="{{ route('insights') }}" wire:navigate.hover class="flex flex-col items-center justify-center bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 py-2 sm:py-2.5 px-1 hover:bg-atoma-ice/30 dark:hover:bg-gray-750 hover:border-atoma-cyan/40 transition-all transform hover:scale-[1.02] cursor-pointer text-atoma-cyan min-h-[56px] sm:min-h-[68px]">
+            <a href="{{ route('insights') }}" wire:navigate class="flex flex-col items-center justify-center bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 py-2 sm:py-2.5 px-1 hover:bg-atoma-ice/30 dark:hover:bg-gray-750 hover:border-atoma-cyan/40 transition-all transform hover:scale-[1.02] cursor-pointer text-atoma-cyan min-h-[56px] sm:min-h-[68px]">
                 <div class="h-5 w-5 sm:h-6 sm:w-6 mb-0.5 flex items-center justify-center">
                     <img src="{{ asset('images/icons/feature_insights.svg') }}" alt="Insights" class="w-4.5 h-4.5 sm:w-6 sm:h-6 object-contain">
                 </div>
@@ -3754,7 +3754,7 @@ new #[Layout('layouts.app')] class extends Component {
             </a>
 
             <!-- Milestone Card (Renamed from Skills) -->
-            <a href="{{ route('skills.index') }}" wire:navigate.hover class="flex flex-col items-center justify-center bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 py-2 sm:py-2.5 px-1 hover:bg-atoma-ice/30 dark:hover:bg-gray-750 hover:border-atoma-blue/40 transition-all transform hover:scale-[1.02] cursor-pointer text-atoma-blue dark:text-atoma-cyan min-h-[56px] sm:min-h-[68px]">
+            <a href="{{ route('skills.index') }}" wire:navigate class="flex flex-col items-center justify-center bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 py-2 sm:py-2.5 px-1 hover:bg-atoma-ice/30 dark:hover:bg-gray-750 hover:border-atoma-blue/40 transition-all transform hover:scale-[1.02] cursor-pointer text-atoma-blue dark:text-atoma-cyan min-h-[56px] sm:min-h-[68px]">
                 <div class="h-5 w-5 sm:h-6 sm:w-6 mb-0.5 flex items-center justify-center">
                     <img src="{{ asset('images/icons/feature_milestone.svg') }}" alt="Milestone" class="w-full h-full object-contain">
                 </div>

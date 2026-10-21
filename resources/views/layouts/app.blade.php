@@ -54,7 +54,7 @@
         </style>
 
         <!-- Dark Mode & Custom Theme Persistence (Blocking FOUC) -->
-        <script>
+        <script data-navigate-once>
             (function() {
                 function applyDarkMode() {
                     if (localStorage.getItem('darkMode') === 'true' || (!('darkMode' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -70,9 +70,23 @@
                 applyDarkMode();
 
                 // Bind to Livewire SPA events (both navigating & navigated)
-                document.addEventListener('livewire:navigating', applyDarkMode);
+                document.addEventListener('livewire:navigating', () => {
+                    const currentTheme = document.documentElement.getAttribute('data-theme');
+                    const isDark = document.documentElement.classList.contains('dark');
+                    
+                    document.addEventListener('livewire:navigated', () => {
+                        if (currentTheme) document.documentElement.setAttribute('data-theme', currentTheme);
+                        document.documentElement.classList.toggle('dark', isDark);
+                    }, { once: true });
+                });
                 document.addEventListener('livewire:navigated', applyDarkMode);
                 document.addEventListener('livewire:init', applyDarkMode);
+
+                // Reset scroll kontainer internal <main> ke paling atas setiap ganti halaman
+                document.addEventListener('livewire:navigated', () => {
+                    const mainCanvas = document.querySelector('.atoma-main-container');
+                    if (mainCanvas) mainCanvas.scrollTop = 0;
+                });
 
                 // Global toggle function
                 window.toggleDarkMode = function() {
@@ -301,31 +315,37 @@
         <div id="atoma-nav-progress" class="fixed top-0 left-0 h-[2.5px] w-0 bg-gradient-to-r from-atoma-blue via-atoma-cyan to-indigo-500 z-[9999] transition-all duration-300 ease-out opacity-0 pointer-events-none shadow-[0_0_8px_rgba(62,100,255,0.7)]"></div>
 
         <!-- Navigation (Left on Desktop, Bottom on Mobile) -->
-        <aside :class="sidebarCollapsed ? 'flex md:hidden' : 'flex md:flex md:w-20 xl:w-72'" class="atoma-bottom-nav fixed bottom-0 w-full md:relative border-t md:border-t-0 md:border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shrink-0 z-20 flex-col h-[calc(4rem+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] md:h-full md:pb-0 transition-all duration-300">
-            <livewire:layout.navigation />
-        </aside>
+        @persist('atoma-navigation-shell')
+            <aside :class="sidebarCollapsed ? 'flex md:hidden' : 'flex md:flex md:w-20 xl:w-72'" class="atoma-bottom-nav fixed bottom-0 w-full md:relative border-t md:border-t-0 md:border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shrink-0 z-20 flex-col h-[calc(4rem+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] md:h-full md:pb-0 transition-all duration-300">
+                <livewire:layout.navigation />
+            </aside>
+        @endpersist
 
-        <!-- Main Content (Right on Desktop) -->
-        <main class="atoma-main-container @container flex-1 overflow-y-auto overflow-x-hidden w-full relative pb-safe-nav md:pb-0 min-w-0 scroll-smooth">
+        <div class="flex-1 flex flex-col min-w-0 h-full overflow-hidden relative">
             @auth
-                <livewire:layout.top-header />
+                @persist('atoma-top-header')
+                    <livewire:layout.top-header />
+                @endpersist
             @endauth
-            
-            @if (isset($header))
-                <header class="bg-white/50 dark:bg-gray-800/50 backdrop-blur-md sticky top-0 z-10 border-b border-gray-200 dark:border-gray-700">
-                    <div class="px-4 py-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-                        {{ $header }}
-                    </div>
-                </header>
-            @endif
-            
-            <div class="p-3 sm:p-5 md:p-6 lg:p-8 max-w-7xl mx-auto w-full min-w-0">
-                @auth
-                    <x-subscription-reminder-banner />
-                @endauth
-                {{ $slot }}
-            </div>
-        </main>
+
+            <!-- Main Content (Right on Desktop) -->
+            <main class="atoma-main-container @container flex-1 overflow-y-auto overflow-x-hidden w-full relative pb-safe-nav md:pb-0 min-w-0 scroll-smooth">
+                @if (isset($header))
+                    <header class="bg-white/50 dark:bg-gray-800/50 backdrop-blur-md sticky top-0 z-10 border-b border-gray-200 dark:border-gray-700">
+                        <div class="px-4 py-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+                            {{ $header }}
+                        </div>
+                    </header>
+                @endif
+                
+                <div class="p-3 sm:p-5 md:p-6 lg:p-8 max-w-7xl mx-auto w-full min-w-0">
+                    @auth
+                        <x-subscription-reminder-banner />
+                    @endauth
+                    {{ $slot }}
+                </div>
+            </main>
+        </div>
 
         <!-- Pomodoro Timer Widget (Persisted across wire:navigate) -->
         @persist('pomodoro-timer')
@@ -463,7 +483,7 @@
         </div>
 
         <!-- Global Web Audio Synthesizer & Custom Sound Player -->
-        <script>
+        <script data-navigate-once>
             window.AtomaAudio = {
                 ctx: null,
                 getContext() {
@@ -763,7 +783,7 @@
         </script>
 
         <!-- Unified Native Notification & Platform Bridge (Capacitor Android & Tauri Desktop) -->
-        <script>
+        <script data-navigate-once>
             window.AtomaPlatform = {
                 isCapacitor() {
                     return Boolean(window.Capacitor && (typeof window.Capacitor.isNativePlatform === 'function' ? window.Capacitor.isNativePlatform() : true));
@@ -992,7 +1012,7 @@
 
         <!-- Initialize Echo for Nudges -->
         @auth
-        <script>
+        <script data-navigate-once>
             document.addEventListener('DOMContentLoaded', () => {
                 setTimeout(() => {
                     if (window.Echo) {
@@ -1068,7 +1088,7 @@
         </div>
 
         <!-- PWA Service Worker & Install Prompt Registration -->
-        <script>
+        <script data-navigate-once>
             window.deferredPwaPrompt = null;
             window.addEventListener('beforeinstallprompt', (e) => {
                 e.preventDefault();

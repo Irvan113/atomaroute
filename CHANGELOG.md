@@ -24,6 +24,15 @@
 ### ⏱️ Eliminasi Jitter Visual (*Micro-Layout Shift*)
 - **Tipografi Tabular Numbers (`tabular-nums font-mono`)**: Menerapkan OpenType feature `tnum` pada jam real-time header, hitung mundur Pomodoro timer (baik modal utama maupun mini widget melayang), hitung mundur settlement XP harian, streak counter, dan indikator koin toko. Angka bergerak cepat tidak lagi menyebabkan pergeseran horizontal (*jitter*) pada kontainer.
 
+### 🚀 Akselerasi Navigasi SPA & View Transitions Terisolasi (Zero Full Refresh Sensation)
+- **Isolasi View Transitions ke Kontainer Main (`atoma-main-canvas`)**: Menghilangkan animasi transisi pada `::view-transition-old/new(root)` dan memindahkannya ke kanvas internal `.atoma-main-container`. Sidebar, Header, dan Bottom Nav tidak lagi berkedip (*flicker*) atau memudar saat pengguna berpindah menu.
+- **Persistent App Shell (`@persist('atoma-navigation-shell')` & `@persist('atoma-top-header')`)**: Membungkus Sidebar dan Top Header dengan `@persist` Livewire v3 sehingga pohon DOM navigasi tidak dihancurkan (*unmount*) dan dibuat ulang di setiap klik halaman.
+- **Reaktif State Navigasi Klien (Alpine.js Instant Highlighting)**: Memindahkan penentuan status menu aktif dari server-side `request()->routeIs()` ke state reaktif Alpine.js (`isActive(route)`) yang merespons event `livewire:navigated` dan `popstate` secara instan (0ms) tanpa menunggu respon SSR.
+- **Eliminasi Prefetch Flood & PHP Session Lock**: Menghapus seluruh `wire:navigate.hover` dan menggantinya dengan standar `wire:navigate`. Mencegah penumpukan antrean HTTP request akibat sapuan kursor yang sebelumnya mengunci sesi PHP (*Session Locking*) dan menahan TTFB hingga 300ms–800ms.
+- **Pembersihan Siklus Hidup Script Global (`data-navigate-once`)**: Menambahkan `data-navigate-once` pada seluruh tag `<script>` global (Synthesizer Web Audio, Platform Bridge Capacitor/Desktop, Echo Nudges, Service Worker, Dark Mode FOUC) agar tidak dieksekusi berulang atau mengakumulasi event listener di background.
+- **Scroll Restoration Kontainer Internal**: Menyematkan reset `scrollTop = 0` pada `.atoma-main-container` di setiap event `livewire:navigated`.
+- **Query Caching RPG Sidebar (60s)**: Mengoptimalkan pengecekan tugas belum selesai `hasUnfinishedTasksToday()` di Sidebar menggunakan cache memori 60 detik dengan invalidasi berbasis event `#[On('task-completed')]` dan `#[On('streak-updated')]`.
+
 ## [v1.0.1] - 2026-10-21 (07:34 – 08:21 WIB)
 
 ### 🎧 Audio & Notifikasi Kustom

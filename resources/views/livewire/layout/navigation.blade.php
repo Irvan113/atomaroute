@@ -3,6 +3,7 @@
 use App\Livewire\Actions\Logout;
 use Livewire\Volt\Component;
 use Livewire\Attributes\On;
+use Illuminate\Support\Facades\Cache;
 
 new class extends Component {
     
@@ -17,16 +18,23 @@ new class extends Component {
     {
         if (!$this->user) return false;
         
-        return $this->user->tasks()
-            ->whereDate('date', \Carbon\Carbon::today())
-            ->where('is_completed', false)
-            ->exists();
+        return Cache::remember("user_{$this->user->id}_unfinished_today_" . date('Y-m-d'), 60, function() {
+            return $this->user->tasks()
+                ->whereDate('date', \Carbon\Carbon::today())
+                ->where('is_completed', false)
+                ->exists();
+        });
     }
     
     #[On('profile-updated')]
+    #[On('streak-updated')]
+    #[On('task-completed')]
     public function refreshProfile()
     {
-        $this->user->refresh();
+        if ($this->user) {
+            Cache::forget("user_{$this->user->id}_unfinished_today_" . date('Y-m-d'));
+            $this->user->refresh();
+        }
     }
     
     #[On('sync-timezone')]
@@ -48,10 +56,46 @@ new class extends Component {
     }
 }; ?>
 
-<nav class="h-full flex flex-col md:py-4">
+<nav x-data="{
+    currentPath: window.location.pathname,
+    init() {
+        this.currentPath = window.location.pathname;
+        window.addEventListener('livewire:navigated', () => {
+            this.currentPath = window.location.pathname;
+        });
+        window.addEventListener('popstate', () => {
+            this.currentPath = window.location.pathname;
+        });
+    },
+    isActive(route) {
+        const p = this.currentPath || window.location.pathname;
+        if (route === 'dashboard') {
+            return p === '/' || p === '/dashboard' || p === '/tasks';
+        }
+        if (route === 'journal') {
+            return p.startsWith('/journal') || p.startsWith('/note');
+        }
+        if (route === 'leaderboard') {
+            return p.startsWith('/leaderboard') || p.startsWith('/rank') || p.startsWith('/prestige');
+        }
+        if (route === 'social') {
+            return p.startsWith('/social');
+        }
+        if (route === 'store') {
+            return p.startsWith('/store');
+        }
+        if (route === 'guide') {
+            return p.startsWith('/guide');
+        }
+        if (route === 'admin') {
+            return p.startsWith('/admin');
+        }
+        return p.startsWith('/' + route);
+    }
+}" class="h-full flex flex-col md:py-4">
     <!-- Desktop Brand, Notification, & Close Sidebar Button -->
     <div class="hidden md:flex items-center justify-between px-3 xl:px-5 mb-4 w-full">
-        <a href="{{ route('dashboard') }}" wire:navigate.hover class="flex items-center space-x-2.5 group shrink-0 mx-auto xl:mx-0">
+        <a href="{{ route('dashboard') }}" wire:navigate class="flex items-center space-x-2.5 group shrink-0 mx-auto xl:mx-0">
             <img src="/images/atoma_icon.png" alt="ATOMA Icon" class="h-8 w-auto object-contain drop-shadow-sm group-hover:scale-105 transition-transform">
             <span class="hidden xl:inline text-xl font-black tracking-wider bg-gradient-to-r from-atoma-blue to-atoma-cyan bg-clip-text text-transparent uppercase">
                 ATOMA
@@ -97,7 +141,7 @@ new class extends Component {
                     <img src="{{ asset('images/frames/crown_gold.svg') }}" alt="Crown" class="w-full h-auto object-contain">
                 </div>
             @endif
-            <a href="{{ route('profile') }}" wire:navigate.hover class="h-12 w-12 xl:h-20 xl:w-20 aspect-square shrink-0 rounded-full {{ $navFrameClass }} flex items-center justify-center text-atoma-blue text-2xl font-bold bg-white overflow-hidden transition-colors cursor-pointer group block">
+            <a href="{{ route('profile') }}" wire:navigate class="h-12 w-12 xl:h-20 xl:w-20 aspect-square shrink-0 rounded-full {{ $navFrameClass }} flex items-center justify-center text-atoma-blue text-2xl font-bold bg-white overflow-hidden transition-colors cursor-pointer group block">
                 <img src="{{ $user->avatar_url }}" alt="Avatar" class="w-full h-full object-cover group-hover:scale-105 transition-transform aspect-square">
             </a>
             @if($user->equipped_badge_details)
@@ -136,7 +180,7 @@ new class extends Component {
                 $prestigeTier = $user->prestige_tier_details;
                 $levelProg = $user->level_progress;
             @endphp
-            <a href="{{ route('prestige') }}" wire:navigate.hover 
+            <a href="{{ route('prestige') }}" wire:navigate 
                class="bg-atoma-ice/80 hover:bg-atoma-ice dark:bg-gray-700/50 dark:hover:bg-gray-700/80 rounded-2xl p-2.5 text-center border border-atoma-aqua/40 dark:border-gray-600 hover:border-atoma-blue/60 dark:hover:border-atoma-cyan/60 transition-all cursor-pointer group relative overflow-hidden shadow-2xs block select-none hover:scale-[1.02] active:scale-95" 
                title="{{ number_format($levelProg['current_xp']) }} / {{ number_format($levelProg['required_xp']) }} XP • {{ __('Klik untuk melihat Sistem Level & Prestige') }}">
                 <div class="absolute inset-y-0 left-0 bg-gradient-to-r {{ $prestigeTier['gradient'] }} opacity-25 group-hover:opacity-35 transition-all duration-1000" style="width: {{ $levelProg['percentage'] }}%"></div>
@@ -205,7 +249,11 @@ new class extends Component {
         </div>
 
         <!-- Dashboard / Tasks -->
-        <a href="{{ route('dashboard') }}" wire:navigate.hover class="flex flex-col md:flex-row items-center p-1.5 sm:p-2 md:px-2.5 md:py-2.5 xl:px-3 rounded-xl {{ request()->routeIs('dashboard') ? 'bg-atoma-ice dark:bg-atoma-blue/20 text-atoma-blue dark:text-atoma-cyan font-bold border border-atoma-aqua/50 dark:border-atoma-cyan/30 shadow-xs' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:text-atoma-blue dark:hover:text-atoma-cyan' }} transition-colors group flex-1 md:flex-none justify-center md:justify-center xl:justify-start relative select-none" title="{{ __('Tasks') }}">
+        <a href="{{ route('dashboard') }}" wire:navigate 
+           :class="isActive('dashboard') 
+               ? 'bg-atoma-ice dark:bg-atoma-blue/20 text-atoma-blue dark:text-atoma-cyan font-bold border border-atoma-aqua/50 dark:border-atoma-cyan/30 shadow-xs' 
+               : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:text-atoma-blue dark:hover:text-atoma-cyan'"
+           class="flex flex-col md:flex-row items-center p-1.5 sm:p-2 md:px-2.5 md:py-2.5 xl:px-3 rounded-xl transition-colors group flex-1 md:flex-none justify-center md:justify-center xl:justify-start relative select-none {{ request()->routeIs('dashboard') ? 'bg-atoma-ice dark:bg-atoma-blue/20 text-atoma-blue dark:text-atoma-cyan font-bold border border-atoma-aqua/50 dark:border-atoma-cyan/30 shadow-xs' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:text-atoma-blue dark:hover:text-atoma-cyan' }}" title="{{ __('Tasks') }}">
             <div class="relative md:mr-0 xl:mr-3 shrink-0">
                 <svg class="w-5 h-5 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
             </div>
@@ -219,7 +267,11 @@ new class extends Component {
         </a>
 
         <!-- Note (renamed from Journal) -->
-        <a href="{{ route('journal') }}" wire:navigate.hover class="flex flex-col md:flex-row items-center p-1.5 sm:p-2 md:px-2.5 md:py-2.5 xl:px-3 rounded-xl {{ request()->routeIs('journal') ? 'bg-atoma-ice dark:bg-atoma-blue/20 text-atoma-blue dark:text-atoma-cyan font-bold border border-atoma-aqua/50 dark:border-atoma-cyan/30 shadow-xs' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:text-atoma-blue dark:hover:text-atoma-cyan' }} transition-colors group flex-1 md:flex-none justify-center md:justify-center xl:justify-start select-none" title="{{ __('Note') }}">
+        <a href="{{ route('journal') }}" wire:navigate 
+           :class="isActive('journal') 
+               ? 'bg-atoma-ice dark:bg-atoma-blue/20 text-atoma-blue dark:text-atoma-cyan font-bold border border-atoma-aqua/50 dark:border-atoma-cyan/30 shadow-xs' 
+               : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:text-atoma-blue dark:hover:text-atoma-cyan'"
+           class="flex flex-col md:flex-row items-center p-1.5 sm:p-2 md:px-2.5 md:py-2.5 xl:px-3 rounded-xl transition-colors group flex-1 md:flex-none justify-center md:justify-center xl:justify-start select-none {{ request()->routeIs('journal') ? 'bg-atoma-ice dark:bg-atoma-blue/20 text-atoma-blue dark:text-atoma-cyan font-bold border border-atoma-aqua/50 dark:border-atoma-cyan/30 shadow-xs' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:text-atoma-blue dark:hover:text-atoma-cyan' }}" title="{{ __('Note') }}">
             <svg class="w-5 h-5 md:mr-0 xl:mr-3 shrink-0 group-hover:scale-105 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
             </svg>
@@ -310,7 +362,11 @@ new class extends Component {
         </div>
 
         <!-- Leaderboard / Rank -->
-        <a href="{{ route('leaderboard') }}" wire:navigate.hover class="flex flex-col md:flex-row items-center p-1.5 sm:p-2 md:px-2.5 md:py-2.5 xl:px-3 rounded-xl {{ request()->routeIs('leaderboard') ? 'bg-atoma-ice dark:bg-atoma-blue/20 text-atoma-blue dark:text-atoma-cyan font-bold border border-atoma-aqua/50 dark:border-atoma-cyan/30 shadow-xs' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:text-atoma-blue dark:hover:text-atoma-cyan' }} transition-colors group flex-1 md:flex-none justify-center md:justify-center xl:justify-start select-none" title="{{ __('Rank') }}">
+        <a href="{{ route('leaderboard') }}" wire:navigate 
+           :class="isActive('leaderboard') 
+               ? 'bg-atoma-ice dark:bg-atoma-blue/20 text-atoma-blue dark:text-atoma-cyan font-bold border border-atoma-aqua/50 dark:border-atoma-cyan/30 shadow-xs' 
+               : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:text-atoma-blue dark:hover:text-atoma-cyan'"
+           class="flex flex-col md:flex-row items-center p-1.5 sm:p-2 md:px-2.5 md:py-2.5 xl:px-3 rounded-xl transition-colors group flex-1 md:flex-none justify-center md:justify-center xl:justify-start select-none {{ request()->routeIs('leaderboard') ? 'bg-atoma-ice dark:bg-atoma-blue/20 text-atoma-blue dark:text-atoma-cyan font-bold border border-atoma-aqua/50 dark:border-atoma-cyan/30 shadow-xs' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:text-atoma-blue dark:hover:text-atoma-cyan' }}" title="{{ __('Rank') }}">
             <svg class="w-5 h-5 md:mr-0 xl:mr-3 shrink-0 group-hover:scale-105 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.504-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.003 0H9.497m5.003 0A5.25 5.25 0 0017.25 9V4.5H6.75V9a5.25 5.25 0 002.747 4.625M17.25 4.5h2.25a2.25 2.25 0 012.25 2.25v.75a3.75 3.75 0 01-3.75 3.75h-.75M6.75 4.5H4.5A2.25 2.25 0 002.25 6.75v.75a3.75 3.75 0 003.75 3.75h.75"></path>
             </svg>
@@ -318,13 +374,21 @@ new class extends Component {
         </a>
 
         <!-- Social / Sosial -->
-        <a href="{{ route('social') }}" wire:navigate.hover class="flex flex-col md:flex-row items-center p-1.5 sm:p-2 md:px-2.5 md:py-2.5 xl:px-3 rounded-xl {{ request()->routeIs('social') ? 'bg-atoma-ice dark:bg-atoma-blue/20 text-atoma-blue dark:text-atoma-cyan font-bold border border-atoma-aqua/50 dark:border-atoma-cyan/30 shadow-xs' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:text-atoma-blue dark:hover:text-atoma-cyan' }} transition-colors group flex-1 md:flex-none justify-center md:justify-center xl:justify-start relative select-none" title="{{ __('Sosial') }}">
+        <a href="{{ route('social') }}" wire:navigate 
+           :class="isActive('social') 
+               ? 'bg-atoma-ice dark:bg-atoma-blue/20 text-atoma-blue dark:text-atoma-cyan font-bold border border-atoma-aqua/50 dark:border-atoma-cyan/30 shadow-xs' 
+               : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:text-atoma-blue dark:hover:text-atoma-cyan'"
+           class="flex flex-col md:flex-row items-center p-1.5 sm:p-2 md:px-2.5 md:py-2.5 xl:px-3 rounded-xl transition-colors group flex-1 md:flex-none justify-center md:justify-center xl:justify-start relative select-none {{ request()->routeIs('social') ? 'bg-atoma-ice dark:bg-atoma-blue/20 text-atoma-blue dark:text-atoma-cyan font-bold border border-atoma-aqua/50 dark:border-atoma-cyan/30 shadow-xs' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:text-atoma-blue dark:hover:text-atoma-cyan' }}" title="{{ __('Sosial') }}">
             <svg class="w-5 h-5 md:mr-0 xl:mr-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
             <span class="text-[10px] sm:text-xs xl:text-sm mt-0.5 sm:mt-1 md:mt-0 font-medium truncate md:hidden xl:inline">{{ __('Sosial') }}</span>
         </a>
 
         <!-- Store / Toko Hadiah (Desktop Sidebar) -->
-        <a href="{{ route('store') }}" wire:navigate.hover class="hidden md:flex items-center p-2.5 xl:px-3 xl:py-2.5 rounded-xl {{ request()->routeIs('store') ? 'bg-atoma-ice dark:bg-atoma-blue/20 text-atoma-blue dark:text-atoma-cyan font-bold border border-atoma-aqua/50 dark:border-atoma-cyan/30 shadow-xs' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:text-atoma-blue dark:hover:text-atoma-cyan' }} transition-colors group font-medium text-xs sm:text-sm select-none justify-center xl:justify-start" title="{{ __('Store (:coins Koin)', ['coins' => number_format($user->coins ?? 0)]) }}">
+        <a href="{{ route('store') }}" wire:navigate 
+           :class="isActive('store') 
+               ? 'bg-atoma-ice dark:bg-atoma-blue/20 text-atoma-blue dark:text-atoma-cyan font-bold border border-atoma-aqua/50 dark:border-atoma-cyan/30 shadow-xs' 
+               : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:text-atoma-blue dark:hover:text-atoma-cyan'"
+           class="hidden md:flex items-center p-2.5 xl:px-3 xl:py-2.5 rounded-xl transition-colors group font-medium text-xs sm:text-sm select-none justify-center xl:justify-start {{ request()->routeIs('store') ? 'bg-atoma-ice dark:bg-atoma-blue/20 text-atoma-blue dark:text-atoma-cyan font-bold border border-atoma-aqua/50 dark:border-atoma-cyan/30 shadow-xs' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:text-atoma-blue dark:hover:text-atoma-cyan' }}" title="{{ __('Store (:coins Koin)', ['coins' => number_format($user->coins ?? 0)]) }}">
             <svg class="w-5 h-5 md:mr-0 xl:mr-3 shrink-0 group-hover:scale-105 transition-transform text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
             </svg>
@@ -351,7 +415,11 @@ new class extends Component {
         </button>
 
         <!-- Guide / Panduan Fitur -->
-        <a href="{{ route('guide') }}" wire:navigate.hover class="hidden md:flex items-center p-2.5 xl:px-3 xl:py-2 rounded-xl {{ request()->routeIs('guide') ? 'bg-atoma-ice dark:bg-atoma-blue/20 text-atoma-blue dark:text-atoma-cyan font-bold border border-atoma-aqua/50 dark:border-atoma-cyan/30 shadow-xs' : 'text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/30' }} transition-colors group font-medium text-xs sm:text-sm select-none justify-center xl:justify-start" title="{{ __('Panduan Fitur') }}">
+        <a href="{{ route('guide') }}" wire:navigate 
+           :class="isActive('guide') 
+               ? 'bg-atoma-ice dark:bg-atoma-blue/20 text-atoma-blue dark:text-atoma-cyan font-bold border border-atoma-aqua/50 dark:border-atoma-cyan/30 shadow-xs' 
+               : 'text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/30'"
+           class="hidden md:flex items-center p-2.5 xl:px-3 xl:py-2 rounded-xl transition-colors group font-medium text-xs sm:text-sm select-none justify-center xl:justify-start {{ request()->routeIs('guide') ? 'bg-atoma-ice dark:bg-atoma-blue/20 text-atoma-blue dark:text-atoma-cyan font-bold border border-atoma-aqua/50 dark:border-atoma-cyan/30 shadow-xs' : 'text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/30' }}" title="{{ __('Panduan Fitur') }}">
             <svg class="w-5 h-5 md:mr-0 xl:mr-3 shrink-0 group-hover:scale-110 transition-transform text-indigo-500/80 group-hover:text-indigo-600 dark:group-hover:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
             </svg>
@@ -360,7 +428,11 @@ new class extends Component {
 
         @if($user && ($user->is_admin || $user->id === 1))
             <!-- Admin Command Center Link -->
-            <a href="{{ route('admin.dashboard') }}" wire:navigate.hover class="hidden md:flex items-center p-2.5 xl:px-3 xl:py-2 rounded-xl {{ request()->routeIs('admin.*') ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 font-bold border border-indigo-200 dark:border-indigo-800 shadow-2xs' : 'text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/30' }} transition-colors group font-medium text-xs sm:text-sm select-none justify-center xl:justify-start" title="{{ __('Admin Center') }}">
+            <a href="{{ route('admin.dashboard') }}" wire:navigate 
+               :class="isActive('admin') 
+                   ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 font-bold border border-indigo-200 dark:border-indigo-800 shadow-2xs' 
+                   : 'text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/30'"
+               class="hidden md:flex items-center p-2.5 xl:px-3 xl:py-2 rounded-xl transition-colors group font-medium text-xs sm:text-sm select-none justify-center xl:justify-start {{ request()->routeIs('admin.*') ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 font-bold border border-indigo-200 dark:border-indigo-800 shadow-2xs' : 'text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/30' }}" title="{{ __('Admin Center') }}">
                 <span class="w-5 text-center md:mr-0 xl:mr-3 shrink-0 text-sm group-hover:scale-110 transition-transform">👑</span>
                 <span class="flex-1 hidden xl:inline">{{ __('Admin Center') }}</span>
                 <span class="hidden xl:inline text-[9px] font-black uppercase px-1.5 py-0.2 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">ADMIN</span>
@@ -372,7 +444,7 @@ new class extends Component {
     <div class="hidden md:flex flex-col px-2 xl:px-5 pt-3 pb-2 mt-auto border-t border-gray-100 dark:border-gray-700/60 select-none items-center xl:items-stretch">
         <div class="flex flex-col xl:flex-row items-center justify-between w-full gap-2 xl:gap-0">
             <!-- Settings Link -->
-            <a href="{{ route('profile') }}" wire:navigate.hover class="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 font-semibold text-xs sm:text-sm transition-colors py-1 justify-center xl:justify-start" title="{{ __('Settings') }}">
+            <a href="{{ route('profile') }}" wire:navigate class="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 font-semibold text-xs sm:text-sm transition-colors py-1 justify-center xl:justify-start" title="{{ __('Settings') }}">
                 <x-icon.gear class="w-4 h-4 text-gray-400" />
                 <span class="hidden xl:inline">{{ __('Settings') }}</span>
             </a>
@@ -400,7 +472,7 @@ new class extends Component {
 
         <!-- Subtle Terms & Privacy Link at Bottom -->
         <div class="hidden xl:flex mt-2 pt-2 border-t border-gray-100/70 dark:border-gray-750 items-center justify-between text-[11px] text-gray-400 dark:text-gray-500">
-            <a href="{{ route('terms') }}" wire:navigate.hover class="hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+            <a href="{{ route('terms') }}" wire:navigate class="hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
                 {{ __('Syarat & Privasi') }}
             </a>
             <span class="text-[10px] text-gray-300 dark:text-gray-600 font-medium">ATOMA</span>

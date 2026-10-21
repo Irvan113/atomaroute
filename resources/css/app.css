@@ -10,12 +10,19 @@
         navigation: auto;
     }
 
-    ::view-transition-old(root) {
-        animation: 160ms cubic-bezier(0.4, 0, 0.2, 1) both atoma-page-fade-out;
+    /* 1. Matikan transisi pada root agar Shell (Sidebar & Header) tidak ikut berkedip */
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+        animation: none;
     }
 
-    ::view-transition-new(root) {
-        animation: 200ms cubic-bezier(0, 0, 0.2, 1) both atoma-page-fade-in;
+    /* 2. Terapkan animasi perpindahan halaman HANYA pada kanvas konten utama */
+    ::view-transition-old(atoma-main-canvas) {
+        animation: 120ms cubic-bezier(0.4, 0, 1, 1) both atoma-page-fade-out;
+    }
+
+    ::view-transition-new(atoma-main-canvas) {
+        animation: 160ms cubic-bezier(0, 0, 0.2, 1) both atoma-page-fade-in;
     }
 
     @keyframes atoma-page-fade-out {
@@ -155,9 +162,10 @@ body {
         border: 1px solid rgba(62, 100, 255, 0.2);
     }
 
-    /* Container query root utility */
+    /* Container query root utility & isolated view-transition canvas */
     .atoma-main-container {
         container-type: inline-size;
+        view-transition-name: atoma-main-canvas;
     }
 
     /* Safe bottom navigation padding */
