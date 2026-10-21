@@ -1,6 +1,6 @@
 [package]
 name = "atoma"
-version = "1.0.0"
+version = "1.0.2"
 description = "ATOMA - Adaptive Focus & Skill Roadmap"
 authors = ["ATOMA Team"]
 edition = "2021"
