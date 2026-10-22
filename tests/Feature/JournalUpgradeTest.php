@@ -106,4 +106,23 @@ class JournalUpgradeTest extends TestCase
         $this->assertStringContainsString('journal-tab-space', $sanitized);
         $this->assertStringContainsString('width:2.5rem', $sanitized);
     }
+
+    public function test_broken_html_in_journal_content_does_not_break_root_element(): void
+    {
+        config(['app.debug' => true]);
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        // Note with rogue closing div and unclosed tags
+        Journal::create([
+            'user_id' => $user->id,
+            'title' => 'Catatan Rusak',
+            'content' => '<p>Teks pertama</p></div><p>Teks kedua</p><div>Unclosed',
+            'mood' => '📝',
+        ]);
+
+        $response = $this->get('/journal');
+        $response->assertStatus(200);
+        $response->assertSee('Catatan Rusak');
+    }
 }

@@ -1117,6 +1117,25 @@ new #[Layout('layouts.app')] class extends Component {
     }
 
 
+    /**
+     * Auto-balance HTML tags and eliminate rogue closing tags to prevent breaking component layout.
+     */
+    public function balanceHtml($html)
+    {
+        if (empty(trim($html))) return '';
+        $doc = new \DOMDocument();
+        // Use XML encoding header to preserve UTF-8 emojis and characters without adding html/body boilerplate
+        @$doc->loadHTML('<?xml encoding="utf-8"?><body>' . $html . '</body>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+        $body = $doc->getElementsByTagName('body')->item(0);
+        $cleaned = '';
+        if ($body) {
+            foreach ($body->childNodes as $child) {
+                $cleaned .= $doc->saveHTML($child);
+            }
+        }
+        return $cleaned ?: $html;
+    }
+
     public function formatContent($content)
     {
         if (empty($content)) return '';
@@ -1143,7 +1162,7 @@ new #[Layout('layouts.app')] class extends Component {
                 return '<span class="inline-flex items-center text-xs font-extrabold text-atoma-blue dark:text-atoma-cyan font-mono">#' . e($m[1]) . '</span>';
             }, $clean);
 
-            return $clean;
+            return $this->balanceHtml($clean);
         }
 
         // Fallback Markdown Parser
@@ -1211,7 +1230,7 @@ new #[Layout('layouts.app')] class extends Component {
             return '<span class="inline-flex items-center text-xs font-extrabold text-atoma-blue dark:text-atoma-cyan font-mono">#' . e($m[1]) . '</span>';
         }, $html);
 
-        return nl2br($html);
+        return $this->balanceHtml(nl2br($html));
     }
 }; ?>
 
