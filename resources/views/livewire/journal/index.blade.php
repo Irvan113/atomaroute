@@ -1124,8 +1124,9 @@ new #[Layout('layouts.app')] class extends Component {
     {
         if (empty(trim($html))) return '';
         $doc = new \DOMDocument();
-        // Use XML encoding header to preserve UTF-8 emojis and characters without adding html/body boilerplate
-        @$doc->loadHTML('<?xml encoding="utf-8"?><body>' . $html . '</body>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+        // Convert to HTML-ENTITIES to safely preserve UTF-8 emojis and special characters without using XML declaration that breaks Volt parser
+        $encoded = mb_convert_encoding('<body>' . $html . '</body>', 'HTML-ENTITIES', 'UTF-8');
+        @$doc->loadHTML($encoded, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
         $body = $doc->getElementsByTagName('body')->item(0);
         $cleaned = '';
         if ($body) {
