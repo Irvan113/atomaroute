@@ -54,7 +54,7 @@ new #[Layout('layouts.app')] class extends Component {
     }
 }; ?>
 
-<div class="h-[calc(100vh-4rem)] md:h-screen flex flex-col max-w-4xl mx-auto w-full bg-white dark:bg-gray-900 border-x border-gray-200 dark:border-gray-800" wire:poll.3s>
+<div class="h-[calc(100vh-4rem)] md:h-screen flex flex-col max-w-4xl mx-auto w-full bg-white dark:bg-gray-900 border-x border-gray-200 dark:border-gray-800" wire:poll.5s.visible>
     <!-- Header -->
     <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between bg-white/80 dark:bg-gray-900/80 backdrop-blur-md sticky top-0 z-10">
         <div class="flex items-center space-x-3">

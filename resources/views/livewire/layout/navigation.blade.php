@@ -58,41 +58,101 @@ new class extends Component {
 
 <nav x-data="{
     currentPath: window.location.pathname,
+    activeTab: 'dashboard',
+    isNavigating: false,
+    journalTab: window.__atomaJournalTab || 'journal',
     init() {
         this.currentPath = window.location.pathname;
+        this.syncTabFromPath();
+        window.addEventListener('livewire:navigating', () => {
+            this.isNavigating = true;
+        });
         window.addEventListener('livewire:navigated', () => {
+            this.isNavigating = false;
             this.currentPath = window.location.pathname;
+            this.syncTabFromPath();
         });
         window.addEventListener('popstate', () => {
             this.currentPath = window.location.pathname;
+            this.syncTabFromPath();
+        });
+        window.addEventListener('journal-tab-changed', (e) => {
+            this.journalTab = e.detail?.tab || e.detail || 'journal';
         });
     },
-    isActive(route) {
+    syncTabFromPath() {
         const p = this.currentPath || window.location.pathname;
-        if (route === 'dashboard') {
-            return p === '/' || p === '/dashboard' || p === '/tasks';
+        if (p === '/' || p === '/dashboard' || p === '/tasks') {
+            this.activeTab = 'dashboard';
+        } else if (p.startsWith('/journal') || p.startsWith('/note')) {
+            this.activeTab = 'journal';
+        } else if (p.startsWith('/leaderboard') || p.startsWith('/rank') || p.startsWith('/prestige')) {
+            this.activeTab = 'leaderboard';
+        } else if (p.startsWith('/social')) {
+            this.activeTab = 'social';
+        } else if (p.startsWith('/store')) {
+            this.activeTab = 'store';
+        } else if (p.startsWith('/guide')) {
+            this.activeTab = 'guide';
+        } else if (p.startsWith('/admin')) {
+            this.activeTab = 'admin';
+        } else {
+            this.activeTab = p.replace(/^\//, '');
         }
-        if (route === 'journal') {
-            return p.startsWith('/journal') || p.startsWith('/note');
+    },
+    navigate(tab, e) {
+        if (this.activeTab === tab && this.isNavigating) {
+            if (e) e.preventDefault();
+            return;
         }
-        if (route === 'leaderboard') {
-            return p.startsWith('/leaderboard') || p.startsWith('/rank') || p.startsWith('/prestige');
+        this.activeTab = tab;
+    },
+    isActive(route) {
+        return this.activeTab === route;
+    },
+    get centerAction() {
+        if (this.activeTab === 'journal') {
+            if (this.journalTab === 'finance') {
+                return {
+                    event: 'open-add-finance-modal',
+                    title: '{{ __('Catat Keuangan') }}',
+                    icon: 'finance'
+                };
+            }
+            return {
+                event: 'open-add-journal-modal',
+                title: '{{ __('Tulis Catatan Baru') }}',
+                icon: 'note'
+            };
         }
-        if (route === 'social') {
-            return p.startsWith('/social');
+        if (this.activeTab === 'social') {
+            return {
+                event: 'open-create-feed-modal',
+                title: '{{ __('Buat Diskusi / Topik') }}',
+                icon: 'social'
+            };
         }
-        if (route === 'store') {
-            return p.startsWith('/store');
+        if (this.activeTab === 'flashcards' || this.activeTab === 'flashcard') {
+            return {
+                event: 'open-create-flashcard-modal',
+                title: '{{ __('Tambah Flashcard') }}',
+                icon: 'flashcard'
+            };
         }
-        if (route === 'guide') {
-            return p.startsWith('/guide');
-        }
-        if (route === 'admin') {
-            return p.startsWith('/admin');
-        }
-        return p.startsWith('/' + route);
+        return {
+            event: 'open-add-task-modal',
+            title: '{{ __('Tambah Tugas Baru') }}',
+            icon: 'task'
+        };
+    },
+    triggerCenterAction() {
+        $dispatch(this.centerAction.event);
     }
-}" class="h-full flex flex-col md:py-4">
+}" class="h-full flex flex-col md:py-4 relative">
+    <!-- Bottom Nav Subtle Loading Shimmer Indicator -->
+    <div x-show="isNavigating" x-cloak class="md:hidden absolute top-0 left-0 right-0 h-[2.5px] overflow-hidden z-30 pointer-events-none">
+        <div class="h-full w-full bg-gradient-to-r from-atoma-blue via-atoma-cyan to-indigo-500 animate-[atoma-shimmer_1s_infinite]"></div>
+    </div>
     <!-- Desktop Brand, Notification, & Close Sidebar Button -->
     <div class="hidden md:flex items-center justify-between px-3 xl:px-5 mb-4 w-full">
         <a href="{{ route('dashboard') }}" wire:navigate class="flex items-center space-x-2.5 group shrink-0 mx-auto xl:mx-0">
@@ -249,7 +309,7 @@ new class extends Component {
         </div>
 
         <!-- Dashboard / Tasks -->
-        <a href="{{ route('dashboard') }}" wire:navigate 
+        <a href="{{ route('dashboard') }}" wire:navigate @click="navigate('dashboard', $event)" 
            :class="isActive('dashboard') 
                ? 'bg-atoma-ice dark:bg-atoma-blue/20 text-atoma-blue dark:text-atoma-cyan font-bold border border-atoma-aqua/50 dark:border-atoma-cyan/30 shadow-xs' 
                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:text-atoma-blue dark:hover:text-atoma-cyan'"
@@ -267,7 +327,7 @@ new class extends Component {
         </a>
 
         <!-- Note (renamed from Journal) -->
-        <a href="{{ route('journal') }}" wire:navigate 
+        <a href="{{ route('journal') }}" wire:navigate @click="navigate('journal', $event)" 
            :class="isActive('journal') 
                ? 'bg-atoma-ice dark:bg-atoma-blue/20 text-atoma-blue dark:text-atoma-cyan font-bold border border-atoma-aqua/50 dark:border-atoma-cyan/30 shadow-xs' 
                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:text-atoma-blue dark:hover:text-atoma-cyan'"
@@ -278,91 +338,35 @@ new class extends Component {
             <span class="text-[10px] sm:text-xs xl:text-sm mt-0.5 sm:mt-1 md:mt-0 font-medium truncate md:hidden xl:inline">{{ __('Note') }}</span>
         </a>
 
-        <!-- Mobile Center Dynamic Add Button -->
-        <div x-data="{
-            currentPath: window.location.pathname,
-            journalTab: window.__atomaJournalTab || 'journal',
-            init() {
-                this.currentPath = window.location.pathname;
-                this.syncJournalTab();
-                window.addEventListener('livewire:navigated', () => {
-                    this.currentPath = window.location.pathname;
-                    this.syncJournalTab();
-                });
-                window.addEventListener('popstate', () => {
-                    this.currentPath = window.location.pathname;
-                    this.syncJournalTab();
-                });
-                window.addEventListener('journal-tab-changed', (e) => {
-                    this.journalTab = e.detail?.tab || e.detail || 'journal';
-                });
-            },
-            syncJournalTab() {
-                if (window.__atomaJournalTab) {
-                    this.journalTab = window.__atomaJournalTab;
-                }
-            },
-            get action() {
-                if (this.currentPath.includes('/journal') || this.currentPath.includes('/note')) {
-                    if (this.journalTab === 'finance') {
-                        return {
-                            event: 'open-add-finance-modal',
-                            title: '{{ __('Catat Keuangan') }}',
-                            icon: 'finance'
-                        };
-                    }
-                    return {
-                        event: 'open-add-journal-modal',
-                        title: '{{ __('Tulis Catatan Baru') }}',
-                        icon: 'note'
-                    };
-                }
-                if (this.currentPath.includes('/social')) {
-                    return {
-                        event: 'open-create-feed-modal',
-                        title: '{{ __('Buat Diskusi / Topik') }}',
-                        icon: 'social'
-                    };
-                }
-                if (this.currentPath.includes('/flashcard')) {
-                    return {
-                        event: 'open-create-flashcard-modal',
-                        title: '{{ __('Tambah Flashcard') }}',
-                        icon: 'flashcard'
-                    };
-                }
-                return {
-                    event: 'open-add-task-modal',
-                    title: '{{ __('Tambah Tugas Baru') }}',
-                    icon: 'task'
-                };
-            },
-            triggerAction() {
-                $dispatch(this.action.event);
-            }
-        }" x-show="!$store.taskConfig || $store.taskConfig.mobileFab !== 'floating'" class="md:hidden flex items-center justify-center -mt-5 shrink-0 px-1">
-            <button @click="triggerAction()" 
-                    class="w-11 h-11 rounded-full active:scale-95 text-white shadow-lg flex items-center justify-center font-black border-2 border-white dark:border-gray-800 cursor-pointer hover:scale-105 transition-all"
-                    :class="action.icon === 'finance' ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-600/40' : 'atoma-gradient shadow-atoma-blue/40'"
-                    :title="action.title"
-                    :aria-label="action.title">
-                <template x-if="action.icon === 'task' || action.icon === 'finance'">
-                    <span class="text-xl font-black leading-none">+</span>
-                </template>
-                <template x-if="action.icon === 'note'">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                </template>
-                <template x-if="action.icon === 'social'">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-                </template>
-                <template x-if="action.icon === 'flashcard'">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-                </template>
+        <!-- Mobile Center Dynamic Add Button (0ms Instant Feedback) -->
+        <div x-show="!$store.taskConfig || $store.taskConfig.mobileFab !== 'floating'" class="md:hidden flex items-center justify-center -mt-5 shrink-0 px-1 relative z-30">
+            <button @click="triggerCenterAction()" 
+                    class="w-11 h-11 rounded-full active:scale-95 text-white shadow-lg flex items-center justify-center font-black border-2 border-white dark:border-gray-800 cursor-pointer hover:scale-105 transition-all select-none"
+                    :class="centerAction.icon === 'finance' ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-600/40' : 'atoma-gradient shadow-atoma-blue/40'"
+                    :title="centerAction.title"
+                    :aria-label="centerAction.title">
+                <!-- Task / Finance Icon (+) -->
+                <span x-show="centerAction.icon === 'task' || centerAction.icon === 'finance'" x-cloak class="text-xl font-black leading-none">+</span>
+                
+                <!-- Note Icon (Pencil) -->
+                <svg x-show="centerAction.icon === 'note'" x-cloak class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+                
+                <!-- Social Icon (Chat Bubble) -->
+                <svg x-show="centerAction.icon === 'social'" x-cloak class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                </svg>
+
+                <!-- Flashcard Icon -->
+                <svg x-show="centerAction.icon === 'flashcard'" x-cloak class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                </svg>
             </button>
         </div>
 
         <!-- Leaderboard / Rank -->
-        <a href="{{ route('leaderboard') }}" wire:navigate 
+        <a href="{{ route('leaderboard') }}" wire:navigate @click="navigate('leaderboard', $event)" 
            :class="isActive('leaderboard') 
                ? 'bg-atoma-ice dark:bg-atoma-blue/20 text-atoma-blue dark:text-atoma-cyan font-bold border border-atoma-aqua/50 dark:border-atoma-cyan/30 shadow-xs' 
                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:text-atoma-blue dark:hover:text-atoma-cyan'"
@@ -374,7 +378,7 @@ new class extends Component {
         </a>
 
         <!-- Social / Sosial -->
-        <a href="{{ route('social') }}" wire:navigate 
+        <a href="{{ route('social') }}" wire:navigate @click="navigate('social', $event)" 
            :class="isActive('social') 
                ? 'bg-atoma-ice dark:bg-atoma-blue/20 text-atoma-blue dark:text-atoma-cyan font-bold border border-atoma-aqua/50 dark:border-atoma-cyan/30 shadow-xs' 
                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:text-atoma-blue dark:hover:text-atoma-cyan'"
@@ -384,7 +388,7 @@ new class extends Component {
         </a>
 
         <!-- Store / Toko Hadiah (Desktop Sidebar) -->
-        <a href="{{ route('store') }}" wire:navigate 
+        <a href="{{ route('store') }}" wire:navigate @click="navigate('store', $event)" 
            :class="isActive('store') 
                ? 'bg-atoma-ice dark:bg-atoma-blue/20 text-atoma-blue dark:text-atoma-cyan font-bold border border-atoma-aqua/50 dark:border-atoma-cyan/30 shadow-xs' 
                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:text-atoma-blue dark:hover:text-atoma-cyan'"
@@ -415,7 +419,7 @@ new class extends Component {
         </button>
 
         <!-- Guide / Panduan Fitur -->
-        <a href="{{ route('guide') }}" wire:navigate 
+        <a href="{{ route('guide') }}" wire:navigate @click="navigate('guide', $event)" 
            :class="isActive('guide') 
                ? 'bg-atoma-ice dark:bg-atoma-blue/20 text-atoma-blue dark:text-atoma-cyan font-bold border border-atoma-aqua/50 dark:border-atoma-cyan/30 shadow-xs' 
                : 'text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/30'"
@@ -428,7 +432,7 @@ new class extends Component {
 
         @if($user && ($user->is_admin || $user->id === 1))
             <!-- Admin Command Center Link -->
-            <a href="{{ route('admin.dashboard') }}" wire:navigate 
+            <a href="{{ route('admin.dashboard') }}" wire:navigate @click="navigate('admin', $event)" 
                :class="isActive('admin') 
                    ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 font-bold border border-indigo-200 dark:border-indigo-800 shadow-2xs' 
                    : 'text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/30'"

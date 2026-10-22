@@ -1,5 +1,32 @@
 # 📋 ATOMA Changelog & Patch Notes
 
+## [v1.0.1.3] - 2026-10-22 (Zero-Latency Navigation, Persistent Auth, & WebView Main-Thread Stabilization)
+
+> **Catatan Rilis:** Patch v1.0.1.3 menuntaskan kendala navigasi lambat, jeda ikon Dynamic Center FAB hingga 10 detik, auto-redirect landing page pada APK setelah swipe/kill task, kebocoran background SpeechRecognition, dan pemblokiran PHP session lock akibat prefetch berlebih serta polling tidak terkendali.
+
+### 🔐 Persistent Auth & Zero-Bounce APK Launch
+- **Server-Side Auth Auto-Redirect**: Route `/` (welcome page) secara instan mengecek status autentikasi di server. Pengguna terdaftar langsung dialihkan ke `/dashboard` (`return redirect()->route('dashboard')`), mengeliminasi tampilan landing page/promosi saat APK dibuka kembali.
+- **PWA & APK Entrypoint Alignment**: Mengunci `start_url` pada `public/manifest.json` ke `"/dashboard"`.
+- **Extended Session Lifetime (30 Hari)**: Mengubah fallback default sesi `SESSION_LIFETIME` pada `config/session.php` dari 120 menit menjadi `43200` menit (30 hari) dengan `expire_on_close => false`.
+- **Remember-Me Default**: Mengaktifkan `$remember = true` secara default pada form autentikasi (`LoginForm.php`) dan token exchange SSO, menjaga token cookie autentikasi tetap tersimpan saat memori dibersihkan oleh OS.
+
+### ⚡ 0ms Optimistic UI Navigation & Dynamic Center FAB
+- **Instant Client-Side Tab Switching**: State tab aktif (`activeTab`) pada Sidebar dan Bottom Nav dikelola langsung oleh Alpine.js dengan event `@click` instan (0ms), merubah visual highlight tab tanpa menunggu siklus response HTTP dari server.
+- **Zero-Latency Dynamic Center FAB**: Menghubungkan ikon tombol tengah Bottom Nav (FAB) langsung ke variabel reaktif `activeTab`. Pergantian dari ikon `+` (Tugas) ke ikon pensil (Catatan) atau balon percakapan (Sosial) terjadi dalam 0ms pada frame pertama saat tombol disentuh.
+- **Micro-Shimmer Loading Feedback**: Menambahkan shimmer bar tipis di bibir atas Bottom Nav (`x-show="isNavigating" x-cloak`) yang aktif selama request `wire:navigate` terbang ke server, memberikan umpan balik visual elegan kepada pengguna.
+- **Anti-Rage Click Protection**: Memasang guard pencegah spam klik berulang pada tab yang sama saat request sedang berlangsung (`if (activeTab === tab && isNavigating) e.preventDefault()`), mencegah pembatalan request berantai (*abort flood*) di sisi browser.
+
+### 🎙️ SpeechRecognition Guard & Thread Cleanup
+- **Isolasi Pemicu Suara**: Memastikan `SpeechRecognition` hanya dapat aktif melalui klik eksplisit pengguna pada tombol mikrofon, dan dilarang keras aktif pada siklus inisialisasi (`x-init`).
+- **Banner Red Leak Prevention**: Menambahkan `x-cloak` pada banner indikator pendengar suara *"Mendengarkan suara kamu..."* dan mematikan instance mikrofon saat navigasi halaman berpindah (`livewire:navigating` hook).
+- **Global Speech Cleanup**: Mendaftarkan listener global `document.addEventListener('livewire:navigating')` yang otomatis mengeksekusi `window.__atomaSpeechRecognition.abort()`, mencegah kebocoran mic stream dan freeze pada main-thread.
+
+### 🧩 Optimasi Sub-Menu Catatan & Throttling Polling
+- **Instant Sub-Tab Switch**: Tombol segmented tab di halaman Catatan (`Note`, `Keuangan`, `Flashcard`) beralih secara optimistik lokal dalam 0ms menggunakan Alpine.js (`currentTab = '...'`).
+- **Shortest Delay Skeleton Loader**: Menambahkan skeleton visual instan (`wire:loading.delay.shortest`) pada kontainer kartu catatan/keuangan untuk menghilangkan persepsi freeze saat pergantian sub-tab.
+- **Polling Throttling & Visibility Guard**: Mengonversi seluruh polling aktif di modul sosial dan obrolan menjadi `wire:poll.60s.visible` dan `wire:poll.10s.visible`, menghentikan background polling saat tab/aplikasi tidak terlihat dan mengeliminasi PHP session lock.
+- **Script Data-Navigate-Once Enforcement**: Menyematkan atribut `data-navigate-once` pada modal perayaan prestasi (`achievement-celebration`), `achievement-modal`, `command-palette`, `performance-monitor`, dan pustaka eksternal `html2canvas` guna mencegah eksekusi skrip berulang setiap kali berpindah halaman.
+
 ## [v1.0.1.2] - 2026-10-21 (Cumulative Master Patch: Mobile, Desktop, UI & Performance)
 
 > **Catatan Rilis:** Versi 1.0.1.2 merupakan penggabungan kumulatif (*cumulative master patch*) dari Patch 1.0.1 (Audio kustom, notifikasi offline Android AlarmManager, Homescreen AppWidgets, sesi webview, dan desktop background toast) serta Patch 1.0.1.1 (Sidebar rail adaptif, eliminasi dead zone 768px–1280px, dynamic viewport 100dvh, isolasi view transitions, persistent app shell, dan stabilisasi sub-piksel GPU).

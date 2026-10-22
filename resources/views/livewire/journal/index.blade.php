@@ -1546,11 +1546,17 @@ new #[Layout('layouts.app')] class extends Component {
             <div class="flex items-center gap-2.5 w-full sm:w-auto">
                 <!-- Segmented Control Tabs -->
                 <div class="flex bg-gray-200/70 dark:bg-gray-800/70 p-1 rounded-xl flex-1 sm:flex-initial shadow-inner">
-                    <button wire:click="$set('activeTab', 'journal')" @click="window.__atomaJournalTab = 'journal'; window.dispatchEvent(new CustomEvent('journal-tab-changed', { detail: { tab: 'journal' } }))" class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 sm:px-4 py-1.5 rounded-lg font-bold text-xs transition-all cursor-pointer {{ $activeTab === 'journal' ? 'bg-white dark:bg-gray-700 shadow-sm text-atoma-blue dark:text-atoma-cyan font-black' : 'text-gray-500 hover:text-atoma-blue dark:hover:text-atoma-cyan' }}">
+                    <button wire:click="$set('activeTab', 'journal')" 
+                            @click="currentTab = 'journal'; window.__atomaJournalTab = 'journal'; window.dispatchEvent(new CustomEvent('journal-tab-changed', { detail: { tab: 'journal' } }))" 
+                            :class="currentTab === 'journal' ? 'bg-white dark:bg-gray-700 shadow-sm text-atoma-blue dark:text-atoma-cyan font-black' : 'text-gray-500 hover:text-atoma-blue dark:hover:text-atoma-cyan'"
+                            class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 sm:px-4 py-1.5 rounded-lg font-bold text-xs transition-all cursor-pointer {{ $activeTab === 'journal' ? 'bg-white dark:bg-gray-700 shadow-sm text-atoma-blue dark:text-atoma-cyan font-black' : 'text-gray-500 hover:text-atoma-blue dark:hover:text-atoma-cyan' }}">
                         <img src="/images/icons/open-book.png" alt="Note" class="w-4 h-4 object-contain inline-block shrink-0">
                         <span>{{ __('Note') }}</span>
                     </button>
-                    <button wire:click="$set('activeTab', 'finance')" @click="window.__atomaJournalTab = 'finance'; window.dispatchEvent(new CustomEvent('journal-tab-changed', { detail: { tab: 'finance' } }))" class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 sm:px-4 py-1.5 rounded-lg font-bold text-xs transition-all cursor-pointer {{ $activeTab === 'finance' ? 'bg-white dark:bg-gray-700 shadow-sm text-atoma-blue dark:text-atoma-cyan font-black' : 'text-gray-500 hover:text-atoma-blue dark:hover:text-atoma-cyan' }}">
+                    <button wire:click="$set('activeTab', 'finance')" 
+                            @click="currentTab = 'finance'; window.__atomaJournalTab = 'finance'; window.dispatchEvent(new CustomEvent('journal-tab-changed', { detail: { tab: 'finance' } }))" 
+                            :class="currentTab === 'finance' ? 'bg-white dark:bg-gray-700 shadow-sm text-atoma-blue dark:text-atoma-cyan font-black' : 'text-gray-500 hover:text-atoma-blue dark:hover:text-atoma-cyan'"
+                            class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 sm:px-4 py-1.5 rounded-lg font-bold text-xs transition-all cursor-pointer {{ $activeTab === 'finance' ? 'bg-white dark:bg-gray-700 shadow-sm text-atoma-blue dark:text-atoma-cyan font-black' : 'text-gray-500 hover:text-atoma-blue dark:hover:text-atoma-cyan' }}">
                         <img src="/images/icons/roi-finance.png" alt="Keuangan" class="w-4 h-4 object-contain inline-block shrink-0">
                         <span>{{ __('Keuangan') }}</span>
                     </button>
@@ -1571,6 +1577,16 @@ new #[Layout('layouts.app')] class extends Component {
                     </button>
                 @endif
             </div>
+        </div>
+    </div>
+
+    <!-- Instant Sub-Tab Switching Skeleton Loader (Zero-Latency UI Feedback) -->
+    <div wire:loading.delay.shortest wire:target="$set('activeTab', 'journal'), $set('activeTab', 'finance')" class="max-w-5xl mx-auto space-y-4 animate-pulse py-4">
+        <div class="h-10 bg-gray-200 dark:bg-gray-800 rounded-2xl w-full"></div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="h-36 bg-gray-200 dark:bg-gray-800 rounded-2xl"></div>
+            <div class="h-36 bg-gray-200 dark:bg-gray-800 rounded-2xl"></div>
+            <div class="h-36 bg-gray-200 dark:bg-gray-800 rounded-2xl"></div>
         </div>
     </div>
 

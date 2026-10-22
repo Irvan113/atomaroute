@@ -1701,7 +1701,7 @@ new class extends Component {
             </div>
 
             <!-- TAB CONTENT 2: FRIENDS & SOCIAL ACCOUNTABILITY -->
-            <div x-show="socialTab === 'friends'" style="display: none;" class="space-y-5" wire:poll.15s>
+            <div x-show="socialTab === 'friends'" style="display: none;" class="space-y-5" wire:poll.60s.visible>
 
                 <!-- Friend Sub-Tabs (Clean Pills) -->
                 <div class="flex items-center gap-1.5 overflow-x-auto hide-scrollbar py-0.5 text-xs">
@@ -2140,7 +2140,7 @@ new class extends Component {
              x-transition:enter="transition ease-out duration-300"
              x-transition:enter-start="opacity-0"
              x-transition:enter-end="opacity-100"
-             wire:poll.3s>
+             wire:poll.10s.visible>
             
             <div class="absolute inset-0" wire:click="closeTopic"></div>
 
@@ -2239,7 +2239,7 @@ new class extends Component {
 
     <!-- 2. DIRECT CHAT MODAL / UI -->
     @if($this->activeChatFriend)
-        <div class="fixed inset-0 z-50 flex flex-col bg-gray-50 dark:bg-gray-900 sm:items-center sm:justify-center sm:bg-gray-900/60 sm:backdrop-blur-xs p-0 sm:p-4" wire:poll.3s>
+        <div class="fixed inset-0 z-50 flex flex-col bg-gray-50 dark:bg-gray-900 sm:items-center sm:justify-center sm:bg-gray-900/60 sm:backdrop-blur-xs p-0 sm:p-4" wire:poll.10s.visible>
             <div class="relative w-full h-full sm:h-[80vh] sm:max-w-2xl bg-white dark:bg-gray-800 sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-gray-100 dark:border-gray-700/60">
                 <!-- Chat Header -->
                 <div class="px-4 py-3 sm:p-4 border-b border-gray-200 dark:border-gray-700/60 bg-white dark:bg-gray-800 flex items-center justify-between shrink-0 shadow-sm z-10">

@@ -301,7 +301,7 @@
     </div>
 </div>
 
-<script>
+<script data-navigate-once>
 function atomaPerformanceMonitor() {
     return {
         showPill: true,

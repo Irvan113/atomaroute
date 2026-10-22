@@ -88,6 +88,14 @@
                     if (mainCanvas) mainCanvas.scrollTop = 0;
                 });
 
+                // Cleanup voice recognition on page navigation to prevent memory leaks and auto-triggers
+                document.addEventListener('livewire:navigating', () => {
+                    if (window.__atomaSpeechRecognition) {
+                        try { window.__atomaSpeechRecognition.abort(); } catch(e){}
+                        window.__atomaSpeechRecognition = null;
+                    }
+                });
+
                 // Global toggle function
                 window.toggleDarkMode = function() {
                     if (document.documentElement.classList.contains('dark')) {

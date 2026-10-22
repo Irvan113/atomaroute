@@ -13,16 +13,25 @@
     /* 1. Matikan transisi pada root agar Shell (Sidebar & Header) tidak ikut berkedip */
     ::view-transition-old(root),
     ::view-transition-new(root) {
-        animation: none;
+        animation: none !important;
     }
 
     /* 2. Terapkan animasi perpindahan halaman HANYA pada kanvas konten utama */
     ::view-transition-old(atoma-main-canvas) {
-        animation: 120ms cubic-bezier(0.4, 0, 1, 1) both atoma-page-fade-out;
+        animation: 100ms cubic-bezier(0.4, 0, 1, 1) both atoma-page-fade-out;
     }
 
     ::view-transition-new(atoma-main-canvas) {
-        animation: 160ms cubic-bezier(0, 0, 0.2, 1) both atoma-page-fade-in;
+        animation: 140ms cubic-bezier(0, 0, 0.2, 1) both atoma-page-fade-in;
+    }
+
+    @keyframes atoma-shimmer {
+        0% {
+            transform: translateX(-100%);
+        }
+        100% {
+            transform: translateX(100%);
+        }
     }
 
     @keyframes atoma-page-fade-out {

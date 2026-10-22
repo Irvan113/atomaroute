@@ -129,7 +129,7 @@
     </div>
 </div>
 
-<script>
+<script data-navigate-once>
     function commandPalette() {
         return {
             isOpen: false,

@@ -70,7 +70,7 @@
     </div>
 </div>
 
-<script>
+<script data-navigate-once>
     const registerAchievementCelebration = () => {
         if (typeof Alpine !== 'undefined' && !Alpine.data('achievementCelebration')) {
             Alpine.data('achievementCelebration', () => ({

@@ -3544,6 +3544,24 @@ new #[Layout('layouts.app')] class extends Component {
     <!-- FITUR 5: Quick Add Bar & Voice Command 🎙️ -->
     <div x-data="{ 
         listening: false,
+        recogInstance: null,
+        init() {
+            this.listening = false;
+            window.addEventListener('livewire:navigating', () => {
+                this.stopVoice();
+            });
+        },
+        stopVoice() {
+            this.listening = false;
+            if (this.recogInstance) {
+                try { this.recogInstance.abort(); } catch(e){}
+                this.recogInstance = null;
+            }
+            if (window.__atomaSpeechRecognition) {
+                try { window.__atomaSpeechRecognition.abort(); } catch(e){}
+                window.__atomaSpeechRecognition = null;
+            }
+        },
         async requestMicPermission() {
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                 return true;
@@ -3558,6 +3576,12 @@ new #[Layout('layouts.app')] class extends Component {
             }
         },
         async startVoice() {
+            if (this.listening) {
+                this.stopVoice();
+                return;
+            }
+            this.stopVoice();
+
             const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!Speech) {
                 window.dispatchEvent(new CustomEvent('show-toast', { detail: { title: 'Browser ini belum mendukung Voice Input. Coba gunakan Google Chrome atau Microsoft Edge.', icon: 'error' } }));
@@ -3576,14 +3600,16 @@ new #[Layout('layouts.app')] class extends Component {
                 recog.continuous = true;
                 recog.interimResults = true;
 
+                this.recogInstance = recog;
+                window.__atomaSpeechRecognition = recog;
+
                 let hasResult = false;
                 this.listening = true;
                 window.dispatchEvent(new CustomEvent('show-toast', { detail: { title: '🎙️ Mendengarkan... Katakan tugasmu sekarang!', icon: 'info' } }));
 
                 const timeoutTimer = setTimeout(() => {
                     if (this.listening && !hasResult) {
-                        try { recog.stop(); } catch(e){}
-                        this.listening = false;
+                        this.stopVoice();
                     }
                 }, 8000);
 
@@ -3602,8 +3628,7 @@ new #[Layout('layouts.app')] class extends Component {
 
                         if (e.results[e.results.length - 1].isFinal) {
                             clearTimeout(timeoutTimer);
-                            this.listening = false;
-                            try { recog.stop(); } catch(e){}
+                            this.stopVoice();
                             window.dispatchEvent(new CustomEvent('show-toast', { detail: { title: '✅ Terdeteksi: ' + transcript, icon: 'success' } }));
                         }
                     }
@@ -3611,7 +3636,7 @@ new #[Layout('layouts.app')] class extends Component {
 
                 recog.onerror = (err) => {
                     clearTimeout(timeoutTimer);
-                    this.listening = false;
+                    this.stopVoice();
                     console.error('Speech error details:', err.error, err);
                     
                     let errorMsg = '⚠️ Error Suara (' + err.error + '): ';
@@ -3632,12 +3657,12 @@ new #[Layout('layouts.app')] class extends Component {
 
                 recog.onend = () => {
                     clearTimeout(timeoutTimer);
-                    this.listening = false;
+                    this.stopVoice();
                 };
 
                 recog.start();
             } catch (err) {
-                this.listening = false;
+                this.stopVoice();
                 console.error(err);
             }
         }
@@ -3684,7 +3709,7 @@ new #[Layout('layouts.app')] class extends Component {
         </div>
 
         <!-- Listening indicator banner -->
-        <div x-show="listening" x-transition.opacity class="mt-2 flex items-center gap-2 px-4 py-2.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl text-xs font-bold text-red-600 dark:text-red-400">
+        <div x-show="listening" x-cloak x-transition.opacity class="mt-2 flex items-center gap-2 px-4 py-2.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl text-xs font-bold text-red-600 dark:text-red-400">
             <span class="relative flex h-2.5 w-2.5">
                 <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                 <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
@@ -5966,6 +5991,24 @@ new #[Layout('layouts.app')] class extends Component {
                             <!-- Main Task Title Input with Voice Support -->
                             <div class="mb-4" x-data="{
                                 listeningModal: false,
+                                modalRecogInstance: null,
+                                init() {
+                                    this.listeningModal = false;
+                                    window.addEventListener('livewire:navigating', () => {
+                                        this.stopVoiceModal();
+                                    });
+                                },
+                                stopVoiceModal() {
+                                    this.listeningModal = false;
+                                    if (this.modalRecogInstance) {
+                                        try { this.modalRecogInstance.abort(); } catch(e){}
+                                        this.modalRecogInstance = null;
+                                    }
+                                    if (window.__atomaSpeechRecognition) {
+                                        try { window.__atomaSpeechRecognition.abort(); } catch(e){}
+                                        window.__atomaSpeechRecognition = null;
+                                    }
+                                },
                                 async requestMicPermission() {
                                     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                                         return true;
@@ -5980,6 +6023,12 @@ new #[Layout('layouts.app')] class extends Component {
                                     }
                                 },
                                 async startVoiceModal() {
+                                    if (this.listeningModal) {
+                                        this.stopVoiceModal();
+                                        return;
+                                    }
+                                    this.stopVoiceModal();
+
                                     const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
                                     if (!Speech) {
                                         window.dispatchEvent(new CustomEvent('show-toast', { detail: { title: 'Browser ini belum mendukung Voice Input. Coba gunakan Google Chrome atau Microsoft Edge.', icon: 'error' } }));
@@ -5998,13 +6047,15 @@ new #[Layout('layouts.app')] class extends Component {
                                         recog.continuous = false;
                                         recog.interimResults = true;
 
+                                        this.modalRecogInstance = recog;
+                                        window.__atomaSpeechRecognition = recog;
+
                                         this.listeningModal = true;
                                         window.dispatchEvent(new CustomEvent('show-toast', { detail: { title: '🎙️ Mendengarkan judul tugas...', icon: 'info' } }));
 
                                         const timeoutTimer = setTimeout(() => {
                                             if (this.listeningModal) {
-                                                try { recog.stop(); } catch(e){}
-                                                this.listeningModal = false;
+                                                this.stopVoiceModal();
                                             }
                                         }, 6000);
 
@@ -6022,25 +6073,24 @@ new #[Layout('layouts.app')] class extends Component {
 
                                                 if (e.results[e.results.length - 1].isFinal) {
                                                     clearTimeout(timeoutTimer);
-                                                    this.listeningModal = false;
-                                                    try { recog.stop(); } catch(e){}
+                                                    this.stopVoiceModal();
                                                 }
                                             }
                                         };
 
                                         recog.onerror = (err) => {
                                             clearTimeout(timeoutTimer);
-                                            this.listeningModal = false;
+                                            this.stopVoiceModal();
                                         };
 
                                         recog.onend = () => {
                                             clearTimeout(timeoutTimer);
-                                            this.listeningModal = false;
+                                            this.stopVoiceModal();
                                         };
 
                                         recog.start();
                                     } catch (err) {
-                                        this.listeningModal = false;
+                                        this.stopVoiceModal();
                                     }
                                 }
                             }">
