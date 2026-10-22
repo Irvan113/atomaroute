@@ -9,12 +9,34 @@ use Illuminate\Support\Facades\Auth;
 class GoogleAuthController extends Controller
 {
     /**
+     * Resolve effective Google OAuth redirect URI.
+     * Prevents unintended redirection to localhost when deployed on a live domain.
+     */
+    protected function getEffectiveRedirectUri(Request $request): string
+    {
+        $configured = config('services.google.redirect');
+        $currentHost = $request->getHost();
+        $isLocalHost = in_array($currentHost, ['localhost', '127.0.0.1', '::1']);
+
+        // If configured URI contains localhost but request is on a live domain, dynamically use current origin
+        if (!empty($configured) && str_contains($configured, 'localhost') && !$isLocalHost) {
+            return $request->getSchemeAndHttpHost() . '/auth/google/callback';
+        }
+
+        if (!empty($configured)) {
+            return $configured;
+        }
+
+        return $request->getSchemeAndHttpHost() . '/auth/google/callback';
+    }
+
+    /**
      * Redirect guest to Google OAuth consent screen for ATOMA Sign In / Sign Up.
      */
     public function redirectToGoogle(Request $request)
     {
         $clientId = config('services.google.client_id');
-        $redirectUri = config('services.google.redirect') ?: route('auth.google.callback');
+        $redirectUri = $this->getEffectiveRedirectUri($request);
 
         if (empty($clientId)) {
             return redirect()->route('login')->with('toast', [
@@ -105,7 +127,7 @@ class GoogleAuthController extends Controller
 
         $clientId = config('services.google.client_id');
         $clientSecret = config('services.google.client_secret');
-        $redirectUri = config('services.google.redirect') ?: route('auth.google.callback');
+        $redirectUri = $this->getEffectiveRedirectUri($request);
 
         try {
             // 1. Exchange code for access token
@@ -222,7 +244,12 @@ class GoogleAuthController extends Controller
                 ]);
             }
 
-            return redirect()->intended(route('dashboard'))->with('toast', [
+            $targetUrl = route('dashboard');
+            if (str_contains($targetUrl, 'localhost') && !in_array($request->getHost(), ['localhost', '127.0.0.1', '::1'])) {
+                $targetUrl = $request->getSchemeAndHttpHost() . '/dashboard';
+            }
+
+            return redirect()->intended($targetUrl)->with('toast', [
                 'message' => __('Berhasil masuk dengan Google!'),
                 'type' => 'success'
             ]);

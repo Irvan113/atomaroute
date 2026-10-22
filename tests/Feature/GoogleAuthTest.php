@@ -48,6 +48,23 @@ class GoogleAuthTest extends TestCase
         $this->assertStringContainsString('state=' . $sessionState, $targetUrl);
     }
 
+    public function test_redirect_to_google_auto_corrects_localhost_redirect_on_live_domain(): void
+    {
+        Config::set('services.google.client_id', 'test_client_id.apps.googleusercontent.com');
+        Config::set('services.google.redirect', 'http://localhost:8000/auth/google/callback');
+
+        // Simulate incoming request to live domain https://atomaroute.com
+        $response = $this->withHeaders(['Host' => 'atomaroute.com', 'X-Forwarded-Proto' => 'https'])
+            ->get('https://atomaroute.com/auth/google');
+
+        $response->assertStatus(302);
+        $targetUrl = $response->headers->get('Location');
+
+        // Must NOT use localhost! Must use live domain!
+        $this->assertStringNotContainsString('localhost', $targetUrl);
+        $this->assertStringContainsString('redirect_uri=https%3A%2F%2Fatomaroute.com%2Fauth%2Fgoogle%2Fcallback', $targetUrl);
+    }
+
     public function test_callback_fails_when_state_does_not_match_csrf(): void
     {
         $response = $this->withSession(['oauth_state' => 'expected_secure_state_123'])
