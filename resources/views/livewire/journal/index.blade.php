@@ -1124,9 +1124,9 @@ new #[Layout('layouts.app')] class extends Component {
     {
         if (empty(trim($html))) return '';
         $doc = new \DOMDocument();
-        // Convert to HTML-ENTITIES to safely preserve UTF-8 emojis and special characters without using XML declaration that breaks Volt parser
-        $encoded = mb_convert_encoding('<body>' . $html . '</body>', 'HTML-ENTITIES', 'UTF-8');
-        @$doc->loadHTML($encoded, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+        // Use meta charset UTF-8 inside HTML wrapper to preserve emojis and special characters cleanly without PHP 8.4 deprecations or XML tags
+        $htmlWithMeta = '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>' . $html . '</body></html>';
+        @$doc->loadHTML($htmlWithMeta, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
         $body = $doc->getElementsByTagName('body')->item(0);
         $cleaned = '';
         if ($body) {
