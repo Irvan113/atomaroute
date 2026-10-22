@@ -44,6 +44,20 @@
 - **Homescreen Widget Real-time Sync**: `PomodoroWidgetProvider.java` menerima broadcast pembaruan waktu Pomodoro dan meng-update RemoteViews widget secara instan.
 - **Native Alarm Reminders**: Bridge secara otomatis menjadwalkan notifikasi native Android saat timer fokus/istirahat berakhir.
 
+### 🌐 Google OAuth Dynamic Redirection & Release Hygiene
+- **Dynamic URI Resolution**: Mengimplementasikan `getEffectiveRedirectUri($request)` pada `GoogleAuthController.php` untuk mendeteksi host publik (`atomaroute.com`) secara dinamis, mengeliminasi bug pengalihan balik ke `localhost:8000` di cPanel dan Android APK.
+- **Client Origin Alignment**: Menyelaraskan script pada `login.blade.php` dan `register.blade.php` menggunakan `window.location.origin` dinamis.
+- **Purge .env from Release Packages**: Menjamin paket patch rilis (`.zip`) tidak menyertakan file `.env` yang dapat menimpa konfigurasi server produksi.
+
+### 🛡️ Journal Rich Text DOM Sanitizer (MultipleRootElements Fix)
+- **DOM Auto-Balancing**: Menambahkan `balanceHtml()` via `DOMDocument` pada `resources/views/livewire/journal/index.blade.php` untuk menyeimbangkan tag HTML tidak tertutup atau tag liar (`</div>`) dari catatan pengguna sebelum dirender.
+- **Eliminasi 500 Server Error**: Mencegah kebocoran elemen DOM ke luar root wrapper Livewire (`MultipleRootElementsDetectedException`).
+- **Automated Verification**: Menambahkan test `JournalBrokenHtmlTest.php` untuk memastikan integritas parsing dokumen HTML.
+
+### 🧭 Navigasi & Arsitektur Zero-Inline Script (Evaluasi Transisi Halaman)
+- **Root-Cause Analysis**: Mengidentifikasi penyebab browser refresh/flicker saat `wire:navigate` akibat benturan deklarasi identifier pada inline `<script>` Blade (`swapCurrentPageWithNewHtml`).
+- **Roadmap Rekayasa**: Mempersiapkan strategi pemindahan logika JavaScript ke bundel Vite `resources/js/app.js` (`Alpine.data()`) untuk navigasi instan tanpa refresh di jaringan 4G seluler.
+
 ## [v1.0.1.3] - 2026-10-22 (Zero-Latency Navigation, Persistent Auth, & WebView Main-Thread Stabilization)
 
 > **Catatan Rilis:** Patch v1.0.1.3 menuntaskan kendala navigasi lambat, jeda ikon Dynamic Center FAB hingga 10 detik, auto-redirect landing page pada APK setelah swipe/kill task, kebocoran background SpeechRecognition, dan pemblokiran PHP session lock akibat prefetch berlebih serta polling tidak terkendali.

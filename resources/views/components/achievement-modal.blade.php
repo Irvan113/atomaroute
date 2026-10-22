@@ -280,7 +280,7 @@
 </div>
 
 <script data-navigate-once>
-    const registerAchievementModal = () => {
+    window.registerAchievementModal = window.registerAchievementModal || function() {
         if (typeof Alpine !== 'undefined' && !Alpine.data('achievementModal')) {
             Alpine.data('achievementModal', () => ({
                 open: false,
