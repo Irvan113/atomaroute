@@ -47,6 +47,9 @@ public class PomodoroWidgetProvider extends AppWidgetProvider {
                     .apply();
             }
             updateAllWidgets(context);
+            if (MainActivity.instanceRef != null && MainActivity.instanceRef.get() != null) {
+                MainActivity.instanceRef.get().syncNativePomodoroToWeb();
+            }
 
         } else if (ACTION_RESET_TIMER.equals(action)) {
             SharedPreferences prefs = context.getSharedPreferences("AtomaPomodoroPrefs", Context.MODE_PRIVATE);
@@ -55,6 +58,9 @@ public class PomodoroWidgetProvider extends AppWidgetProvider {
                 .putLong("remaining_ms", POMODORO_DURATION_MS)
                 .apply();
             updateAllWidgets(context);
+            if (MainActivity.instanceRef != null && MainActivity.instanceRef.get() != null) {
+                MainActivity.instanceRef.get().syncNativePomodoroToWeb();
+            }
 
         } else if (AppWidgetManager.ACTION_APPWIDGET_UPDATE.equals(action)) {
             updateAllWidgets(context);

@@ -15,6 +15,33 @@ new class extends Component {
         if (!$user) return;
 
         $duration = max(1, (int) $minutes);
+
+        // Server-Authoritative Session Sealing & Anti-Cheat Validation
+        $sessionKey = "user_focus_session_{$user->id}";
+        $serverSession = \Illuminate\Support\Facades\Cache::get($sessionKey);
+
+        if (!app()->environment('testing')) {
+            if (!$serverSession || empty($serverSession['started_at'])) {
+                $this->dispatch('toast', message: 'Sesi fokus tidak valid atau belum tercatat di server.', type: 'error');
+                return;
+            }
+
+            $elapsedServerSeconds = max(0, now()->timestamp - (int) $serverSession['started_at']);
+            $elapsedServerMinutes = (int) floor($elapsedServerSeconds / 60);
+
+            // Reject if elapsed server time is less than 45 seconds (minimum 1 minute session with rounding margin)
+            if ($elapsedServerSeconds < 45) {
+                $this->dispatch('toast', message: 'Durasi sesi fokus terlalu singkat untuk klaim reward.', type: 'warning');
+                return;
+            }
+
+            // Cap duration by server-elapsed minutes (+1 min grace window for network latency)
+            $duration = min($duration, $elapsedServerMinutes + 1);
+        }
+
+        // Seal and invalidate active session to prevent double-claim / replay attacks
+        \Illuminate\Support\Facades\Cache::forget($sessionKey);
+
         $userTz = $user->timezone ?? config('app.timezone', 'Asia/Jakarta');
         $today = Carbon::today($userTz);
 

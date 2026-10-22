@@ -1,5 +1,49 @@
 # 📋 ATOMA Changelog & Patch Notes
 
+## [v1.0.1.4] - 2026-10-22 (Pomodoro Architectural Overhaul: Atomic Reset, Monotonic Delta Worker, Brainwave Synthesizer, & Anti-Cheat Validation)
+
+> **Catatan Rilis:** Patch v1.0.1.4 menuntaskan 7 pilar arsitektur fitur Pomodoro & Flowtime di ATOMA: Bug timer tidak bisa direset akibat *zombie state re-hydration*, drift waktu di background tab akibat throttling browser, eksploitasi reward instan di sisi klien, distorsi Web Audio, rumus kurva istirahat ultradian adaptif, pemborosan memori iframe YouTube pada persistent shell, serta sinkronisasi dua arah Android Bridge & Homescreen Widget.
+
+### ⏱️ Atomic Reset Pattern (Perbaikan Bug "Timer Tidak Bisa Reset")
+- **Single-Entry Atomic Reset**: Mengatur ulang urutan eksekusi `resetTimer()`: menghentikan interval/worker aktif, menyetel flag `isRunning = false`, `isPaused = false`, `targetEndTime = null`, dan `startedAt = null` sebelum memodifikasi `timeLeft` atau `timeElapsed`. Mencegah Alpine `$watch` menyimpan ulang (*re-hydrating*) state lama ke `localStorage`.
+- **LocalStorage State Sanitization**: Menghapus key `atoma_pomodoro_state` dan `atoma_pomodoro_target_end` secara eksplisit saat reset, serta menyematkan *guard condition* pada `saveTimerState()` agar tidak pernah menyimpan timestamp kadaluarsa saat timer dalam keadaan diam.
+- **Idempotent Lifecycle Registration**: Menambahkan guard `_initialized` pada siklus `init()` Pomodoro timer untuk mencegah pendaftaran ganda listener `keydown` (`Alt + R`), `livewire:navigated`, atau `visibilitychange` saat navigasi halaman berlangsung di dalam `@persist('pomodoro-timer')`.
+
+### 🛡️ Background Timer Drift Prevention & Screen Wake Lock
+- **Inline Web Worker via Blob**: Menggantikan `setInterval` di main thread dengan Web Worker internal (`URL.createObjectURL(new Blob([...]))`). Worker berjalan di thread OS terisolasi yang kebal dari *browser background throttling* (tab switching / sleep).
+- **Monotonic Timestamp Delta Diffing**: Menghilangkan akumulasi error `timeLeft--` dengan menghitung sisa waktu berbasis selisih waktu nyata monontonik (`Math.ceil((this.targetEndTime - Date.now()) / 1000)`).
+- **Visibility Reconciliation**: Mendaftarkan event `visibilitychange` dan `window.focus` yang langsung merekonsiliasi sisa waktu atau memicu `onTimerComplete()` secara akurat saat pengguna kembali ke tab.
+- **Screen Wake Lock API**: Secara otomatis mengaktifkan `navigator.wakeLock.request('screen')` saat sesi fokus berlangsung untuk mencegah layar ponsel meredup/terkunci di tengah jalan, dan melepas lock (`release()`) saat sesi dijeda, selesai, atau direset.
+
+### 🔒 Server-Authoritative Anti-Cheat Sealing & Gamifikasi Pomodoro
+- **Session Handshake (`POST /api/focus/start`)**: Setiap sesi fokus wajib diawali dengan handshake ke server untuk mencatat `focus_session_token`, `start_time` (timestamp server), dan mode timer ke dalam sesi terenkripsi pengguna.
+- **Heartbeat Verification (`POST /api/focus/heartbeat`)**: Klien mengirimkan denyut berkala setiap 60 detik untuk memperbarui `last_heartbeat` dan menghitung interval keaktifan nyata di sisi server.
+- **Server Elapsed Validation**: Komponen `PomodoroReward` di server secara independen menghitung selisih waktu `now()->diffInSeconds($startTime)`:
+  - Sesi di bawah 45 detik langsung ditolak (`422 Unprocessable Content`).
+  - Menit durasi yang diklaim dibatasi secara ketat ke `min($clientMinutes, $serverMinutes)`.
+  - Sesi server langsung dihapus (`session()->forget(...)`) setelah reward diklaim untuk mengeliminasi serangan *double-claim / replay attack*.
+
+### 🧠 Web Audio Synthesizer & True Binaural Brainwaves
+- **Seamless 10s Looping Buffers**: Menggantikan kalkulasi generator noise per-sample dengan buffer memori 10 detik yang memiliki *crossfade seam* 100 milidetik, mengeliminasi micro-click / glitch audio loop dan mengurangi beban CPU audio thread.
+- **True Binaural Beats Alpha Waves (10 Hz)**: Memisahkan channel stereo menggunakan `StereoPannerNode` (kiri: 200 Hz, kanan: 210 Hz) untuk menghasilkan resonansi gelombang Alpha murni bagi fokus otak.
+- **Gamma Waves (40 Hz)**: Menambahkan mode gelombang Gamma (kiri: 200 Hz, kanan: 240 Hz) untuk sesi konsentrasi tinggi dan pemecahan masalah rumit.
+- **Graceful Node Teardown**: Memastikan seluruh AudioNode (`OscillatorNode`, `AudioBufferSourceNode`, `GainNode`) memanggil `.stop()` dan `.disconnect()` secara higienis saat ambient dihentikan atau berganti trek suara.
+
+### 🌊 Continuous Ultradian Rhythm Break Curve (Flowtime)
+- **Continuous Log-Linear Formula**: Menggantikan aturan *if-else* kaku dengan kurva berbasis ritme ultradian tubuh:  
+  `calculateFlowtimeBreak(focusMinutes) = Math.min(25, Math.max(3, Math.round(minutes * (0.18 + 0.001 * Math.min(minutes, 90))))))`.  
+  Memberikan durasi istirahat yang proporsional, mulus, dan biologis (misal 20 menit fokus = 4 menit istirahat, 50 menit fokus = 12 menit istirahat, 90 menit fokus = 24 menit istirahat).
+
+### ⚡ Lazy-Load YouTube IFrame & Audio Arbitration
+- **On-Demand IFrame Mount**: Mencegah pemborosan memori dan CPU WebView dengan menunda inisialisasi iframe YouTube (`youtubeLoaded = false`). Iframe hanya dimasukkan ke dalam DOM saat pengguna benar-benar membuka tab YouTube.
+- **Audio Arbitration**: Menghentikan pemutaran audio ambient sintetis secara otomatis saat pengguna memulai pemutaran video YouTube untuk mencegah tumpang-tindih suara (*audio clutter*).
+
+### 📱 Two-Way Android Bridge & Widget Sync
+- **WeakReference Lifecycle Protection**: Memperbarui `MainActivity.java` dengan menyimpan referensi activity sebagai `WeakReference<MainActivity>` pada `AtomaNativeBridge`, mencegah *memory leak* saat rotasi layar atau destroy activity.
+- **Foreground Resumption Sync**: Hook `onResume()` dan `onPageFinished()` secara otomatis memicu sinkronisasi state Pomodoro ke WebView via JavaScript evaluasi `native-pomodoro-sync`.
+- **Homescreen Widget Real-time Sync**: `PomodoroWidgetProvider.java` menerima broadcast pembaruan waktu Pomodoro dan meng-update RemoteViews widget secara instan.
+- **Native Alarm Reminders**: Bridge secara otomatis menjadwalkan notifikasi native Android saat timer fokus/istirahat berakhir.
+
 ## [v1.0.1.3] - 2026-10-22 (Zero-Latency Navigation, Persistent Auth, & WebView Main-Thread Stabilization)
 
 > **Catatan Rilis:** Patch v1.0.1.3 menuntaskan kendala navigasi lambat, jeda ikon Dynamic Center FAB hingga 10 detik, auto-redirect landing page pada APK setelah swipe/kill task, kebocoran background SpeechRecognition, dan pemblokiran PHP session lock akibat prefetch berlebih serta polling tidak terkendali.

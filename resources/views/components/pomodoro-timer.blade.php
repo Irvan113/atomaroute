@@ -1377,6 +1377,7 @@
     const registerPomodoro = () => {
         if (typeof Alpine !== 'undefined' && !Alpine.data('pomodoroTimer')) {
             Alpine.data('pomodoroTimer', (initialTasks = [], userStreak = 0, dueFlashcardsCount = 0) => ({
+                _initialized: false,
                 show: false,
                 showSettings: false,
                 showAudioDeck: false,
@@ -1397,7 +1398,12 @@
                 timeLeft: 25 * 60,
                 flowtimeSeconds: 0,
                 isRunning: false,
+                isPaused: false,
+                targetEndTime: null,
+                startedAt: null,
                 interval: null,
+                timerWorker: null,
+                wakeLockSentinel: null,
                 sessionCount: 0,
                 userStreak: userStreak,
                 
@@ -1451,6 +1457,7 @@
                 
                 // Music tab: 'ytmusic' | 'ambient'
                 musicTab: 'ytmusic',
+                youtubeLoaded: false,
                 
                 // YouTube Player State & Multi-Folder Playlist
                 ytVideoId: '5qap5aO4i9A',
@@ -1507,11 +1514,13 @@
                     { id: 'ocean', name: 'Ombak Laut', icon: '🌊', type: 'ocean_swell' },
                     { id: 'cafe', name: 'Kafe Santai', icon: '☕', type: 'brown_noise' },
                     { id: 'forest', name: 'Hutan Hening', icon: '🌲', type: 'forest_wind' },
-                    { id: 'alpha', name: 'Gelombang 40Hz', icon: '🧠', type: 'binaural_40hz' }
+                    { id: 'alpha', name: 'Alpha 10Hz', icon: '🧘', type: 'binaural_10hz' },
+                    { id: 'gamma', name: 'Gamma 40Hz', icon: '⚡', type: 'binaural_40hz' }
                 ],
                 ambientAudioCtx: null,
                 ambientSourceNodes: [],
                 ambientGainNode: null,
+                _noiseBuffers: { pink: null, brown: null },
 
                 // Mode Persistence Memory (Prevents accidental reset when switching tabs)
                 savedWorkTimeLeft: null,
@@ -1536,7 +1545,163 @@
                     alwaysShowFloat: true,
                 },
 
+                // --- Inline Web Worker Timer Engine (Zero-Drift Background Execution) ---
+                initTimerWorker() {
+                    if (this.timerWorker) return;
+                    try {
+                        const workerCode = `
+                            let timerId = null;
+                            self.onmessage = function(e) {
+                                if (e.data.command === 'start') {
+                                    if (timerId) clearInterval(timerId);
+                                    timerId = setInterval(() => self.postMessage('tick'), e.data.interval || 1000);
+                                } else if (e.data.command === 'stop') {
+                                    if (timerId) clearInterval(timerId);
+                                    timerId = null;
+                                }
+                            };
+                        `;
+                        const blob = new Blob([workerCode], { type: 'application/javascript' });
+                        this.timerWorker = new Worker(URL.createObjectURL(blob));
+                        this.timerWorker.onmessage = (e) => {
+                            if (e.data === 'tick') {
+                                this.onTimerTick();
+                            }
+                        };
+                    } catch (e) {
+                        console.warn('Web Worker not supported or blocked in this environment', e);
+                    }
+                },
+
+                // --- Screen Wake Lock API ---
+                async requestWakeLock() {
+                    if ('wakeLock' in navigator) {
+                        try {
+                            if (!this.wakeLockSentinel) {
+                                this.wakeLockSentinel = await navigator.wakeLock.request('screen');
+                                this.wakeLockSentinel.addEventListener('release', () => {
+                                    this.wakeLockSentinel = null;
+                                });
+                            }
+                        } catch (e) {
+                            console.debug('Screen WakeLock error:', e);
+                        }
+                    }
+                },
+
+                releaseWakeLock() {
+                    if (this.wakeLockSentinel) {
+                        try {
+                            this.wakeLockSentinel.release();
+                        } catch (e) {}
+                        this.wakeLockSentinel = null;
+                    }
+                },
+
+                // --- Native Android Bridge & Widget Synchronization ---
+                syncWithNativeAndroid() {
+                    if (!window.AtomaBridge) return;
+                    const remainingMs = this.mode === 'flowtime'
+                        ? this.flowtimeSeconds * 1000
+                        : this.timeLeft * 1000;
+                    if (typeof window.AtomaBridge.syncPomodoro === 'function') {
+                        window.AtomaBridge.syncPomodoro(Boolean(this.isRunning), remainingMs);
+                    }
+                    if (this.isRunning && this.mode !== 'flowtime' && this.timeLeft > 0) {
+                        if (typeof window.AtomaBridge.scheduleNativeReminder === 'function') {
+                            const triggerAtMs = Date.now() + (this.timeLeft * 1000);
+                            const notifTitle = this.mode === 'work' ? '🎉 Focus Time Selesai!' : '⚡ Istirahat Selesai!';
+                            const notifBody = this.mode === 'work' ? 'Waktunya istirahat sejenak.' : 'Kembali fokus ke tugasmu!';
+                            window.AtomaBridge.scheduleNativeReminder(999999, notifTitle, notifBody, triggerAtMs);
+                        }
+                    } else {
+                        if (typeof window.AtomaBridge.cancelNativeReminder === 'function') {
+                            window.AtomaBridge.cancelNativeReminder(999999);
+                        }
+                    }
+                },
+
+                // --- Continuous Ultradian Rhythm Flowtime Break Curve ---
+                calculateFlowtimeBreak(focusMinutes) {
+                    const minutes = Math.max(1, Number(focusMinutes) || 0);
+                    if (minutes < 10) return 2;
+                    const ratio = 0.18 + (0.001 * Math.min(minutes, 90));
+                    return Math.min(25, Math.max(3, Math.round(minutes * ratio)));
+                },
+
+                // --- Server-Authoritative Start-Commit Handshake ---
+                sendFocusStart() {
+                    if (this.mode !== 'work' && this.mode !== 'flowtime') return;
+                    const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                    const targetDuration = this.mode === 'flowtime' ? 60 : (this.settings.work || 25);
+                    fetch('/api/focus/start', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': token
+                        },
+                        body: JSON.stringify({
+                            mode: this.mode,
+                            task_id: this.selectedTaskId || null,
+                            target_duration: targetDuration
+                        })
+                    }).catch(() => {});
+                },
+
+                // --- Monotonic Timestamp Delta Tick Handler ---
+                onTimerTick() {
+                    if (!this.isRunning) return;
+
+                    if (this.mode === 'flowtime') {
+                        this.flowtimeSeconds = Math.max(0, Math.round((Date.now() - (this.startedAt || Date.now())) / 1000));
+                        document.title = `(${this.formattedTime}) ATOMA Flow`;
+                        if (this.flowtimeSeconds % 5 === 0) {
+                            this.saveActiveTimerState();
+                        }
+                        if (this.flowtimeSeconds % 30 === 0) {
+                            this.sendFocusHeartbeat();
+                        }
+                    } else {
+                        const remaining = Math.max(0, Math.round(((this.targetEndTime || (Date.now() + this.timeLeft * 1000)) - Date.now()) / 1000));
+                        this.timeLeft = remaining;
+                        document.title = `(${this.formattedTime}) ATOMA`;
+                        if (this.timeLeft % 5 === 0) {
+                            this.saveActiveTimerState();
+                        }
+                        if (this.timeLeft % 30 === 0) {
+                            this.sendFocusHeartbeat();
+                        }
+                        if (remaining <= 0) {
+                            this.timerComplete();
+                        }
+                    }
+                },
+
+                // --- Tab Visibility Reconciliation (Instantly corrects drift when foregrounded) ---
+                reconcileTimerState() {
+                    if (!this.isRunning) return;
+                    if (this.mode === 'flowtime') {
+                        if (this.startedAt) {
+                            this.flowtimeSeconds = Math.max(0, Math.round((Date.now() - this.startedAt) / 1000));
+                        }
+                    } else {
+                        if (this.targetEndTime) {
+                            const diff = Math.round((this.targetEndTime - Date.now()) / 1000);
+                            if (diff <= 0) {
+                                this.timeLeft = 0;
+                                this.timerComplete();
+                            } else {
+                                this.timeLeft = diff;
+                            }
+                        }
+                    }
+                    this.saveActiveTimerState();
+                },
+
                 init() {
+                    if (this._initialized) return;
+                    this._initialized = true;
+
                     this.loadSettings();
                     this.loadTelemetry();
                     this.loadSavedPlaylist();
@@ -1545,8 +1710,8 @@
                     this.loadFloatPosition();
                     this.initOfflineCache();
                     this.fetchTodaySessions();
+                    this.initTimerWorker();
 
-                    this.ensurePermanentAudioHost();
                     this.$nextTick(() => this.updateVideoSlotPosition());
 
                     window.addEventListener('toggle-pomodoro-widget', () => this.toggleShow());
@@ -1566,6 +1731,37 @@
                     window.addEventListener('scroll', () => {
                         this.updateVideoSlotPosition();
                     }, true);
+
+                    // Document visibility change listener (fixes background drift & manages screen wake lock)
+                    document.addEventListener('visibilitychange', () => {
+                        if (document.visibilityState === 'visible') {
+                            this.reconcileTimerState();
+                            if (this.isRunning) {
+                                this.requestWakeLock();
+                            }
+                        } else {
+                            this.releaseWakeLock();
+                        }
+                    });
+
+                    // Native Android two-way synchronization listener
+                    window.addEventListener('native-pomodoro-sync', (e) => {
+                        const detail = e.detail || {};
+                        if (typeof detail.isRunning === 'boolean') {
+                            if (detail.isRunning && !this.isRunning) {
+                                if (detail.remainingMs > 0 && this.mode !== 'flowtime') {
+                                    this.timeLeft = Math.round(detail.remainingMs / 1000);
+                                    this.targetEndTime = Date.now() + detail.remainingMs;
+                                }
+                                this.startTimer();
+                            } else if (!detail.isRunning && this.isRunning) {
+                                this.pauseTimer();
+                                if (detail.remainingMs !== undefined && this.mode !== 'flowtime') {
+                                    this.timeLeft = Math.round(detail.remainingMs / 1000);
+                                }
+                            }
+                        }
+                    });
 
                     // Global subtask synchronization
                     window.addEventListener('subtask-toggled-global', (e) => {
@@ -1672,7 +1868,9 @@
                     // Livewire 3 wire:navigate persistence hook
                     document.addEventListener('livewire:navigated', () => {
                         this.fetchTodaySessions();
-                        this.ensurePermanentAudioHost();
+                        if (this.youtubeLoaded) {
+                            this.ensurePermanentAudioHost();
+                        }
                         this.$nextTick(() => {
                             this.updateVideoSlotPosition();
                         });
@@ -1769,7 +1967,7 @@
 
                 get recommendedBreakMinutes() {
                     const mins = Math.floor(this.flowtimeSeconds / 60);
-                    return Math.max(3, Math.round(mins / 5));
+                    return this.calculateFlowtimeBreak(mins);
                 },
 
                 get isTaskConnected() {
@@ -1801,21 +1999,21 @@
 
                     this.pauseTimer();
                     this.mode = newMode;
-                    if (newMode === 'work') {
+                    if (newMode === 'work' || newMode === 'focus') {
                         this.timeLeft = (this.savedWorkTimeLeft !== null && this.savedWorkTimeLeft > 0) 
                             ? this.savedWorkTimeLeft 
-                            : (this.settings.work * 60);
+                            : (Math.max(60, Number(this.settings.work || 25) * 60));
                     } else if (newMode === 'flowtime') {
                         if (this.flowtimeSeconds === undefined) this.flowtimeSeconds = 0;
                     } else if (newMode === 'shortBreak') {
                         this.timeLeft = (this.savedShortBreakTimeLeft !== null && this.savedShortBreakTimeLeft > 0)
                             ? this.savedShortBreakTimeLeft
-                            : (this.settings.shortBreak * 60);
+                            : (Math.max(60, Number(this.settings.shortBreak || 5) * 60));
                         this.shuffleBreakTip();
                     } else {
                         this.timeLeft = (this.savedLongBreakTimeLeft !== null && this.savedLongBreakTimeLeft > 0)
                             ? this.savedLongBreakTimeLeft
-                            : (this.settings.longBreak * 60);
+                            : (Math.max(60, Number(this.settings.longBreak || 15) * 60));
                         this.shuffleBreakTip();
                     }
                     this.saveActiveTimerState();
@@ -1941,7 +2139,7 @@
                     }
 
                     this.flowtimeResultMinutes = focusMinutes;
-                    this.flowtimeRecommendedBreak = Math.max(3, Math.round(focusMinutes / 5));
+                    this.flowtimeRecommendedBreak = this.calculateFlowtimeBreak(focusMinutes);
                     this.showFlowtimeModal = true;
                     this.flowtimeSeconds = 0;
                     this.saveActiveTimerState();
@@ -2048,12 +2246,69 @@
                         this.stopAmbientSynth();
                         this.isAmbientPlaying = false;
                     } else {
-                        // Pause YT if playing
-                        if (this.isYtPlaying) this.toggleYtPlayback();
+                        // Pause YT if playing to free up audio decoders
+                        if (this.isYtPlaying) {
+                            this.sendYtCommand('pauseVideo');
+                            this.isYtPlaying = false;
+                        }
                         this.startAmbientSynth();
                         this.isAmbientPlaying = true;
                     }
                     this.saveActiveTimerState();
+                },
+
+                // Pre-computed looping AudioBuffers with crossfaded boundaries (CPU optimized)
+                getPinkNoiseBuffer(ctx) {
+                    if (this._noiseBuffers && this._noiseBuffers.pink) return this._noiseBuffers.pink;
+                    const duration = 10;
+                    const bufferSize = ctx.sampleRate * duration;
+                    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+                    const data = buffer.getChannelData(0);
+                    let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+                    for (let i = 0; i < bufferSize; i++) {
+                        const white = Math.random() * 2 - 1;
+                        b0 = 0.99886 * b0 + white * 0.0555179;
+                        b1 = 0.99332 * b1 + white * 0.0750759;
+                        b2 = 0.96900 * b2 + white * 0.1538520;
+                        b3 = 0.86650 * b3 + white * 0.3104856;
+                        b4 = 0.55000 * b4 + white * 0.5329522;
+                        b5 = -0.7616 * b5 + white * 0.0168980;
+                        data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.11;
+                        b6 = white * 0.115926;
+                    }
+                    // 100ms seamless loop crossfade
+                    const crossfadeSamples = Math.floor(ctx.sampleRate * 0.1);
+                    for (let i = 0; i < crossfadeSamples; i++) {
+                        const factor = i / crossfadeSamples;
+                        data[i] = (data[i] * factor) + (data[bufferSize - crossfadeSamples + i] * (1 - factor));
+                    }
+                    if (!this._noiseBuffers) this._noiseBuffers = {};
+                    this._noiseBuffers.pink = buffer;
+                    return buffer;
+                },
+
+                getBrownNoiseBuffer(ctx) {
+                    if (this._noiseBuffers && this._noiseBuffers.brown) return this._noiseBuffers.brown;
+                    const duration = 10;
+                    const bufferSize = ctx.sampleRate * duration;
+                    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+                    const data = buffer.getChannelData(0);
+                    let lastOut = 0.0;
+                    for (let i = 0; i < bufferSize; i++) {
+                        const white = Math.random() * 2 - 1;
+                        data[i] = (lastOut + (0.02 * white)) / 1.02;
+                        lastOut = data[i];
+                        data[i] *= 3.5;
+                    }
+                    // 100ms seamless loop crossfade
+                    const crossfadeSamples = Math.floor(ctx.sampleRate * 0.1);
+                    for (let i = 0; i < crossfadeSamples; i++) {
+                        const factor = i / crossfadeSamples;
+                        data[i] = (data[i] * factor) + (data[bufferSize - crossfadeSamples + i] * (1 - factor));
+                    }
+                    if (!this._noiseBuffers) this._noiseBuffers = {};
+                    this._noiseBuffers.brown = buffer;
+                    return buffer;
                 },
 
                 startAmbientSynth() {
@@ -2079,7 +2334,7 @@
                         const preset = this.currentAmbientPreset;
 
                         if (preset === 'rain') {
-                            const buffer = this.generatePinkNoiseBuffer(ctx, 4);
+                            const buffer = this.getPinkNoiseBuffer(ctx);
                             const src = ctx.createBufferSource();
                             src.buffer = buffer;
                             src.loop = true;
@@ -2091,9 +2346,9 @@
                             src.connect(filter);
                             filter.connect(masterGain);
                             src.start();
-                            this.ambientSourceNodes.push(src);
+                            this.ambientSourceNodes.push(src, filter);
                         } else if (preset === 'ocean') {
-                            const buffer = this.generatePinkNoiseBuffer(ctx, 6);
+                            const buffer = this.getPinkNoiseBuffer(ctx);
                             const src = ctx.createBufferSource();
                             src.buffer = buffer;
                             src.loop = true;
@@ -2118,9 +2373,9 @@
 
                             src.start();
                             lfo.start();
-                            this.ambientSourceNodes.push(src, lfo);
+                            this.ambientSourceNodes.push(src, filter, swellGain, lfo, lfoGain);
                         } else if (preset === 'cafe') {
-                            const buffer = this.generateBrownNoiseBuffer(ctx, 4);
+                            const buffer = this.getBrownNoiseBuffer(ctx);
                             const src = ctx.createBufferSource();
                             src.buffer = buffer;
                             src.loop = true;
@@ -2132,15 +2387,13 @@
                             src.connect(filter);
                             filter.connect(masterGain);
                             src.start();
-                            this.ambientSourceNodes.push(src);
+                            this.ambientSourceNodes.push(src, filter);
                         } else if (preset === 'forest') {
-                            // Gentle woodland wind & canopy breeze (calm forest atmosphere, not rain)
-                            const buffer = this.generateBrownNoiseBuffer(ctx, 5);
+                            const buffer = this.getBrownNoiseBuffer(ctx);
                             const src = ctx.createBufferSource();
                             src.buffer = buffer;
                             src.loop = true;
 
-                            // Lowpass filter modulated by very slow, soothing wind gusts (0.1Hz)
                             const filter = ctx.createBiquadFilter();
                             filter.type = 'lowpass';
                             filter.frequency.setValueAtTime(260, ctx.currentTime);
@@ -2154,8 +2407,7 @@
                             windLfo.connect(windLfoGain);
                             windLfoGain.connect(filter.frequency);
 
-                            // Soft gentle high-frequency canopy leaf whisper
-                            const leafBuffer = this.generatePinkNoiseBuffer(ctx, 4);
+                            const leafBuffer = this.getPinkNoiseBuffer(ctx);
                             const leafSrc = ctx.createBufferSource();
                             leafSrc.buffer = leafBuffer;
                             leafSrc.loop = true;
@@ -2175,8 +2427,38 @@
                             src.start();
                             windLfo.start();
                             leafSrc.start();
-                            this.ambientSourceNodes.push(src, windLfo, leafSrc);
+                            this.ambientSourceNodes.push(src, filter, windLfo, windLfoGain, leafSrc, leafFilter, leafGain);
                         } else if (preset === 'alpha') {
+                            // True Binaural Beats 10 Hz (Alpha Band: 8-12 Hz for relaxed alert focus)
+                            const oscLeft = ctx.createOscillator();
+                            oscLeft.type = 'sine';
+                            oscLeft.frequency.setValueAtTime(200, ctx.currentTime);
+
+                            const oscRight = ctx.createOscillator();
+                            oscRight.type = 'sine';
+                            oscRight.frequency.setValueAtTime(210, ctx.currentTime);
+
+                            if (ctx.createStereoPanner) {
+                                const panL = ctx.createStereoPanner();
+                                panL.pan.setValueAtTime(-1, ctx.currentTime);
+                                const panR = ctx.createStereoPanner();
+                                panR.pan.setValueAtTime(1, ctx.currentTime);
+
+                                oscLeft.connect(panL);
+                                panL.connect(masterGain);
+                                oscRight.connect(panR);
+                                panR.connect(masterGain);
+                                this.ambientSourceNodes.push(oscLeft, oscRight, panL, panR);
+                            } else {
+                                oscLeft.connect(masterGain);
+                                oscRight.connect(masterGain);
+                                this.ambientSourceNodes.push(oscLeft, oscRight);
+                            }
+
+                            oscLeft.start();
+                            oscRight.start();
+                        } else if (preset === 'gamma') {
+                            // Gamma Waves 40 Hz (Deep Focus / Cognition stimulation)
                             const carrier = ctx.createOscillator();
                             carrier.type = 'sine';
                             carrier.frequency.setValueAtTime(200, ctx.currentTime);
@@ -2198,7 +2480,7 @@
 
                             carrier.start();
                             lfo.start();
-                            this.ambientSourceNodes.push(carrier, lfo);
+                            this.ambientSourceNodes.push(carrier, lfo, tremoloGain, lfoAmp);
                         }
                     } catch (e) {
                         console.error('Ambient synth start error:', e);
@@ -2207,14 +2489,15 @@
 
                 stopAmbientSynth() {
                     this.ambientSourceNodes.forEach(node => {
-                        try { node.stop(); node.disconnect(); } catch (e) {}
+                        try {
+                            if (typeof node.stop === 'function') node.stop();
+                            if (typeof node.disconnect === 'function') node.disconnect();
+                        } catch (e) {}
                     });
                     this.ambientSourceNodes = [];
-                    if (window.atomaAmbientSourceNodes) {
-                        window.atomaAmbientSourceNodes.forEach(node => {
-                            try { node.stop(); node.disconnect(); } catch (e) {}
-                        });
-                        window.atomaAmbientSourceNodes = [];
+                    if (this.ambientGainNode) {
+                        try { this.ambientGainNode.disconnect(); } catch (e) {}
+                        this.ambientGainNode = null;
                     }
                 },
 
@@ -2222,39 +2505,6 @@
                     if (this.ambientGainNode && this.ambientAudioCtx) {
                         this.ambientGainNode.gain.setValueAtTime((this.ambientVolume / 100) * 0.4, this.ambientAudioCtx.currentTime);
                     }
-                },
-
-                generatePinkNoiseBuffer(ctx, duration = 4) {
-                    const bufferSize = ctx.sampleRate * duration;
-                    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-                    const data = buffer.getChannelData(0);
-                    let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
-                    for (let i = 0; i < bufferSize; i++) {
-                        const white = Math.random() * 2 - 1;
-                        b0 = 0.99886 * b0 + white * 0.0555179;
-                        b1 = 0.99332 * b1 + white * 0.0750759;
-                        b2 = 0.96900 * b2 + white * 0.1538520;
-                        b3 = 0.86650 * b3 + white * 0.3104856;
-                        b4 = 0.55000 * b4 + white * 0.5329522;
-                        b5 = -0.7616 * b5 + white * 0.0168980;
-                        data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.11;
-                        b6 = white * 0.115926;
-                    }
-                    return buffer;
-                },
-
-                generateBrownNoiseBuffer(ctx, duration = 4) {
-                    const bufferSize = ctx.sampleRate * duration;
-                    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-                    const data = buffer.getChannelData(0);
-                    let lastOut = 0.0;
-                    for (let i = 0; i < bufferSize; i++) {
-                        const white = Math.random() * 2 - 1;
-                        data[i] = (lastOut + (0.02 * white)) / 1.02;
-                        lastOut = data[i];
-                        data[i] *= 3.5;
-                    }
-                    return buffer;
                 },
 
                 // Spotify-Style Offline Cache Management
@@ -2299,7 +2549,11 @@
                 },
 
                 // --- YouTube Controls & Persistent Audio Portal ---
-                ensurePermanentAudioHost() {
+                ensurePermanentAudioHost(force = false) {
+                    if (!this.youtubeLoaded && !force) {
+                        return null;
+                    }
+
                     // Clean up any stale host from old implementations if present in body
                     const stale = document.getElementById('atoma-global-yt-host');
                     if (stale) stale.remove();
@@ -2337,7 +2591,16 @@
                     return iframe;
                 },
 
+                loadYouTubeIframe() {
+                    if (!this.youtubeLoaded) {
+                        this.youtubeLoaded = true;
+                        return this.ensurePermanentAudioHost(true);
+                    }
+                    return document.getElementById('atomaYtIframe') || this.ensurePermanentAudioHost(true);
+                },
+
                 updateVideoSlotPosition() {
+                    if (!this.youtubeLoaded) return;
                     const iframe = document.getElementById('atomaYtIframe');
                     if (!iframe) return;
                     
@@ -2375,6 +2638,7 @@
                 },
 
                 sendYtListening() {
+                    if (!this.youtubeLoaded) return;
                     const iframe = this.ensurePermanentAudioHost();
                     if (iframe && iframe.contentWindow) {
                         iframe.contentWindow.postMessage(JSON.stringify({
@@ -2386,6 +2650,7 @@
                 },
 
                 loadYtVideo(videoId, title, author, thumbnail) {
+                    this.loadYouTubeIframe();
                     if (!this.isOnline) {
                         if (window.Livewire) {
                             window.Livewire.dispatch('toast', { message: 'Sedang offline — beralih otomatis ke Ambient Offline.', type: 'info' });
@@ -2407,7 +2672,7 @@
                     this.ytThumbnail = thumbnail || `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
                     this.ytEmbedUrl = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&autoplay=1&origin=${encodeURIComponent(window.location.origin)}`;
 
-                    const iframe = this.ensurePermanentAudioHost();
+                    const iframe = this.ensurePermanentAudioHost(true);
                     if (iframe) {
                         iframe.src = this.ytEmbedUrl;
                     }
@@ -2440,6 +2705,7 @@
 
                 playYtQuery() {
                     if (!this.ytQuery.trim()) return;
+                    this.loadYouTubeIframe();
                     if (!this.isOnline) {
                         if (window.Livewire) {
                             window.Livewire.dispatch('toast', { message: 'Pencarian YouTube membutuhkan koneksi internet.', type: 'error' });
@@ -2464,6 +2730,7 @@
                 },
 
                 sendYtCommand(func, args = []) {
+                    if (!this.youtubeLoaded) return;
                     const iframe = this.ensurePermanentAudioHost();
                     if (iframe && iframe.contentWindow) {
                         iframe.contentWindow.postMessage(JSON.stringify({
@@ -2475,6 +2742,7 @@
                 },
 
                 toggleYtPlayback() {
+                    this.loadYouTubeIframe();
                     if (!this.isOnline && !this.isYtPlaying) {
                         if (window.Livewire) {
                             window.Livewire.dispatch('toast', { message: 'YouTube tidak dapat diputar saat offline. Membuka Ambient Offline.', type: 'info' });
@@ -2484,7 +2752,7 @@
                         return;
                     }
 
-                    const iframe = this.ensurePermanentAudioHost();
+                    const iframe = this.ensurePermanentAudioHost(true);
 
                     if (this.isYtPlaying) {
                         this.sendYtCommand('pauseVideo');
@@ -2982,14 +3250,20 @@
                 },
 
                 saveActiveTimerState() {
+                    let targetEnd = null;
+                    if (this.isRunning && this.mode !== 'flowtime') {
+                        targetEnd = this.targetEndTime || (Date.now() + this.timeLeft * 1000);
+                    }
                     const state = {
                         savedDate: new Date().toLocaleDateString('en-CA'),
                         show: this.show,
                         mode: this.mode,
                         isRunning: this.isRunning,
+                        isPaused: this.isPaused,
                         timeLeft: this.timeLeft,
                         flowtimeSeconds: this.flowtimeSeconds,
-                        targetEndTime: (this.isRunning && this.mode !== 'flowtime') ? (Date.now() + this.timeLeft * 1000) : null,
+                        targetEndTime: targetEnd,
+                        startedAt: this.startedAt,
                         sessionCount: this.sessionCount,
                         selectedTaskId: this.selectedTaskId,
                         selectedTaskTitle: this.selectedTaskTitle,
@@ -3025,8 +3299,11 @@
                         const state = JSON.parse(saved);
                         if (state.show !== undefined) this.show = Boolean(state.show);
                         if (state.mode) this.mode = state.mode;
+                        if (state.isPaused !== undefined) this.isPaused = Boolean(state.isPaused);
                         if (state.flowtimeSeconds !== undefined) this.flowtimeSeconds = Number(state.flowtimeSeconds);
                         if (state.sessionCount !== undefined) this.sessionCount = Number(state.sessionCount);
+                        if (state.targetEndTime) this.targetEndTime = Number(state.targetEndTime);
+                        if (state.startedAt) this.startedAt = Number(state.startedAt);
                         
                         // Check if saved selected task actually exists
                         if (state.selectedTaskId && this.activeTasks.some(t => String(t.id) === String(state.selectedTaskId))) {
@@ -3075,9 +3352,12 @@
                             // Fresh day reset: 25 mins full for today
                             this.timeLeft = this.settings.work * 60;
                             this.isRunning = false;
+                            this.isPaused = false;
                             this.flowtimeSeconds = 0;
                             this.mode = 'work';
                             this.sessionCount = 0;
+                            this.targetEndTime = null;
+                            this.startedAt = null;
                             this.saveActiveTimerState();
                         } else {
                             if (this.mode === 'flowtime') {
@@ -3098,10 +3378,10 @@
                             }
                         }
 
-                        // Restore Audio playback state across tab/navigation/reload
+                        // Restore Audio playback state across tab/navigation/reload (lazy loaded)
                         if (state.isYtPlaying) {
                             this.isYtPlaying = true;
-                            this.ensurePermanentAudioHost();
+                            this.loadYouTubeIframe();
                             setTimeout(() => {
                                 this.sendYtCommand('playVideo');
                                 this.sendYtListening();
@@ -3162,54 +3442,95 @@
                 },
 
                 startTimer() {
-                    if (this.interval) clearInterval(this.interval);
+                    if (this.interval) {
+                        clearInterval(this.interval);
+                        this.interval = null;
+                    }
                     this.isRunning = true;
+                    this.isPaused = false;
+
+                    if (this.mode === 'flowtime') {
+                        this.startedAt = Date.now() - (this.flowtimeSeconds * 1000);
+                        this.targetEndTime = null;
+                    } else {
+                        this.targetEndTime = Date.now() + (this.timeLeft * 1000);
+                        this.startedAt = null;
+                    }
+
                     this.saveActiveTimerState();
+                    this.sendFocusStart();
                     this.sendFocusHeartbeat();
+                    this.requestWakeLock();
+                    this.syncWithNativeAndroid();
+
+                    // Start Web Worker if available, fallback to interval
+                    if (this.timerWorker) {
+                        this.timerWorker.postMessage({ command: 'start', interval: 1000 });
+                    }
                     this.interval = setInterval(() => {
-                        if (this.mode === 'flowtime') {
-                            this.flowtimeSeconds++;
-                            document.title = `(${this.formattedTime}) ATOMA Flow`;
-                            if (this.flowtimeSeconds % 5 === 0) {
-                                this.saveActiveTimerState();
-                            }
-                            if (this.flowtimeSeconds % 30 === 0) {
-                                this.sendFocusHeartbeat();
-                            }
-                        } else {
-                            if (this.timeLeft > 0) {
-                                this.timeLeft--;
-                                document.title = `(${this.formattedTime}) ATOMA`;
-                                if (this.timeLeft % 5 === 0) {
-                                    this.saveActiveTimerState();
-                                }
-                                if (this.timeLeft % 30 === 0) {
-                                    this.sendFocusHeartbeat();
-                                }
-                            } else {
-                                this.timerComplete();
-                            }
+                        if (!this.timerWorker) {
+                            this.onTimerTick();
                         }
                     }, 1000);
                 },
 
                 pauseTimer() {
                     this.isRunning = false;
-                    if (this.interval) clearInterval(this.interval);
+                    this.isPaused = true;
+                    if (this.interval) {
+                        clearInterval(this.interval);
+                        this.interval = null;
+                    }
+                    if (this.timerWorker) {
+                        this.timerWorker.postMessage({ command: 'stop' });
+                    }
+                    this.targetEndTime = null;
+                    this.releaseWakeLock();
                     this.saveActiveTimerState();
                     this.stopFocusHeartbeat();
+                    this.syncWithNativeAndroid();
                     document.title = 'ATOMA';
                 },
 
                 resetTimer() {
-                    this.pauseTimer();
-                    this.stopFocusHeartbeat();
-                    if (this.mode === 'work') this.savedWorkTimeLeft = null;
-                    else if (this.mode === 'shortBreak') this.savedShortBreakTimeLeft = null;
-                    else if (this.mode === 'longBreak') this.savedLongBreakTimeLeft = null;
+                    // 1. Single-Entry Atomic Reset: Stop worker & interval immediately
+                    if (this.interval) {
+                        clearInterval(this.interval);
+                        this.interval = null;
+                    }
+                    if (this.timerWorker) {
+                        this.timerWorker.postMessage({ command: 'stop' });
+                    }
 
-                    this.setMode(this.mode);
+                    // 2. Clear running flags & timestamps BEFORE resetting time values
+                    this.isRunning = false;
+                    this.isPaused = false;
+                    this.targetEndTime = null;
+                    this.startedAt = null;
+
+                    // 3. Clear mode saved time caches
+                    this.savedWorkTimeLeft = null;
+                    this.savedShortBreakTimeLeft = null;
+                    this.savedLongBreakTimeLeft = null;
+
+                    // 4. Reset time according to current mode
+                    if (this.mode === 'flowtime') {
+                        this.flowtimeSeconds = 0;
+                        this.timeLeft = 0;
+                    } else {
+                        const defaultMin = (this.mode === 'shortBreak' ? (this.settings.shortBreak || 5) : (this.mode === 'longBreak' ? (this.settings.longBreak || 15) : (this.settings.work || 25)));
+                        this.timeLeft = Math.max(60, Number(defaultMin) * 60 || 1500);
+                    }
+
+                    // 5. Release Wake Lock, stop server heartbeat, and sync Android
+                    this.releaseWakeLock();
+                    this.stopFocusHeartbeat();
+                    this.syncWithNativeAndroid();
+                    document.title = 'ATOMA';
+
+                    // 6. Explicitly save clean reset state to localStorage
                     this.saveActiveTimerState();
+
                     if (window.Livewire) {
                         window.Livewire.dispatch('toast', { message: 'Timer di-reset.', type: 'info' });
                     }
@@ -3254,7 +3575,9 @@
 
                 timerComplete() {
                     this.pauseTimer();
+                    this.releaseWakeLock();
                     this.triggerHaptic('success');
+                    this.syncWithNativeAndroid();
                     
                     // 1. Client-Side Synthesized Chime (Reliable, Zero Network)
                     this.playWebAudioChime();

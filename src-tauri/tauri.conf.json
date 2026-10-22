@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "ATOMA",
-  "version": "1.0.2",
+  "version": "1.0.1.4",
   "identifier": "com.atoma.app",
   "build": {
     "frontendDist": "https://atomaroute.com",
@@ -12,7 +12,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "ATOMA v1.0.1.2 - Adaptive Focus & Skill Roadmap",
+        "title": "ATOMA v1.0.1.4 - Adaptive Focus & Skill Roadmap",
         "url": "https://atomaroute.com",
         "width": 1280,
         "height": 800,

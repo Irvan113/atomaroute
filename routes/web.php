@@ -313,6 +313,29 @@ Route::middleware(['auth', 'throttle:60,1'])->group(function () {
         ]);
     });
 
+    // Server-Authoritative Focus Session Start Handshake
+    Route::post('/api/focus/start', function (\Illuminate\Http\Request $request) {
+        $user = auth()->user();
+        $mode = $request->input('mode', 'work');
+        $taskId = $request->input('task_id');
+        $targetDuration = (int) $request->input('target_duration', 25);
+
+        $sessionData = [
+            'user_id' => $user->id,
+            'started_at' => now()->timestamp,
+            'mode' => $mode,
+            'task_id' => $taskId ? (int) $taskId : null,
+            'target_duration' => $targetDuration,
+            'heartbeat_count' => 0,
+            'last_heartbeat_at' => now()->timestamp,
+        ];
+
+        // Store active session token with 3-hour TTL
+        \Illuminate\Support\Facades\Cache::put("user_focus_session_{$user->id}", $sessionData, now()->addHours(3));
+
+        return response()->json(['success' => true, 'session' => $sessionData]);
+    });
+
     Route::post('/api/focus/heartbeat', function (\Illuminate\Http\Request $request) {
         $user = auth()->user();
         $mode = $request->input('mode', 'work');
@@ -331,12 +354,22 @@ Route::middleware(['auth', 'throttle:60,1'])->group(function () {
 
         \Illuminate\Support\Facades\Cache::put("user_focus_{$user->id}", $focusData, now()->addSeconds(90));
 
+        // Update server-authoritative session heartbeat
+        $sessionKey = "user_focus_session_{$user->id}";
+        $activeSession = \Illuminate\Support\Facades\Cache::get($sessionKey);
+        if ($activeSession && is_array($activeSession)) {
+            $activeSession['heartbeat_count'] = ($activeSession['heartbeat_count'] ?? 0) + 1;
+            $activeSession['last_heartbeat_at'] = now()->timestamp;
+            \Illuminate\Support\Facades\Cache::put($sessionKey, $activeSession, now()->addHours(3));
+        }
+
         return response()->json(['success' => true, 'focus' => $focusData]);
     });
 
     Route::post('/api/focus/stop', function () {
         $user = auth()->user();
         \Illuminate\Support\Facades\Cache::forget("user_focus_{$user->id}");
+        \Illuminate\Support\Facades\Cache::forget("user_focus_session_{$user->id}");
         return response()->json(['success' => true]);
     });
 

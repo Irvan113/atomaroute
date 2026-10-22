@@ -25,12 +25,50 @@ import com.getcapacitor.BridgeWebViewClient;
 
 public class MainActivity extends BridgeActivity {
 
+    public static java.lang.ref.WeakReference<MainActivity> instanceRef = null;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        instanceRef = new java.lang.ref.WeakReference<>(this);
         requestNotificationPermission();
         setupWebView();
         handleDeepLink(getIntent());
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        instanceRef = new java.lang.ref.WeakReference<>(this);
+        syncNativePomodoroToWeb();
+    }
+
+    public void syncNativePomodoroToWeb() {
+        try {
+            SharedPreferences prefs = getSharedPreferences("AtomaPomodoroPrefs", Context.MODE_PRIVATE);
+            boolean isRunning = prefs.getBoolean("is_running", false);
+            long now = SystemClock.elapsedRealtime();
+            long remainingMs = prefs.getLong("remaining_ms", 25 * 60 * 1000L);
+            if (isRunning) {
+                long targetEndTime = prefs.getLong("target_end_elapsed", now + remainingMs);
+                remainingMs = Math.max(0, targetEndTime - now);
+                if (remainingMs <= 0) {
+                    isRunning = false;
+                }
+            }
+            final String js = "window.dispatchEvent(new CustomEvent('native-pomodoro-sync', { detail: { isRunning: " 
+                + isRunning + ", remainingMs: " + remainingMs + " } }));";
+            Bridge b = getBridge();
+            if (b != null && b.getWebView() != null) {
+                final WebView wv = b.getWebView();
+                wv.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        wv.evaluateJavascript(js, null);
+                    }
+                });
+            }
+        } catch (Throwable ignored) {}
     }
 
     private void requestNotificationPermission() {
@@ -148,6 +186,7 @@ public class MainActivity extends BridgeActivity {
                 try {
                     CookieManager.getInstance().flush();
                     view.evaluateJavascript("if(window.syncAtomaWidget) { window.syncAtomaWidget(); }", null);
+                    syncNativePomodoroToWeb();
                 } catch (Throwable ignored) {}
             }
         });
