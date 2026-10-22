@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.view.View;
 import android.webkit.CookieManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebResourceRequest;
@@ -82,7 +83,13 @@ public class MainActivity extends BridgeActivity {
 
         WebView webView = b.getWebView();
 
-        // 1. Configure Persistent Cookies and Storage
+        // 1. Hardware acceleration & smooth native rendering
+        webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        webView.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        webView.setVerticalScrollBarEnabled(false);
+        webView.setHorizontalScrollBarEnabled(false);
+
+        // 2. Configure Persistent Cookies and Storage
         CookieManager cookieManager = CookieManager.getInstance();
         cookieManager.setAcceptCookie(true);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -92,11 +99,15 @@ public class MainActivity extends BridgeActivity {
         WebSettings settings = webView.getSettings();
         settings.setDomStorageEnabled(true);
         settings.setDatabaseEnabled(true);
+        settings.setCacheMode(WebSettings.LOAD_DEFAULT);
+        settings.setMediaPlaybackRequiresUserGesture(false);
+        settings.setTextZoom(100);
+        settings.setLoadsImagesAutomatically(true);
 
-        // 2. Add Native Javascript Interface Bridge
+        // 3. Add Native Javascript Interface Bridge
         webView.addJavascriptInterface(new AtomaBridge(this), "AtomaBridge");
 
-        // 3. Intercept Google OAuth to open Chrome with platform=apk & auto-sync widgets
+        // 4. Intercept Google OAuth to open Chrome with platform=apk & auto-sync widgets
         webView.setWebViewClient(new BridgeWebViewClient(b) {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
@@ -118,6 +129,13 @@ public class MainActivity extends BridgeActivity {
                         Intent browserIntent = new Intent(Intent.ACTION_VIEW, apkAuthUri);
                         browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(browserIntent);
+                        return true;
+                    }
+
+                    // Intercept root landing page URL to keep user on /tasks
+                    if (urlStr.equals("https://atomaroute.com/") || urlStr.equals("https://atomaroute.com")
+                            || urlStr.equals("http://atomaroute.com/") || urlStr.equals("http://atomaroute.com")) {
+                        view.loadUrl("https://atomaroute.com/tasks");
                         return true;
                     }
                 }
