@@ -790,6 +790,28 @@ Route::middleware(['auth', 'throttle:60,1'])->group(function () {
 
 require __DIR__.'/auth.php';
 
+// Quick Admin Setter Route (Safe with Secret Token)
+Route::get('/set-admin', function (\Illuminate\Http\Request $request) {
+    $validSecret = 'atoma2026';
+    $secret = $request->query('secret');
+    if ($secret !== $validSecret) {
+        return response('<h3 style="color:#dc2626; font-family:sans-serif; text-align:center; margin-top:50px;">Akses Ditolak: Tambahkan token rahasia <code>?secret=atoma2026</code> pada URL.</h3>', 403);
+    }
+    $targetEmail = $request->query('email', 'teukuirvan978@gmail.com');
+    $user = \App\Models\User::where('email', $targetEmail)->first();
+    if (!$user) {
+        return response("<h3 style='color:#dc2626; font-family:sans-serif; text-align:center; margin-top:50px;'>User {$targetEmail} tidak ditemukan di database. Pastikan sudah mendaftar terlebih dahulu!</h3>", 404);
+    }
+    $user->update(['is_admin' => true]);
+    return response("<div style='text-align:center; font-family:sans-serif; margin-top:60px; max-width:600px; margin-left:auto; margin-right:auto; padding:30px; border-radius:16px; border:1px solid #bbf7d0; background:#f0fdf4;'>
+        <h2 style='color:#16a34a; margin-bottom:10px;'>✅ SUKSES!</h2>
+        <p style='color:#1e293b; font-size:16px;'>Akun <b>{$targetEmail}</b> ({$user->name}) sekarang telah resmi menjadi <b>ADMIN</b>!</p>
+        <div style='margin-top:25px;'>
+            <a href='/admin/dashboard' style='display:inline-block; padding:12px 24px; background:#3b82f6; color:white; text-decoration:none; border-radius:10px; font-weight:bold; font-size:14px; box-shadow:0 4px 6px -1px rgba(59,130,246,0.3);'>Buka Admin Dashboard</a>
+        </div>
+    </div>", 200);
+});
+
 // Temporary Database Cleaner Route (No cPanel Terminal Required)
 Route::match(['get', 'post'], '/admin/db-maintenance', function (\Illuminate\Http\Request $request) {
     $validSecret = 'atoma2026';
@@ -837,6 +859,17 @@ Route::match(['get', 'post'], '/admin/db-maintenance', function (\Illuminate\Htt
                 $messageType = 'success';
             } catch (\Throwable $e) {
                 $message = 'Gagal membersihkan cache: ' . $e->getMessage();
+                $messageType = 'error';
+            }
+        } elseif ($action === 'set_admin') {
+            $targetEmail = $request->input('admin_email', 'teukuirvan978@gmail.com');
+            $user = \App\Models\User::where('email', $targetEmail)->first();
+            if ($user) {
+                $user->update(['is_admin' => true]);
+                $message = "✅ SUKSES! Akun {$targetEmail} ({$user->name}) telah diubah menjadi ADMIN!";
+                $messageType = 'success';
+            } else {
+                $message = "User dengan email {$targetEmail} tidak ditemukan di database.";
                 $messageType = 'error';
             }
         } else {
