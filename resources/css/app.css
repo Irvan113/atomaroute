@@ -246,3 +246,37 @@ html:active-view-transition [class*="backdrop-blur"] {
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: contain;
 }
+
+/* ==========================================================================
+   6. MOBILE-FIRST RESPONSIVE DIALOG ELEVATION & FLOATING WIDGET DOCKING
+   ========================================================================== */
+/* Elevate content shell when any full-screen modal or dialog overlay is active */
+.atoma-content-shell:has([class*="fixed inset-0"]),
+.atoma-content-shell:has([aria-modal="true"]),
+body:has([aria-modal="true"]) .atoma-content-shell {
+    z-index: 50 !important;
+}
+
+/* Release view-transition-name containment when modal is active to prevent fixed clipping */
+.atoma-main-container:has([class*="fixed inset-0"]),
+.atoma-main-container:has([aria-modal="true"]) {
+    view-transition-name: none !important;
+}
+
+/* Auto-dock and smoothly hide floating widgets (Pomodoro timer & Performance pill) when modal is active */
+body:has([class*="fixed inset-0"]:not([class*="hidden"])) .atoma-floating-pomodoro,
+body:has([class*="fixed inset-0"]:not([class*="hidden"])) .atoma-perf-monitor,
+body:has([aria-modal="true"]) .atoma-floating-pomodoro,
+body:has([aria-modal="true"]) .atoma-perf-monitor {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transform: translateY(16px) scale(0.95) !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Mobile-first bottom sheet safe area and overscroll isolation */
+.atoma-mobile-sheet {
+    overscroll-behavior: contain;
+    padding-bottom: env(safe-area-inset-bottom, 1rem);
+}
+

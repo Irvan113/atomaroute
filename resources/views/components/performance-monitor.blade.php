@@ -3,7 +3,7 @@
      x-init="initMonitor()"
      @keydown.window.cmd.shift.p.prevent="toggleDashboard()"
      @keydown.window.ctrl.shift.p.prevent="toggleDashboard()"
-     class="select-none font-sans text-xs">
+     class="atoma-perf-monitor select-none font-sans text-xs">
 
     <!-- 1. Floating Live Telemetry Pill (Bottom-Right) -->
     <div x-show="showPill" 
@@ -13,7 +13,7 @@
          x-transition:leave="transition ease-in duration-150"
          x-transition:leave-start="opacity-100 translate-y-0 scale-100"
          x-transition:leave-end="opacity-0 translate-y-4 scale-95"
-         class="fixed bottom-4 right-4 z-40 flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-900/90 dark:bg-gray-800/95 text-white shadow-xl border border-gray-700/60 backdrop-blur-md cursor-pointer hover:bg-gray-800 dark:hover:bg-gray-750 transition-all hover:scale-105 active:scale-95 group"
+         class="atoma-perf-monitor fixed bottom-4 right-4 z-40 flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-900/90 dark:bg-gray-800/95 text-white shadow-xl border border-gray-700/60 backdrop-blur-md cursor-pointer hover:bg-gray-800 dark:hover:bg-gray-750 transition-all hover:scale-105 active:scale-95 group"
          @click="toggleDashboard()">
         
         <!-- Live Pulse Indicator -->

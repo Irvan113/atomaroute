@@ -5949,10 +5949,10 @@ new #[Layout('layouts.app')] class extends Component {
         <div class="fixed inset-0 bg-gray-900/75 backdrop-blur-sm transition-opacity" 
              wire:click="$set('showAddTaskModal', false)"></div>
 
-        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-            <div class="relative transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-gray-100 dark:border-gray-700 z-10">
-                    <form wire:submit="saveTask">
-                        <div class="bg-white dark:bg-gray-800 p-5 sm:p-6 max-h-[80vh] overflow-y-auto hide-scrollbar">
+        <div class="flex min-h-full items-end sm:items-center justify-center p-0 sm:p-4 text-center">
+            <div class="relative transform overflow-hidden rounded-t-3xl sm:rounded-2xl bg-white dark:bg-gray-800 text-left shadow-2xl transition-all w-full sm:max-w-lg border-t sm:border border-gray-100 dark:border-gray-700 z-10 max-h-[92dvh] sm:max-h-[88vh] flex flex-col">
+                    <form wire:submit="saveTask" class="flex flex-col max-h-full">
+                        <div class="bg-white dark:bg-gray-800 p-5 sm:p-6 max-h-[85dvh] sm:max-h-[80vh] overflow-y-auto hide-scrollbar overscroll-contain">
                             <!-- Title Header with Dynamic Mode -->
                             <div class="flex items-center justify-between mb-4">
                                 <h3 class="text-base sm:text-lg font-black text-gray-900 dark:text-white flex items-center gap-2">
@@ -6483,8 +6483,8 @@ new #[Layout('layouts.app')] class extends Component {
 
     <!-- ATOMA AI Task Templates, Decomposer & Community Sharing Modal -->
     @if($showAiTemplateModal)
-        <div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-gray-950/75 backdrop-blur-sm animate-in fade-in duration-150">
-            <div class="bg-white dark:bg-gray-800 w-full max-w-4xl rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col max-h-[92vh]">
+        <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-gray-950/75 backdrop-blur-sm animate-in fade-in duration-150" aria-modal="true" role="dialog">
+            <div class="bg-white dark:bg-gray-800 w-full sm:max-w-4xl rounded-t-3xl sm:rounded-3xl shadow-2xl border-t sm:border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col max-h-[90dvh] sm:max-h-[88vh] overscroll-contain">
                 
                 <!-- Modal Header: Signature ATOMA Blue Gradient -->
                 <div class="px-5 sm:px-7 py-4 sm:py-5 border-b border-white/10 flex items-center justify-between bg-gradient-to-r from-[#1b3cb8] via-atoma-blue to-[#284fd6] text-white shrink-0">
@@ -7164,9 +7164,10 @@ new #[Layout('layouts.app')] class extends Component {
                  x-transition:enter="transition ease-out duration-200"
                  x-transition:enter-start="opacity-0 scale-95"
                  x-transition:enter-end="opacity-100 scale-100"
-                 class="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-gray-950/85 backdrop-blur-md overflow-hidden">
+                 class="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-gray-950/85 backdrop-blur-md overflow-hidden"
+                 aria-modal="true" role="dialog">
                 
-                <div class="bg-gray-50 dark:bg-[#0b0f19] sm:rounded-3xl max-w-2xl w-full h-full sm:h-auto sm:max-h-[92vh] shadow-2xl border-0 sm:border border-gray-200 dark:border-gray-800 flex flex-col overflow-hidden relative animate-in fade-in zoom-in-95 duration-200">
+                <div class="bg-gray-50 dark:bg-[#0b0f19] sm:rounded-3xl max-w-2xl w-full h-full sm:h-auto sm:max-h-[92dvh] shadow-2xl border-0 sm:border border-gray-200 dark:border-gray-800 flex flex-col overflow-hidden relative animate-in fade-in zoom-in-95 duration-200">
                 
                 <!-- Header (Top Bar) -->
                 <div class="px-4 sm:px-6 py-3.5 border-b border-gray-100 dark:border-gray-800/80 flex items-center justify-between bg-white dark:bg-gray-900 shrink-0 shadow-xs">

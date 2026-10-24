@@ -29,7 +29,7 @@ new class extends Component {
     }
 }; ?>
 
-<header class="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md border-b border-gray-200/80 dark:border-gray-700/80 px-2.5 sm:px-4 md:px-6 py-2 flex items-center justify-between md:justify-center sticky top-0 z-30 shrink-0 shadow-sm relative">
+<header class="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md border-b border-gray-200/80 dark:border-gray-700/80 px-2.5 sm:px-4 md:px-6 py-2 flex items-center justify-between md:justify-center sticky top-0 z-10 shrink-0 shadow-sm relative">
     <!-- Desktop Left Actions (Toggle Sidebar & Command Palette Button) -->
     <div class="hidden md:flex items-center space-x-2 absolute left-4 sm:left-6">
         <button x-show="sidebarCollapsed" 

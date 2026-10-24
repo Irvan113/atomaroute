@@ -324,12 +324,12 @@
 
         <!-- Navigation (Left on Desktop, Bottom on Mobile) -->
         @persist('atoma-navigation-shell')
-            <aside :class="sidebarCollapsed ? 'flex md:hidden' : 'flex md:flex md:w-20 xl:w-72'" class="atoma-bottom-nav fixed bottom-0 w-full md:relative border-t md:border-t-0 md:border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shrink-0 z-20 flex-col h-[calc(4rem+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] md:h-full md:pb-0 transition-all duration-300">
+            <aside :class="sidebarCollapsed ? 'flex md:hidden' : 'flex md:flex md:w-20 2xl:w-72 xl:w-64'" class="atoma-bottom-nav fixed bottom-0 w-full md:relative border-t md:border-t-0 md:border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shrink-0 z-20 md:z-10 flex-col h-[calc(4rem+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] md:h-full md:pb-0 transition-all duration-300">
                 <livewire:layout.navigation />
             </aside>
         @endpersist
 
-        <div class="flex-1 flex flex-col min-w-0 h-full overflow-hidden relative">
+        <div class="atoma-content-shell flex-1 flex flex-col min-w-0 h-full overflow-hidden relative">
             @auth
                 @persist('atoma-top-header')
                     <livewire:layout.top-header />

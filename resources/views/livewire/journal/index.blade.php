@@ -2307,7 +2307,7 @@ new #[Layout('layouts.app')] class extends Component {
     @endif
 
     <!-- Create / Edit Journal Notion Full-Page Editor Modal -->
-    <div x-data="{ get show() { return $wire.showCreateModal } }" x-show="show" style="display: none;" class="relative z-50">
+    <div x-data="{ get show() { return $wire.showCreateModal } }" x-show="show" style="display: none;" class="relative z-[60]" aria-modal="true" role="dialog">
         <!-- Backdrop Overlay -->
         <div x-transition.opacity @click="$wire.showCreateModal = false" class="fixed inset-0 bg-gray-950/85 z-40"></div>
         
@@ -2316,7 +2316,7 @@ new #[Layout('layouts.app')] class extends Component {
              x-data="notionJournalEditor()"
              @keydown.window="handleWindowKeydown($event)"
              @keydown.escape.window="handleEscapeKey()"
-             class="fixed inset-0 sm:inset-2 md:inset-3 lg:inset-4 xl:inset-6 z-50 pointer-events-auto bg-white dark:bg-gray-900 rounded-none sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-gray-200/60 dark:border-gray-800">
+             class="fixed inset-0 z-50 pointer-events-auto bg-white dark:bg-gray-900 shadow-2xl flex flex-col overflow-hidden w-full h-full max-h-[100dvh]">
             
             <!-- Notion Top Navigation Bar (Desktop Responsive Header) -->
             <div x-show="!zenMode" class="flex justify-between items-center px-4 sm:px-6 py-2 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shrink-0 z-40">
