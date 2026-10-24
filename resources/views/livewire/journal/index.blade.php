@@ -2316,14 +2316,14 @@ new #[Layout('layouts.app')] class extends Component {
              x-data="notionJournalEditor()"
              @keydown.window="handleWindowKeydown($event)"
              @keydown.escape.window="handleEscapeKey()"
-             class="fixed inset-0 z-50 pointer-events-auto bg-white dark:bg-gray-900 shadow-2xl flex flex-col overflow-hidden w-full h-full max-h-[100dvh]">
+             class="fixed inset-0 z-[99999] pointer-events-auto bg-white dark:bg-gray-900 shadow-2xl flex flex-col overflow-hidden w-screen h-screen max-h-[100dvh]">
             
             <!-- Notion Top Navigation Bar (Desktop Responsive Header) -->
             <div x-show="!zenMode" class="flex justify-between items-center px-4 sm:px-6 py-2 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shrink-0 z-40">
                 <div class="flex items-center gap-2 text-gray-500 dark:text-gray-400 text-xs font-semibold min-w-0 flex-1 mr-2">
                     <!-- Kembali ke Catatan (Unify Mental Model: Clear Back Navigation with Autosave) -->
                     <button type="button" 
-                            @click="syncContent(); $wire.autoSaveJournal(); $wire.showCreateModal = false;" 
+                            @click="document.body.classList.remove('atoma-note-modal-open'); syncContent(); $wire.autoSaveJournal(); $wire.showCreateModal = false;" 
                             class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all cursor-pointer active:scale-95 shrink-0"
                             title="Kembali ke Daftar Catatan (Otomatis Tersimpan)">
                         <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
@@ -4126,6 +4126,7 @@ new #[Layout('layouts.app')] class extends Component {
                         return;
                     }
                     // Exit note modal with autosave
+                    document.body.classList.remove('atoma-note-modal-open');
                     this.syncContent();
                     this.$wire.autoSaveJournal();
                     this.$wire.showCreateModal = false;
@@ -4411,6 +4412,13 @@ new #[Layout('layouts.app')] class extends Component {
                 init() {
                     window.__syncActiveJournal = () => this.syncContent();
 
+                    if (this.$wire.showCreateModal) {
+                        document.body.classList.add('atoma-note-modal-open');
+                    }
+                    window.addEventListener('livewire:navigating', () => {
+                        document.body.classList.remove('atoma-note-modal-open');
+                    });
+
                     window.addEventListener('resize', () => {
                         if (this.showNotePreviewPopup) {
                             this.clampMiniNotePosition();
@@ -4439,6 +4447,7 @@ new #[Layout('layouts.app')] class extends Component {
 
                     this.$watch('$wire.showCreateModal', value => {
                         if (value) {
+                            document.body.classList.add('atoma-note-modal-open');
                             this.isScrolled = false;
                             this.showBubbleMenu = false;
                             this.autosaveStatus = 'idle';
@@ -4465,6 +4474,8 @@ new #[Layout('layouts.app')] class extends Component {
                                     this.prefetchLinkedNotes();
                                 }
                             });
+                        } else {
+                            document.body.classList.remove('atoma-note-modal-open');
                         }
                     });
 

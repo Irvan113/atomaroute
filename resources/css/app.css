@@ -250,6 +250,18 @@ html:active-view-transition [class*="backdrop-blur"] {
 /* ==========================================================================
    6. MOBILE-FIRST RESPONSIVE DIALOG ELEVATION & FLOATING WIDGET DOCKING
    ========================================================================== */
+/* When note editor modal is open, completely suppress outer app shell (header, sidebar, floating widgets) */
+body.atoma-note-modal-open {
+    overflow: hidden !important;
+}
+body.atoma-note-modal-open header,
+body.atoma-note-modal-open aside,
+body.atoma-note-modal-open .atoma-floating-pomodoro,
+body.atoma-note-modal-open .atoma-perf-monitor,
+body.atoma-note-modal-open #atoma-nav-progress {
+    display: none !important;
+}
+
 /* Elevate content shell when any full-screen modal or dialog overlay is active */
 .atoma-content-shell:has([class*="fixed inset-0"]),
 .atoma-content-shell:has([aria-modal="true"]),
