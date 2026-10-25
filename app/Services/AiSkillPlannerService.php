@@ -363,9 +363,19 @@ Kembalikan HANYA JSON array valid (tanpa markdown backticks) berisi tepat {$days
 [
   {
     \"day_number\": 1,
-    \"title\": \"Judul target hari ini (maks 50 karakter)\",
+    \"title\": \"Judul target hari ini (maks 60 karakter)\",
     \"description\": \"Ringkasan materi/fokus hari ini dalam 1-2 kalimat.\",
     \"is_rest_day\": false,
+    \"task_list\": [
+      {
+        \"title\": \"Routine Pagi\",
+        \"sub_tasks\": [\"Bangun jam 4\", \"Gosok gigi & wudhu\", \"Minum air putih\"]
+      },
+      {
+        \"title\": \"Jam 7-10: Sesi Belajar / Kerja\",
+        \"sub_tasks\": [\"Materi inti bab 1\", \"Praktik mandiri\", \"Review catatan\"]
+      }
+    ],
     \"sub_tasks\": [
       \"Pelajari konsep dasar bab 1\",
       \"Praktik mandiri 1 sesi Pomodoro 25 menit\",
@@ -378,8 +388,8 @@ Kembalikan HANYA JSON array valid (tanpa markdown backticks) berisi tepat {$days
 
         $startTime = microtime(true);
         try {
-            $response = Http::timeout(8)
-                ->connectTimeout(3)
+            $response = Http::timeout(20)
+                ->connectTimeout(5)
                 ->post(
                 "https://generativelanguage.googleapis.com/v1beta/models/{$primaryModel}:generateContent?key={$this->apiKey}",
                 [
@@ -387,7 +397,7 @@ Kembalikan HANYA JSON array valid (tanpa markdown backticks) berisi tepat {$days
                     'generationConfig' => [
                         'responseMimeType' => 'application/json',
                         'temperature' => 0.3,
-                        'maxOutputTokens' => 4096,
+                        'maxOutputTokens' => 8192,
                     ]
                 ]
             );
@@ -439,11 +449,22 @@ Kembalikan HANYA JSON array valid (tanpa markdown backticks) berisi tepat {$days
                                 : ["Materi inti {$skill->title} hari ke-{$dayNum}", 'Selesaikan 1 sesi fokus Pomodoro 25 menit', 'Catat refleksi harian di jurnal'];
                         }
 
+                        $taskList = !empty($item['task_list']) && is_array($item['task_list']) ? $item['task_list'] : [];
+                        if (empty($taskList) && !empty($subTasks)) {
+                            foreach ($subTasks as $st) {
+                                $taskList[] = [
+                                    'title' => is_string($st) ? $st : ($st['title'] ?? 'Tugas'),
+                                    'sub_tasks' => is_array($st) ? ($st['sub_tasks'] ?? []) : []
+                                ];
+                            }
+                        }
+
                         $structured[] = [
                             'day_number' => $dayNum,
                             'title' => !empty($item['title']) ? $item['title'] : "Hari {$dayNum}: Pendalaman {$skill->title}",
                             'description' => !empty($item['description']) ? $item['description'] : "• Pelajari materi {$skill->title} hari ke-{$dayNum}.\n• Selesaikan 1 sesi fokus Pomodoro 25 menit.",
                             'is_rest_day' => $isRest,
+                            'task_list' => $taskList,
                             'sub_tasks' => $subTasks,
                             'reference_url' => $item['reference_url'] ?? $skill->reference_url,
                             'ai_chat_url' => $item['ai_chat_url'] ?? $skill->ai_chat_url,
@@ -482,16 +503,113 @@ Kembalikan HANYA JSON array valid (tanpa markdown backticks) berisi tepat {$days
     }
 
     /**
-     * Parse imported syllabus text into structured daily habits and weekly training matrix.
+     * Parse unstructured or structured task list with nested subtasks from text.
+     * Supports numbered tasks, timestamp ranges, bullet points, and nested subtasks.
+     *
+     * @param string|null $text
+     * @return array Array of task items with 'title', 'time', 'sub_tasks', 'category', 'priority'
+     */
+    public static function parseTaskList(?string $text): array
+    {
+        if (empty($text)) {
+            return [];
+        }
+
+        $lines = preg_split("/\r\n|\n|\r/", $text);
+        $tasks = [];
+        $currentTask = null;
+
+        foreach ($lines as $line) {
+            $trimmed = trim($line);
+            if ($trimmed === "" || preg_match("/^task\s*list\s*[:\-]?$/iu", $trimmed)) {
+                continue;
+            }
+
+            // Subtask indicator header: e.g. "sub task :", "subtask:", "sub tasks:", "rincian:"
+            if (preg_match("/^(?:[-*•]\s*)?sub\s*[-_]?tasks?\s*[:\-]\s*(.*)$/iu", $trimmed, $sm)) {
+                $rest = trim($sm[1]);
+                if (!empty($rest)) {
+                    $subClean = preg_replace("/^[-*•\d\.\)]+\s*/u", "", $rest);
+                    $subClean = trim($subClean);
+                    if (!empty($subClean) && $currentTask !== null) {
+                        $currentTask['sub_tasks'][] = $subClean;
+                    }
+                }
+                continue;
+            }
+
+            $isSubBullet = preg_match("/^(?:[-*•]|\([a-z0-9]\))\s+(.*)$/u", $trimmed, $bm);
+            $isMainTaskHeader = false;
+            $matchedTaskTitle = null;
+
+            // Pattern 1: Numbered / Prefixed header e.g. "-1 Routine pagi", "1. Routine pagi", "Task 1: ...", "Jam 7-10"
+            if (preg_match("/^(?:[-*•]\s*)?(?:\d+[\.\)\s\-]+|[#]+\s+|\b(?:task|tugas)\s*\d*[\.:\s\-]+|\bJam\s+[0-9]+)\s*(.*)$/iu", $trimmed, $tm)) {
+                $isMainTaskHeader = true;
+                $matchedTaskTitle = trim($tm[1]);
+            } elseif (preg_match("/^(?:[-*•]\s*)?\[([0-9]{1,2}[.:][0-9]{2}\s*[–\-\x{2013}\x{2014}]\s*[0-9]{1,2}[.:][0-9]{2})\]\s*(.*)$/u", $trimmed, $tm)) {
+                $isMainTaskHeader = true;
+                $matchedTaskTitle = "[" . $tm[1] . "] " . trim($tm[2]);
+            } elseif (preg_match("/^(?:[-*•]\s*)?([0-9]{1,2}[.:][0-9]{2}\s*[–\-\x{2013}\x{2014}]\s*[0-9]{1,2}[.:][0-9]{2})[:\s\-]+(.*)$/u", $trimmed, $tm)) {
+                $isMainTaskHeader = true;
+                $matchedTaskTitle = "[" . $tm[1] . "] " . trim($tm[2]);
+            } elseif (preg_match("/^(?:[-*•]\s*)([A-Za-z0-9\s\/\(\)]+)\s*:\s*$/u", $trimmed, $tm)) {
+                $isMainTaskHeader = true;
+                $matchedTaskTitle = trim($tm[1]);
+            }
+
+            if ($isMainTaskHeader && !empty($matchedTaskTitle)) {
+                if ($currentTask !== null) {
+                    $tasks[] = $currentTask;
+                }
+                $cleanTitle = preg_replace("/\s*:\s*$/u", "", $matchedTaskTitle);
+                $cleanTitle = trim($cleanTitle, " \t\n\r\0\x0B.");
+                $currentTask = [
+                    'title' => $cleanTitle,
+                    'sub_tasks' => [],
+                ];
+                continue;
+            }
+
+            if ($currentTask !== null) {
+                $subTitle = $isSubBullet ? trim($bm[1]) : $trimmed;
+                $subTitle = preg_replace("/^[-*•]+\s*/u", "", $subTitle);
+                $subTitle = trim($subTitle, " \t\n\r\0\x0B.");
+                if (!empty($subTitle)) {
+                    $currentTask['sub_tasks'][] = $subTitle;
+                }
+            } elseif ($isSubBullet) {
+                $clean = preg_replace("/^[-*•]+\s*/u", "", $trimmed);
+                $clean = trim($clean, " \t\n\r\0\x0B.");
+                if (!empty($clean)) {
+                    $tasks[] = [
+                        'title' => $clean,
+                        'sub_tasks' => []
+                    ];
+                }
+            }
+        }
+
+        if ($currentTask !== null) {
+            $tasks[] = $currentTask;
+        }
+
+        return $tasks;
+    }
+
+    /**
+     * Parse imported syllabus text into structured daily habits, task lists, and weekly training matrix.
      */
     public static function parseSyllabusContent(?string $text): array
     {
         if (empty($text)) {
-            return ['habits' => [], 'weekly_matrix' => []];
+            return ['habits' => [], 'weekly_matrix' => [], 'task_list' => []];
         }
 
         $habits = [];
         $weeklyMatrix = [];
+
+        // Parse structured task list first
+        $taskList = self::parseTaskList($text);
 
         // 1. Parse Hourly Architecture / Daily Habits Table:
         // Format: | **04.00 – 04.30** | **1. Bangun Tidur + 30 Menit Off-Screen**<br><br>**2. Beberes Kamar** | ... |
@@ -528,6 +646,17 @@ Kembalikan HANYA JSON array valid (tanpa markdown backticks) berisi tepat {$days
                         'full' => "[{$time}] {$clean}",
                     ];
                 }
+            }
+        }
+
+        // If habits is still empty but taskList was parsed, populate habits from taskList
+        if (empty($habits) && !empty($taskList)) {
+            foreach ($taskList as $tItem) {
+                $habits[] = [
+                    'time' => null,
+                    'title' => $tItem['title'],
+                    'full' => $tItem['title'],
+                ];
             }
         }
 
@@ -570,6 +699,7 @@ Kembalikan HANYA JSON array valid (tanpa markdown backticks) berisi tepat {$days
         return [
             'habits' => $habits,
             'weekly_matrix' => $weeklyMatrix,
+            'task_list' => $taskList,
         ];
     }
 
@@ -819,11 +949,33 @@ Kembalikan HANYA JSON array valid (tanpa markdown backticks) berisi tepat {$days
             $refUrl = $skill->reference_url;
             $aiUrl = $skill->ai_chat_url;
 
+            $dayTaskList = !empty($parsedSyllabus['task_list']) ? $parsedSyllabus['task_list'] : [];
+            if (empty($dayTaskList)) {
+                foreach ($subTasks as $st) {
+                    $dayTaskList[] = [
+                        'title' => is_string($st) ? $st : ($st['title'] ?? 'Tugas'),
+                        'sub_tasks' => is_array($st) ? ($st['sub_tasks'] ?? []) : []
+                    ];
+                }
+            } elseif ($isRestDay) {
+                $dayTaskList = [
+                    [
+                        'title' => 'Istirahat & Pemulihan Terencana: ' . $routineLabel,
+                        'sub_tasks' => [
+                            'Peregangan ringan (stretching) / relaksasi 10-15 menit',
+                            'Hidrasi optimal & dekompresi mental',
+                            'Catat refleksi santai di jurnal'
+                        ]
+                    ]
+                ];
+            }
+
             $roadmap[] = [
                 'day_number' => $i,
                 'title' => $dayTitle,
                 'description' => $dayDesc,
                 'is_rest_day' => $isRestDay,
+                'task_list' => $dayTaskList,
                 'sub_tasks' => $subTasks,
                 'reference_url' => $refUrl,
                 'ai_chat_url' => $aiUrl,
@@ -946,6 +1098,85 @@ Kembalikan HANYA JSON array valid (tanpa markdown backticks) berisi tepat {$days
             return $subItems;
         };
 
+        // 1. Check if structured task_list is stored on the target
+        $taskList = $target->pending_evaluation_data['task_list'] ?? null;
+
+        // 2. Fallback: check if syllabus text in skill interview_context has structured tasks
+        if (empty($taskList) && !empty($skill->interview_context['syllabus_text'])) {
+            $parsedSyl = self::parseSyllabusContent($skill->interview_context['syllabus_text']);
+            if (!empty($parsedSyl['task_list'])) {
+                $taskList = $parsedSyl['task_list'];
+            }
+        }
+
+        // 3. Fallback: check if target description contains structured task list
+        if (empty($taskList) && !empty($target->description)) {
+            $parsedDesc = self::parseTaskList($target->description);
+            if (!empty($parsedDesc)) {
+                $taskList = $parsedDesc;
+            }
+        }
+
+        // If structured task list is available, create bulk tasks with nested subtasks
+        if (!empty($taskList) && is_array($taskList)) {
+            foreach ($taskList as $item) {
+                $rawTitle = is_array($item) ? ($item['title'] ?? 'Tugas') : (string)$item;
+                $parsed = $parseTime($rawTitle);
+                $catMeta = $categorize($parsed['clean_title']);
+
+                $startTime = (is_array($item) && !empty($item['start_time'])) ? $item['start_time'] : $parsed['start_time'];
+                $deadline = (is_array($item) && !empty($item['deadline'])) ? $item['deadline'] : $parsed['deadline'];
+
+                $estMin = 30;
+                if ($startTime && $deadline) {
+                    try {
+                        $st = \Carbon\Carbon::parse($targetDate . ' ' . $startTime);
+                        $et = \Carbon\Carbon::parse($targetDate . ' ' . $deadline);
+                        $diff = (int) $st->diffInMinutes($et, false);
+                        if ($diff > 0 && $diff <= 480) {
+                            $estMin = $diff;
+                        }
+                    } catch (\Exception $e) {}
+                }
+
+                $task = $user->tasks()->create([
+                    'skill_id' => $skill->id,
+                    'skill_target_id' => $target->id,
+                    'title' => $rawTitle,
+                    'description' => "Bagian dari milestone: {$skill->title} (Hari ke-{$target->day_number})",
+                    'date' => $targetDate,
+                    'start_time' => $startTime,
+                    'deadline' => $deadline,
+                    'category' => (is_array($item) && !empty($item['category'])) ? $item['category'] : $catMeta['category'],
+                    'priority' => (is_array($item) && !empty($item['priority'])) ? $item['priority'] : $catMeta['priority'],
+                    'estimated_minutes' => $estMin,
+                    'is_completed' => false,
+                    'mode' => $skillMode,
+                ]);
+
+                // Create nested subtasks for this task
+                $subItems = (is_array($item) && !empty($item['sub_tasks']) && is_array($item['sub_tasks']))
+                    ? $item['sub_tasks']
+                    : $extractSubItems($rawTitle);
+
+                foreach ($subItems as $subItem) {
+                    $subTitle = is_array($subItem) ? ($subItem['title'] ?? '') : (string)$subItem;
+                    $subTitle = trim($subTitle);
+                    if (!empty($subTitle)) {
+                        $task->subTasks()->create([
+                            'skill_target_id' => $target->id,
+                            'title' => $subTitle,
+                            'is_completed' => false,
+                        ]);
+                    }
+                }
+
+                $createdTasks[] = $task;
+            }
+
+            return $createdTasks;
+        }
+
         $subs = $target->subTasks;
         if ($subs->isNotEmpty()) {
             foreach ($subs as $sub) {
@@ -982,6 +1213,7 @@ Kembalikan HANYA JSON array valid (tanpa markdown backticks) berisi tepat {$days
                 // Attach subtasks to this task if structured breakdown exists
                 foreach ($subItems as $itemTitle) {
                     $task->subTasks()->create([
+                        'skill_target_id' => $target->id,
                         'title' => $itemTitle,
                         'is_completed' => (bool) $sub->is_completed,
                     ]);
@@ -1066,11 +1298,12 @@ Answer with warmth, practical advice, and actionable encouragement in Indonesian
 YOU HAVE FULL COACHING AUTHORITY TO RE-ADJUST THE MILESTONE SCHEDULE, WEEKLY ROUTINE, AND TARGET CARDS.
 If the user asks or hints at adjusting/re-arranging their schedule (e.g. college class schedule, work shifts, moving workouts to morning/afternoon, changing rest days, adding rest day, reducing intensity, re-adjusting cards):
 1. Explain clearly in friendly Indonesian what you recommend and how the schedule is re-adjusted.
-2. AT THE VERY END of your reply, you MUST output a JSON block wrapped in ```json ... ``` with this exact structure:
+2. If the user provides a detailed routine, syllabus, or task schedule, preserve and capture EVERY detail comprehensively without skipping or truncating items.
+3. AT THE VERY END of your reply, you MUST output a JSON block wrapped in ```json ... ``` with this exact structure:
 ```json
 {
   \"has_adjustment\": true,
-  \"summary\": \"Ringkasan penyesuaian jadwal (contoh: Menggeser rest day ke hari kuliah padat dan memindahkan latihan renang)\",
+  \"summary\": \"Ringkasan penyesuaian jadwal\",
   \"training_days\": [\"1\", \"2\", \"4\", \"5\", \"6\"],
   \"weekly_routine\": [
     {\"iso\": 1, \"day_name\": \"Senin\", \"type\": \"workout\", \"label\": \"Lari Zona 2 Pagi + Kuliah\"},
@@ -1082,7 +1315,16 @@ If the user asks or hints at adjusting/re-arranging their schedule (e.g. college
     {\"iso\": 7, \"day_name\": \"Minggu\", \"type\": \"rest\", \"label\": \"Full Rest Day\"}
   ],
   \"target_adjustments\": [
-    {\"day_number\": {$currDay}, \"title\": \"Hari {$currDay}: Latihan Sesuai Jadwal Baru\", \"sub_tasks\": [\"Eksekusi sesi adaptif\", \"Catat progres di jurnal\"]}
+    {
+      \"day_number\": {$currDay},
+      \"title\": \"Hari {$currDay}: Latihan Sesuai Jadwal Baru\",
+      \"task_list\": [
+        {\"title\": \"Routine Pagi\", \"sub_tasks\": [\"Bangun jam 4\", \"Gosok gigi\"]},
+        {\"title\": \"Jam 7-10: Kuliah & Belajar Coding\", \"sub_tasks\": [\"Kuliah\", \"Belajar coding\", \"Makan pagi\"]},
+        {\"title\": \"Jam 12: Makan Siang\", \"sub_tasks\": []}
+      ],
+      \"sub_tasks\": [\"Bangun jam 4\", \"Gosok gigi\", \"Kuliah\", \"Belajar coding\", \"Makan pagi\", \"Jam 12 makan siang\"]
+    }
   ]
 }
 ```
@@ -1109,9 +1351,15 @@ If the user is NOT asking to adjust schedule or routine, do NOT output any json 
         foreach ($modelPool as $model) {
             if (Cache::has("gemini_cooldown_{$model}")) continue;
             try {
-                $response = Http::timeout(15)->post(
+                $response = Http::timeout(20)->post(
                     "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$this->apiKey}",
-                    ['contents' => $contents]
+                    [
+                        'contents' => $contents,
+                        'generationConfig' => [
+                            'maxOutputTokens' => 8192,
+                            'temperature' => 0.4,
+                        ]
+                    ]
                 );
                 if ($response->successful()) {
                     $rawReply = trim($response->json('candidates.0.content.parts.0.text') ?? '');
@@ -1227,21 +1475,41 @@ If the user is NOT asking to adjust schedule or routine, do NOT output any json 
 
         sort($updatedTrainingDays);
 
+        $parsedTasks = self::parseTaskList($userMessage);
+        $targetAdj = [
+            'day_number' => $currDay,
+            'title' => "Hari {$currDay}: Penyesuaian Ritme Latihan & Kuliah",
+            'description' => "• Sesi terpandu hasil konsultasi AI Coach.\n• Selesaikan 1-2 blok fokus tanpa membebani jadwal kuliah.",
+            'sub_tasks' => [
+                ['title' => "Eksekusi sesi adaptif Hari {$currDay}", 'is_completed' => false],
+                ['title' => 'Review kesesuaian ritme baru di jurnal', 'is_completed' => false],
+            ]
+        ];
+
+        if (!empty($parsedTasks)) {
+            $targetAdj['task_list'] = $parsedTasks;
+            $extractedSubs = [];
+            foreach ($parsedTasks as $pt) {
+                if (!empty($pt['sub_tasks'])) {
+                    foreach ($pt['sub_tasks'] as $st) {
+                        $extractedSubs[] = is_array($st) ? ($st['title'] ?? '') : (string)$st;
+                    }
+                } else {
+                    $extractedSubs[] = is_array($pt) ? ($pt['title'] ?? '') : (string)$pt;
+                }
+            }
+            if (!empty($extractedSubs)) {
+                $targetAdj['sub_tasks'] = array_map(fn($t) => ['title' => $t, 'is_completed' => false], $extractedSubs);
+            }
+        }
+
         return [
             'has_adjustment' => true,
             'summary' => "Penyesuaian ritme mingguan: menyelaraskan jadwal kuliah dan istirahat agar energi optimal tanpa risiko burnout.",
             'training_days' => array_values(array_unique($updatedTrainingDays)),
             'weekly_routine' => $updatedRoutine,
             'target_adjustments' => [
-                [
-                    'day_number' => $currDay,
-                    'title' => "Hari {$currDay}: Penyesuaian Ritme Latihan & Kuliah",
-                    'description' => "• Sesi terpandu hasil konsultasi AI Coach.\n• Selesaikan 1-2 blok fokus tanpa membebani jadwal kuliah.",
-                    'sub_tasks' => [
-                        ['title' => "Eksekusi sesi adaptif Hari {$currDay}", 'is_completed' => false],
-                        ['title' => 'Review kesesuaian ritme baru di jurnal', 'is_completed' => false],
-                    ]
-                ]
+                $targetAdj
             ]
         ];
     }

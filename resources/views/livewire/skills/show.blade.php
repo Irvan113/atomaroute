@@ -90,7 +90,7 @@ new #[Layout('layouts.app')] class extends Component {
             'is_completed' => false,
         ]);
 
-        $this->skill->load(['targets.subTasks', 'targets.task']);
+        $this->skill->load(['targets.tasks.subTasks', 'targets.subTasks', 'targets.task']);
         $this->dispatch('toast', message: 'Tugas baru berhasil ditambahkan ke card!', type: 'success');
     }
 
@@ -231,6 +231,12 @@ new #[Layout('layouts.app')] class extends Component {
                         ]);
                     }
 
+                    if (!empty($cd['task_list']) && is_array($cd['task_list'])) {
+                        $target->update([
+                            'pending_evaluation_data' => array_merge($target->pending_evaluation_data ?: [], ['task_list' => $cd['task_list']])
+                        ]);
+                    }
+
                     if (!empty($cd['sub_tasks']) && is_array($cd['sub_tasks'])) {
                         $target->subTasks()->delete();
                         foreach ($cd['sub_tasks'] as $st) {
@@ -306,7 +312,7 @@ new #[Layout('layouts.app')] class extends Component {
         $this->showCoachTimelinePreview = false;
         $this->showCoachRevisionBox = false;
 
-        $this->skill->load(['tasks', 'targets.subTasks', 'targets.task']);
+        $this->skill->load(['tasks', 'targets.tasks.subTasks', 'targets.subTasks', 'targets.task']);
         $this->skill->refresh();
 
         $this->coachChatHistory[] = [
@@ -600,7 +606,7 @@ new #[Layout('layouts.app')] class extends Component {
             ]);
         }
 
-        $this->skill->load(['targets.subTasks', 'targets.task']);
+        $this->skill->load(['targets.tasks.subTasks', 'targets.subTasks', 'targets.task']);
         $this->showExtendModal = false;
         $this->dispatch('toast', message: "Milestone berhasil diperpanjang +{$this->extendAdditionalDays} hari! Total sekarang {$newDays} hari.", type: 'success');
     }
@@ -706,7 +712,7 @@ new #[Layout('layouts.app')] class extends Component {
         }
 
         $this->closeTaskModal();
-        $this->skill->load(['tasks', 'targets.subTasks', 'targets.task']);
+        $this->skill->load(['tasks', 'targets.tasks.subTasks', 'targets.subTasks', 'targets.task']);
         $this->skill->refresh();
         $this->dispatch('play-sound', preset: 'pop_bubble');
     }
@@ -759,7 +765,7 @@ new #[Layout('layouts.app')] class extends Component {
         }
 
         $this->closeTaskModal();
-        $this->skill->load(['tasks', 'targets.subTasks', 'targets.task']);
+        $this->skill->load(['tasks', 'targets.tasks.subTasks', 'targets.subTasks', 'targets.task']);
         $this->skill->refresh();
         $this->dispatch('toast', message: "Berhasil menambahkan {$createdCount} tugas sekaligus ke milestone!", type: 'success');
         $this->dispatch('play-sound', preset: 'pop_bubble');
@@ -818,7 +824,7 @@ new #[Layout('layouts.app')] class extends Component {
             $this->dispatch('toast', message: 'Status tugas milestone dikembalikan.', type: 'info');
         }
 
-        $this->skill->load(['tasks', 'targets.subTasks', 'targets.task']);
+        $this->skill->load(['tasks', 'targets.tasks.subTasks', 'targets.subTasks', 'targets.task']);
         $this->skill->refresh();
 
         if ($this->skill->calculated_progress >= 100 && $this->skill->status !== 'completed') {
@@ -835,7 +841,7 @@ new #[Layout('layouts.app')] class extends Component {
     {
         $task = auth()->user()->tasks()->where('skill_id', $this->skill->id)->findOrFail($taskId);
         $task->delete();
-        $this->skill->load(['tasks', 'targets.subTasks', 'targets.task']);
+        $this->skill->load(['tasks', 'targets.tasks.subTasks', 'targets.subTasks', 'targets.task']);
         $this->skill->refresh();
         $this->dispatch('toast', message: 'Tugas milestone berhasil dihapus.', type: 'info');
     }
@@ -889,7 +895,7 @@ new #[Layout('layouts.app')] class extends Component {
             $this->dispatch('toast', message: 'Rest Day berhasil dikonfirmasi! Energi siap untuk target berikutnya.', type: 'success');
         }
         
-        $this->skill->load(['targets.subTasks', 'targets.task']);
+        $this->skill->load(['targets.tasks.subTasks', 'targets.subTasks', 'targets.task']);
         $this->skill->refresh();
     }
 
@@ -1031,6 +1037,13 @@ new #[Layout('layouts.app')] class extends Component {
             }
         }
 
+        $parsedDesc = \App\Services\AiSkillPlannerService::parseTaskList($this->editDescription);
+        if (!empty($parsedDesc)) {
+            $target->update([
+                'pending_evaluation_data' => array_merge($target->pending_evaluation_data ?: [], ['task_list' => $parsedDesc])
+            ]);
+        }
+
         if ($this->editMode === 'sistematis') {
             if ($task = $target->task) {
                 $task->update([
@@ -1049,7 +1062,7 @@ new #[Layout('layouts.app')] class extends Component {
 
         $this->showEditModal = false;
         $this->editingTargetId = null;
-        $this->skill->load(['targets.subTasks', 'targets.task']);
+        $this->skill->load(['targets.tasks.subTasks', 'targets.subTasks', 'targets.task']);
         $this->dispatch('toast', message: 'Target harian berhasil diperbarui!', type: 'success');
     }
 
@@ -1061,7 +1074,7 @@ new #[Layout('layouts.app')] class extends Component {
         }
         $target->delete();
 
-        $this->skill->load(['targets.subTasks', 'targets.task']);
+        $this->skill->load(['targets.tasks.subTasks', 'targets.subTasks', 'targets.task']);
         $this->dispatch('toast', message: 'Target harian dihapus.', type: 'nudge');
     }
 
@@ -1118,6 +1131,13 @@ new #[Layout('layouts.app')] class extends Component {
             }
         }
 
+        $parsedDesc = \App\Services\AiSkillPlannerService::parseTaskList($this->newDescription);
+        if (!empty($parsedDesc)) {
+            $target->update([
+                'pending_evaluation_data' => array_merge($target->pending_evaluation_data ?: [], ['task_list' => $parsedDesc])
+            ]);
+        }
+
         if ($this->newMode === 'sistematis') {
             $userTz = config('app.timezone', 'UTC');
             $baseDate = $this->skill->start_date ?: $this->skill->created_at;
@@ -1137,8 +1157,84 @@ new #[Layout('layouts.app')] class extends Component {
         }
 
         $this->showAddModal = false;
-        $this->skill->load(['targets.subTasks', 'targets.task']);
+        $this->skill->load(['targets.tasks.subTasks', 'targets.subTasks', 'targets.task']);
         $this->dispatch('toast', message: 'Target harian baru berhasil ditambahkan!', type: 'success');
+    }
+
+    public function toggleTargetTask($targetId, $taskId)
+    {
+        $target = $this->skill->targets()->findOrFail($targetId);
+        $task = $target->tasks()->findOrFail($taskId);
+        $task->is_completed = !$task->is_completed;
+        $task->save();
+
+        // Also sync all child subtasks to match task completion state
+        $task->subTasks()->update(['is_completed' => $task->is_completed]);
+
+        // Auto-sync Target completion based on tasks
+        $totalTasks = $target->tasks()->count();
+        $completedTasks = $target->tasks()->where('is_completed', true)->count();
+
+        if ($totalTasks > 0) {
+            if ($completedTasks === $totalTasks) {
+                $target->update(['status' => 'completed']);
+                $this->dispatch('play-sound', preset: 'pop_bubble');
+            } else {
+                if ($target->status === 'completed') {
+                    $target->update(['status' => 'pending']);
+                }
+            }
+        }
+
+        $this->skill->load(['targets.tasks.subTasks', 'targets.subTasks', 'targets.task']);
+        $this->dispatch('profile-updated');
+        $this->dispatch('toast', message: "Tugas '{$task->title}' (" . ($task->is_completed ? 'Selesai' : 'Belum Selesai') . ")", type: 'nudge');
+    }
+
+    public function quickAddTaskToTarget($targetId, $title)
+    {
+        $title = trim($title);
+        if (!$title) return;
+
+        $target = $this->skill->targets()->findOrFail($targetId);
+        $userTz = config('app.timezone', 'Asia/Jakarta');
+        $baseDate = \Carbon\Carbon::parse($this->skill->start_date ?: $this->skill->created_at)->timezone($userTz)->startOfDay();
+        $targetDate = (clone $baseDate)->addDays($target->day_number - 1)->format('Y-m-d');
+
+        $skillMode = ($this->skill->mode === 'zen') ? 'zen' : 'sistematis';
+
+        auth()->user()->tasks()->create([
+            'skill_id' => $this->skill->id,
+            'skill_target_id' => $target->id,
+            'title' => $title,
+            'description' => "Bagian dari milestone: {$this->skill->title} (Hari ke-{$target->day_number})",
+            'date' => $targetDate,
+            'is_completed' => false,
+            'mode' => $skillMode,
+            'category' => 'Skill',
+            'priority' => 'normal',
+        ]);
+
+        $this->skill->load(['targets.tasks.subTasks', 'targets.subTasks', 'targets.task']);
+        $this->dispatch('toast', message: 'Tugas baru berhasil ditambahkan ke target!', type: 'success');
+    }
+
+    public function quickAddSubTaskToTask($targetId, $taskId, $title)
+    {
+        $title = trim($title);
+        if (!$title) return;
+
+        $target = $this->skill->targets()->findOrFail($targetId);
+        $task = $target->tasks()->findOrFail($taskId);
+
+        $task->subTasks()->create([
+            'skill_target_id' => $target->id,
+            'title' => $title,
+            'is_completed' => false,
+        ]);
+
+        $this->skill->load(['targets.tasks.subTasks', 'targets.subTasks', 'targets.task']);
+        $this->dispatch('toast', message: 'Subtask baru berhasil ditambahkan!', type: 'success');
     }
 
     public function toggleTargetSubTask($targetId, $subTaskId)
@@ -1148,36 +1244,64 @@ new #[Layout('layouts.app')] class extends Component {
         $subTask->is_completed = !$subTask->is_completed;
         $subTask->save();
 
-        // Also sync corresponding Task in tasks table if bulk tasks exist
-        $matchingTask = \App\Models\Task::where('skill_target_id', $target->id)
-            ->where('title', $subTask->title)
-            ->first();
-        if ($matchingTask) {
-            $matchingTask->update(['is_completed' => $subTask->is_completed]);
+        // If subtask belongs to a parent Task, sync parent task status
+        if ($subTask->task_id && $parentTask = $subTask->task) {
+            $totalInTask = $parentTask->subTasks()->count();
+            $doneInTask = $parentTask->subTasks()->where('is_completed', true)->count();
+            if ($totalInTask > 0) {
+                if ($doneInTask === $totalInTask && !$parentTask->is_completed) {
+                    $parentTask->update(['is_completed' => true]);
+                } elseif ($doneInTask < $totalInTask && $parentTask->is_completed) {
+                    $parentTask->update(['is_completed' => false]);
+                }
+            }
+        } else {
+            // Legacy: sync corresponding Task in tasks table if bulk tasks exist
+            $matchingTask = \App\Models\Task::where('skill_target_id', $target->id)
+                ->where('title', $subTask->title)
+                ->first();
+            if ($matchingTask) {
+                $matchingTask->update(['is_completed' => $subTask->is_completed]);
+            }
         }
 
-        // Auto-sync Target completion based on subtasks
-        $totalSubTasks = $target->subTasks()->count();
-        $completedSubTasks = $target->subTasks()->where('is_completed', true)->count();
-        
-        if ($totalSubTasks > 0) {
-            if ($completedSubTasks === $totalSubTasks) {
-                $target->update(['status' => 'completed']);
-                if ($task = $target->task) {
-                    $task->update(['is_completed' => true]);
+        // Auto-sync Target completion based on tasks or subtasks
+        $targetTasks = $target->tasks;
+        if ($targetTasks->isNotEmpty()) {
+            $totalT = $targetTasks->count();
+            $doneT = $targetTasks->where('is_completed', true)->count();
+            if ($totalT > 0) {
+                if ($doneT === $totalT) {
+                    $target->update(['status' => 'completed']);
+                    $this->dispatch('play-sound', preset: 'pop_bubble');
+                } else {
+                    if ($target->status === 'completed') {
+                        $target->update(['status' => 'pending']);
+                    }
                 }
-                $this->dispatch('play-sound', preset: 'pop_bubble');
-            } else {
-                if ($target->status === 'completed') {
-                    $target->update(['status' => 'pending']);
+            }
+        } else {
+            $totalSubTasks = $target->subTasks()->count();
+            $completedSubTasks = $target->subTasks()->where('is_completed', true)->count();
+            if ($totalSubTasks > 0) {
+                if ($completedSubTasks === $totalSubTasks) {
+                    $target->update(['status' => 'completed']);
                     if ($task = $target->task) {
-                        $task->update(['is_completed' => false]);
+                        $task->update(['is_completed' => true]);
+                    }
+                    $this->dispatch('play-sound', preset: 'pop_bubble');
+                } else {
+                    if ($target->status === 'completed') {
+                        $target->update(['status' => 'pending']);
+                        if ($task = $target->task) {
+                            $task->update(['is_completed' => false]);
+                        }
                     }
                 }
             }
         }
 
-        $this->skill->load(['targets.subTasks', 'targets.task']);
+        $this->skill->load(['targets.tasks.subTasks', 'targets.subTasks', 'targets.task']);
         $this->dispatch('toast', message: "Sub-task '{$subTask->title}' (" . ($subTask->is_completed ? 'Selesai' : 'Belum Selesai') . ")", type: 'nudge');
     }
 
@@ -1475,7 +1599,7 @@ new #[Layout('layouts.app')] class extends Component {
         }
         
         $this->skill = $skill;
-        $this->skill->load(['tasks', 'targets.subTasks', 'targets.task']);
+        $this->skill->load(['tasks', 'targets.tasks.subTasks', 'targets.subTasks', 'targets.task']);
         $this->evaluateOverdueTargets();
 
         if ($this->skill->tasks()->count() > 0 && $this->skill->targets()->count() === 0) {
@@ -1658,7 +1782,7 @@ new #[Layout('layouts.app')] class extends Component {
             $this->dispatch('toast', message: 'Selamat! Skill berhasil dikuasai! +100 Pending XP', type: 'success');
         }
         
-        $this->skill->load(['targets.subTasks', 'targets.task']);
+        $this->skill->load(['targets.tasks.subTasks', 'targets.subTasks', 'targets.task']);
         $this->skill->refresh();
         $this->dispatch('profile-updated');
     }
@@ -2907,40 +3031,7 @@ new #[Layout('layouts.app')] class extends Component {
 
                                 <!-- Subtasks Preview & Bulky Tasks in Card -->
                                 @if($target)
-                                    @php
-                                        $tSubsTotal = $target->subTasks ? $target->subTasks->count() : 0;
-                                        $tSubsDone = $target->subTasks ? $target->subTasks->where('is_completed', true)->count() : 0;
-                                    @endphp
-                                    <div class="mb-2.5 p-2.5 bg-white/90 dark:bg-gray-800/90 rounded-xl border border-gray-100 dark:border-gray-700/60 text-[11px] space-y-1.5">
-                                        <div class="flex items-center justify-between font-bold text-gray-500 dark:text-gray-400">
-                                            <span class="inline-flex items-center gap-1">
-                                                <x-icon.check-circle class="w-3 h-3 text-atoma-blue" />
-                                                <span>{{ __('Subtask:') }}</span>
-                                            </span>
-                                            @if($tSubsTotal > 0)
-                                                <span class="text-atoma-blue dark:text-atoma-cyan font-mono font-black">{{ $tSubsDone }}/{{ $tSubsTotal }}</span>
-                                            @endif
-                                        </div>
-                                        @if($tSubsTotal > 0)
-                                            <div class="space-y-1">
-                                                @foreach($target->subTasks as $st)
-                                                    <label class="flex items-center gap-1.5 cursor-pointer select-none text-[11px]">
-                                                        <input type="checkbox" 
-                                                               wire:click="toggleTargetSubTask({{ $target->id }}, {{ $st->id }})" 
-                                                               {{ $st->is_completed ? 'checked' : '' }} 
-                                                               class="rounded border-gray-300 dark:border-gray-600 text-atoma-blue focus:ring-atoma-blue w-3 h-3 cursor-pointer">
-                                                        <span class="truncate {{ $st->is_completed ? 'line-through text-gray-400 dark:text-gray-500' : 'text-gray-800 dark:text-gray-200' }}">
-                                                            {{ $st->title }}
-                                                        </span>
-                                                    </label>
-                                                @endforeach
-                                            </div>
-                                        @endif
-                                        <div class="pt-1 flex items-center gap-1.5" x-data="{ newSub: '' }">
-                                            <input type="text" x-model="newSub" @keydown.enter.prevent="if (newSub.trim()) { $wire.quickAddSubTask({{ $target->id }}, newSub); newSub = ''; }" placeholder="{{ __('+ Tambah subtask...') }}" class="w-full text-[11px] px-2 py-0.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/60 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-atoma-blue">
-                                            <button type="button" @click="if (newSub.trim()) { $wire.quickAddSubTask({{ $target->id }}, newSub); newSub = ''; }" class="px-1.5 py-0.5 bg-atoma-blue text-white rounded-md text-[11px] font-bold shrink-0 hover:bg-[#3455dc] cursor-pointer" title="{{ __('Tambah Subtask') }}">+</button>
-                                        </div>
-                                    </div>
+                                    <x-milestone-subtasks-checklist :target="$target" />
                                 @endif
 
                                 @php

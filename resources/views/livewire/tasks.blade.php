@@ -1362,63 +1362,7 @@ new #[Layout('layouts.app')] class extends Component {
             }
         }
 
-        if ($task->skill_target_id && $target = $task->skillTarget) {
-            $totalTargetTasks = \App\Models\Task::where('skill_target_id', $target->id)->count();
-            $completedTargetTasks = \App\Models\Task::where('skill_target_id', $target->id)->where('is_completed', true)->count();
-
-            // Also sync corresponding SubTask if it exists on target
-            $matchingSub = $target->subTasks()->where('title', $task->title)->first();
-            if ($matchingSub) {
-                $matchingSub->update(['is_completed' => $task->is_completed]);
-            }
-
-            if ($totalTargetTasks > 0) {
-                if ($completedTargetTasks === $totalTargetTasks) {
-                    $target->update([
-                        'status' => 'completed',
-                        'evaluation_feedback' => "Seluruh {$totalTargetTasks} tugas harian selesai tepat waktu melalui Task Board.",
-                        'pending_evaluation_data' => [
-                            'user_feedback' => 'Seluruh tugas diselesaikan.',
-                            'date' => now()->toDateTimeString()
-                        ]
-                    ]);
-
-                    $target->subTasks()->update(['is_completed' => true]);
-
-                    $this->dispatch('toast', message: "🎉 Luar biasa! Seluruh {$totalTargetTasks} tugas Hari {$target->day_number} selesai!", type: 'success');
-                    $this->dispatch('play-sound', preset: 'fanfare');
-                    $this->dispatch('trigger-confetti');
-
-                    if ($target->skill && $target->day_number === $target->skill->current_day && $target->skill->current_day < $target->skill->target_days) {
-                        $target->skill->increment('current_day');
-                        $nextDayNum = $target->skill->current_day;
-                        $existingNext = $target->skill->targets()->where('day_number', $nextDayNum)->first();
-
-                        if (!$existingNext) {
-                            $existingNext = $target->skill->targets()->create([
-                                'day_number' => $nextDayNum,
-                                'title' => "Hari {$nextDayNum}: Pendalaman " . $target->skill->title,
-                                'description' => "• Pelajari modul materi " . $target->skill->title . ".\n• Selesaikan 1 sesi fokus Pomodoro 25 menit.",
-                                'is_ai_generated' => false,
-                                'status' => 'pending'
-                            ]);
-                        }
-
-                        if ($target->skill->mode === 'systematic' || $target->skill->mode === 'sistematis') {
-                            \App\Services\AiSkillPlannerService::createBulkTasksForTarget($target->skill, $existingNext, auth()->user());
-                        }
-                    } elseif ($target->skill && $target->skill->targets()->where('status', '!=', 'completed')->count() === 0) {
-                        $target->skill->update(['status' => 'completed']);
-                        auth()->user()->addPendingXp(100, 'skill', "Penguasaan Milestone Penuh: {$target->skill->title}", "Menuntaskan seluruh target milestone", $target->skill->id);
-                        $this->dispatch('toast', message: '🏆 SELAMAT! Seluruh tantangan milestone berhasil diselesaikan! +100 Pending XP', type: 'success');
-                    }
-                } else {
-                    $target->update(['status' => 'pending']);
-                    $pct = round(($completedTargetTasks / $totalTargetTasks) * 100);
-                    $this->dispatch('toast', message: "🎯 Milestone {$target->skill->title} (Hari {$target->day_number}): {$completedTargetTasks}/{$totalTargetTasks} selesai ({$pct}%)", type: 'nudge');
-                }
-            }
-        }
+        $this->syncSkillTargetProgress($task);
 
         if ($task->is_completed) {
             if (!$task->is_completed_overdue) {
@@ -2152,6 +2096,19 @@ new #[Layout('layouts.app')] class extends Component {
             $this->dispatch('profile-updated');
         }
 
+        // Auto sync parent task completion state if all subtasks are completed or any is unchecked
+        $totalSubTasks = $task->subTasks()->count();
+        $completedSubTasks = $task->subTasks()->where('is_completed', true)->count();
+        if ($totalSubTasks > 0) {
+            if ($completedSubTasks === $totalSubTasks && !$task->is_completed) {
+                $task->update(['is_completed' => true]);
+                $this->syncSkillTargetProgress($task);
+            } elseif ($completedSubTasks < $totalSubTasks && $task->is_completed) {
+                $task->update(['is_completed' => false]);
+                $this->syncSkillTargetProgress($task);
+            }
+        }
+
         $this->loadTasks();
     }
 
@@ -2161,10 +2118,74 @@ new #[Layout('layouts.app')] class extends Component {
         if (!$title) return;
         $task = auth()->user()->tasks()->findOrFail($taskId);
         $task->subTasks()->create([
+            'skill_target_id' => $task->skill_target_id,
             'title' => $title,
             'is_completed' => false,
         ]);
         $this->loadTasks();
+    }
+
+    protected function syncSkillTargetProgress(\App\Models\Task $task)
+    {
+        if (!$task->skill_target_id || !($target = $task->skillTarget)) {
+            return;
+        }
+
+        $totalTargetTasks = \App\Models\Task::where('skill_target_id', $target->id)->count();
+        $completedTargetTasks = \App\Models\Task::where('skill_target_id', $target->id)->where('is_completed', true)->count();
+
+        // Also sync corresponding SubTask if it exists on target
+        $matchingSub = $target->subTasks()->where('title', $task->title)->first();
+        if ($matchingSub) {
+            $matchingSub->update(['is_completed' => $task->is_completed]);
+        }
+
+        if ($totalTargetTasks > 0) {
+            if ($completedTargetTasks === $totalTargetTasks) {
+                $target->update([
+                    'status' => 'completed',
+                    'evaluation_feedback' => "Seluruh {$totalTargetTasks} tugas harian selesai tepat waktu melalui Task Board.",
+                    'pending_evaluation_data' => [
+                        'user_feedback' => 'Seluruh tugas diselesaikan.',
+                        'date' => now()->toDateTimeString()
+                    ]
+                ]);
+
+                $target->subTasks()->update(['is_completed' => true]);
+
+                $this->dispatch('toast', message: "🎉 Luar biasa! Seluruh {$totalTargetTasks} tugas Hari {$target->day_number} selesai!", type: 'success');
+                $this->dispatch('play-sound', preset: 'fanfare');
+                $this->dispatch('trigger-confetti');
+
+                if ($target->skill && $target->day_number === $target->skill->current_day && $target->skill->current_day < $target->skill->target_days) {
+                    $target->skill->increment('current_day');
+                    $nextDayNum = $target->skill->current_day;
+                    $existingNext = $target->skill->targets()->where('day_number', $nextDayNum)->first();
+
+                    if (!$existingNext) {
+                        $existingNext = $target->skill->targets()->create([
+                            'day_number' => $nextDayNum,
+                            'title' => "Hari {$nextDayNum}: Pendalaman " . $target->skill->title,
+                            'description' => "• Pelajari modul materi " . $target->skill->title . ".\n• Selesaikan 1 sesi fokus Pomodoro 25 menit.",
+                            'is_ai_generated' => false,
+                            'status' => 'pending'
+                        ]);
+                    }
+
+                    if ($target->skill->mode === 'systematic' || $target->skill->mode === 'sistematis') {
+                        \App\Services\AiSkillPlannerService::createBulkTasksForTarget($target->skill, $existingNext, auth()->user());
+                    }
+                } elseif ($target->skill && $target->skill->targets()->where('status', '!=', 'completed')->count() === 0) {
+                    $target->skill->update(['status' => 'completed']);
+                    auth()->user()->addPendingXp(100, 'skill', "Penguasaan Milestone Penuh: {$target->skill->title}", "Menuntaskan seluruh target milestone", $target->skill->id);
+                    $this->dispatch('toast', message: '🏆 SELAMAT! Seluruh tantangan milestone berhasil diselesaikan! +100 Pending XP', type: 'success');
+                }
+            } else {
+                $target->update(['status' => 'pending']);
+                $pct = round(($completedTargetTasks / $totalTargetTasks) * 100);
+                $this->dispatch('toast', message: "🎯 Milestone {$target->skill->title} (Hari {$target->day_number}): {$completedTargetTasks}/{$totalTargetTasks} selesai ({$pct}%)", type: 'nudge');
+            }
+        }
     }
 
     public function deleteSubTask($taskId, $subTaskId)

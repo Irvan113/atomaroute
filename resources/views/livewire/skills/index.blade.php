@@ -416,7 +416,11 @@ new #[Layout('layouts.app')] class extends Component {
         $this->isChatLoading = true;
 
         if (empty($this->aiSyllabusText)) {
-            if (str_contains($msg, 'Matriks Mingguan') || str_contains($msg, 'Rutinitas Harian') || str_contains($msg, 'Tabel Urutan') || str_contains($msg, 'Dopamine Detox') || str_contains($msg, 'BAGIAN 1') || str_contains($msg, 'BAGIAN 2')) {
+            $isSyllabusLike = strlen($msg) > 100 && (
+                preg_match('/(?:task\s*list|sub\s*task|jadwal|rutinitas|silabus|kurikulum|jam\s+\d+|hari\s+\d+|modul|bab|\n\s*[-*•\d])/iu', $msg) ||
+                substr_count($msg, "\n") >= 2
+            );
+            if ($isSyllabusLike || str_contains($msg, 'Matriks Mingguan') || str_contains($msg, 'Rutinitas Harian') || str_contains($msg, 'Tabel Urutan') || str_contains($msg, 'Dopamine Detox') || str_contains($msg, 'BAGIAN 1') || str_contains($msg, 'BAGIAN 2')) {
                 $this->aiSyllabusText = $msg;
             }
         }
@@ -540,6 +544,16 @@ new #[Layout('layouts.app')] class extends Component {
                     'ai_chat_url' => $rt['ai_chat_url'] ?? null,
                     'status' => 'pending'
                 ]);
+
+                // Store structured task list if present
+                if (!empty($rt['task_list']) && is_array($rt['task_list'])) {
+                    $created->update([
+                        'pending_evaluation_data' => array_merge(
+                            (array) ($created->pending_evaluation_data ?? []),
+                            ['task_list' => $rt['task_list']]
+                        )
+                    ]);
+                }
 
                 // Populate SubTasks for bulky task card support
                 if (!empty($rt['sub_tasks']) && is_array($rt['sub_tasks'])) {
