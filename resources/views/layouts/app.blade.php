@@ -324,7 +324,7 @@
 
         <!-- Navigation (Left on Desktop, Bottom on Mobile) -->
         @persist('atoma-navigation-shell')
-            <aside :class="sidebarCollapsed ? 'flex md:hidden' : 'flex md:flex md:w-20 2xl:w-72 xl:w-64'" class="atoma-bottom-nav fixed bottom-0 w-full md:relative border-t md:border-t-0 md:border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shrink-0 z-20 md:z-10 flex-col h-[calc(4rem+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] md:h-full md:pb-0 transition-all duration-300">
+            <aside :class="sidebarCollapsed ? 'flex md:hidden' : 'flex md:flex md:w-20 2xl:w-72 xl:w-64'" class="atoma-bottom-nav fixed bottom-0 w-full md:relative border-t md:border-t-0 md:border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shrink-0 z-30 md:z-10 flex-col h-[calc(4rem+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] md:h-full md:pb-0 transition-all duration-300">
                 <livewire:layout.navigation />
             </aside>
         @endpersist
@@ -1066,14 +1066,14 @@
 
         <!-- In-App PWA Install Prompt Banner (Mobile & Desktop) -->
         <div x-data="{ showInstall: false }"
-             @pwa-installable.window="showInstall = true"
+             @pwa-installable.window="if (!window.Capacitor?.isNativePlatform?.() && !window.matchMedia('(display-mode: standalone)').matches) showInstall = true"
              @pwa-installed.window="showInstall = false"
              x-show="showInstall"
              x-transition:enter="transition ease-out duration-300"
              x-transition:enter-start="translate-y-6 opacity-0"
              x-transition:enter-end="translate-y-0 opacity-100"
              x-cloak
-             class="fixed bottom-4 left-4 z-50 max-w-sm bg-white/95 dark:bg-gray-800/95 backdrop-blur-md p-3 rounded-2xl shadow-2xl border border-atoma-blue/30 flex items-center justify-between gap-3 text-xs">
+             class="fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] md:bottom-4 left-4 z-40 max-w-sm bg-white/95 dark:bg-gray-800/95 backdrop-blur-md p-3 rounded-2xl shadow-2xl border border-atoma-blue/30 flex items-center justify-between gap-3 text-xs">
             <div class="flex items-center gap-2.5 min-w-0">
                 <img src="/images/icon-192.png" class="w-8 h-8 rounded-xl shrink-0 shadow-xs">
                 <div class="min-w-0">

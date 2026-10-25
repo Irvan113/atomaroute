@@ -13,7 +13,7 @@
          x-transition:leave="transition ease-in duration-150"
          x-transition:leave-start="opacity-100 translate-y-0 scale-100"
          x-transition:leave-end="opacity-0 translate-y-4 scale-95"
-         class="atoma-perf-monitor fixed bottom-4 right-4 z-40 flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-900/90 dark:bg-gray-800/95 text-white shadow-xl border border-gray-700/60 backdrop-blur-md cursor-pointer hover:bg-gray-800 dark:hover:bg-gray-750 transition-all hover:scale-105 active:scale-95 group"
+         class="atoma-perf-monitor fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] md:bottom-4 right-4 z-40 flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-900/90 dark:bg-gray-800/95 text-white shadow-xl border border-gray-700/60 backdrop-blur-md cursor-pointer hover:bg-gray-800 dark:hover:bg-gray-750 transition-all hover:scale-105 active:scale-95 group"
          @click="toggleDashboard()">
         
         <!-- Live Pulse Indicator -->

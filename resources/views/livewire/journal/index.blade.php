@@ -2307,7 +2307,7 @@ new #[Layout('layouts.app')] class extends Component {
     @endif
 
     <!-- Create / Edit Journal Notion Full-Page Editor Modal -->
-    <div x-data="{ get show() { return $wire.showCreateModal } }" x-show="show" style="display: none;" class="relative z-[60]" aria-modal="true" role="dialog">
+    <div x-data="{ get show() { return $wire.showCreateModal } }" x-show="show" x-cloak style="display: none;" class="relative z-[60]" aria-modal="true" role="dialog">
         <!-- Backdrop Overlay -->
         <div x-transition.opacity @click="$wire.showCreateModal = false" class="fixed inset-0 bg-gray-950/85 z-40"></div>
         
@@ -4416,6 +4416,9 @@ new #[Layout('layouts.app')] class extends Component {
                         document.body.classList.add('atoma-note-modal-open');
                     }
                     window.addEventListener('livewire:navigating', () => {
+                        document.body.classList.remove('atoma-note-modal-open');
+                    });
+                    window.addEventListener('popstate', () => {
                         document.body.classList.remove('atoma-note-modal-open');
                     });
 
