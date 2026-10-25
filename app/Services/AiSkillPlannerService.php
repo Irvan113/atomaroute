@@ -78,6 +78,13 @@ USER TELAH MENGIMPOR TEKS SILABUS / RENCANA DARI AI LAIN (CHATGPT / GEMINI / CLA
 PANDUAN COACH TENTANG SILABUS YANG DIIMPOR INI:
 - Pada balasan atau sambutan pertamamu, akui dan apresiasi silabus yang dibawa user ini! Sebutkan bahwa kamu telah membaca dan memahami poin-poin materi/jadwal latihan tersebut.
 - Bedah dan integrasikan seluruh poin latihan tersebut ke dalam fase latihan (phases), rutinitas mingguan (weekly_routine), dan subtask harian.
+- DAY BLOCKING & PEMISAHAN JADWAL SECARA TELITI:
+  Silabus yang dibawa user biasanya memiliki jadwal harian terpisah (misal: Senin jadwalnya apa, Selasa apa, Rabu rest, dst.).
+  Kamu HARUS memahami kapan harus blocking kalimat/jadwal per hari:
+  1. Jangan campur adukkan jadwal hari Senin ke hari Selasa, atau sebaliknya. Pisahkan secara rapi per hari sesuai nama hari (Senin - Minggu).
+  2. Ekstrak jadwal spesifik per hari ke dalam 'weekly_routine' dengan tipe ('workout' atau 'rest') dan label yang persis mencerminkan isi silabus hari tersebut.
+  3. Jika ada rutinitas yang berlaku setiap hari (seperti bangun pagi, sholat, minum air), jadikan itu rutinitas harian umum.
+  4. Perhatikan tanggal mulai dan hari dalam seminggu saat ini ({$todayDayName}, {$todayDateStr}). Jika user ingin mulai hari tertentu (misal besok atau Senin depan), sesuaikan 'start_date' dan petakan hari ke-1 ke hari kalender yang tepat!
 - JANGAN PERNAH menyuruh user untuk mengetik ulang apa yang sudah tertera di silabus tersebut!";
         }
 
@@ -323,10 +330,11 @@ PANDUAN COACH TENTANG SILABUS YANG DIIMPOR INI:
         $days = (int) ($skill->target_days ?: 30);
         $userId = $skill->user_id ?? auth()->id();
 
-        // 1. For milestones > 14 days (e.g. 30, 60, 90 days), directly synthesize from the
-        // AI Coach blueprint (phases, weekly routine, reference URLs).
-        // This generates all days instantaneously (< 10ms) and completely prevents Nginx 502 Bad Gateway timeouts.
-        if ($days > 14 || !$this->apiKey) {
+        // 1. For milestones > 14 days (e.g. 30, 60, 90 days), or when imported syllabus is provided,
+        // directly synthesize from the AI Coach blueprint (phases, weekly routine, day-segmented syllabus).
+        // This generates all days instantaneously (< 10ms), completely prevents Nginx 502/504 Bad Gateway timeouts,
+        // and guarantees 100% faithful day-blocking from the user's syllabus.
+        if ($days > 14 || !$this->apiKey || !empty($skill->interview_context['syllabus_text'])) {
             AiLoggerService::log(
                 userId: $userId,
                 feature: 'skill_planner_roadmap',
@@ -530,7 +538,7 @@ Kembalikan HANYA JSON array valid (tanpa markdown backticks) berisi tepat {$days
                 $rest = trim($sm[1]);
                 if (!empty($rest)) {
                     $subClean = preg_replace("/^[-*•\d\.\)]+\s*/u", "", $rest);
-                    $subClean = trim($subClean);
+                    $subClean = trim($subClean, " \t\n\r\0\x0B.");
                     if (!empty($subClean) && $currentTask !== null) {
                         $currentTask['sub_tasks'][] = $subClean;
                     }
@@ -542,17 +550,34 @@ Kembalikan HANYA JSON array valid (tanpa markdown backticks) berisi tepat {$days
             $isMainTaskHeader = false;
             $matchedTaskTitle = null;
 
-            // Pattern 1: Numbered / Prefixed header e.g. "-1 Routine pagi", "1. Routine pagi", "Task 1: ...", "Jam 7-10"
-            if (preg_match("/^(?:[-*•]\s*)?(?:\d+[\.\)\s\-]+|[#]+\s+|\b(?:task|tugas)\s*\d*[\.:\s\-]+|\bJam\s+[0-9]+)\s*(.*)$/iu", $trimmed, $tm)) {
+            // Pattern 1: Time range with optional Jam prefix e.g. "[04.00 - 05.00] ...", "04.00 - 05.00: ...", "Jam 07.00 - 10.00: ..."
+            if (preg_match("/^(?:[-*•]\s*)?(?:Jam\s+)?\[([0-9]{1,2}[.:][0-9]{2}\s*[–\-\x{2013}\x{2014}]\s*[0-9]{1,2}[.:][0-9]{2})\][:\s\-]+(.*)$/u", $trimmed, $tm)) {
+                $isMainTaskHeader = true;
+                $matchedTaskTitle = "[" . $tm[1] . "] " . trim($tm[2]);
+            } elseif (preg_match("/^(?:[-*•]\s*)?(?:Jam\s+)?([0-9]{1,2}[.:][0-9]{2}\s*[–\-\x{2013}\x{2014}]\s*[0-9]{1,2}[.:][0-9]{2})[:\s\-]+(.*)$/u", $trimmed, $tm)) {
+                $isMainTaskHeader = true;
+                $matchedTaskTitle = "[" . $tm[1] . "] " . trim($tm[2]);
+            }
+            // Pattern 2: Time period / hour range prefix: "Jam 7-10: ...", "Sore 16.00: Lari 5KM", "Sore: Workout...", "Pagi: ..."
+            elseif (preg_match("/^(?:[-*•]\s*)?\[?(Jam\s+[0-9]{1,2}\s*[–\-\x{2013}\x{2014}]\s*[0-9]{1,2})\]?[:\s\-]+(.*)$/iu", $trimmed, $tm)) {
+                $isMainTaskHeader = true;
+                $matchedTaskTitle = trim($tm[1]) . ": " . trim($tm[2]);
+            } elseif (preg_match("/^(?:[-*•]\s*)?((?:Pagi|Siang|Sore|Malam)(?:\s+[0-9]{1,2}[.:][0-9]{2})?)\s*[:\-]\s*(.*)$/iu", $trimmed, $tm)) {
+                $isMainTaskHeader = true;
+                $matchedTaskTitle = trim($tm[1]) . ": " . trim($tm[2]);
+            }
+            // Pattern 3: Explicit Task / Tugas prefix: "Task 1: ...", "Tugas 2: ..."
+            elseif (preg_match("/^(?:[-*•]\s*)?(?:task|tugas)\s*\d*[\.:\s\-]+(.*)$/iu", $trimmed, $tm)) {
                 $isMainTaskHeader = true;
                 $matchedTaskTitle = trim($tm[1]);
-            } elseif (preg_match("/^(?:[-*•]\s*)?\[([0-9]{1,2}[.:][0-9]{2}\s*[–\-\x{2013}\x{2014}]\s*[0-9]{1,2}[.:][0-9]{2})\]\s*(.*)$/u", $trimmed, $tm)) {
+            }
+            // Pattern 4: Numbered / Prefixed header e.g. "-1 Routine pagi", "1. Routine pagi", "- 3. Jam 12 makan siang"
+            elseif (preg_match("/^(?:[-*•]\s*)?\d+[\.\)\s\-]+(.*)$/u", $trimmed, $tm)) {
                 $isMainTaskHeader = true;
-                $matchedTaskTitle = "[" . $tm[1] . "] " . trim($tm[2]);
-            } elseif (preg_match("/^(?:[-*•]\s*)?([0-9]{1,2}[.:][0-9]{2}\s*[–\-\x{2013}\x{2014}]\s*[0-9]{1,2}[.:][0-9]{2})[:\s\-]+(.*)$/u", $trimmed, $tm)) {
-                $isMainTaskHeader = true;
-                $matchedTaskTitle = "[" . $tm[1] . "] " . trim($tm[2]);
-            } elseif (preg_match("/^(?:[-*•]\s*)([A-Za-z0-9\s\/\(\)]+)\s*:\s*$/u", $trimmed, $tm)) {
+                $matchedTaskTitle = trim($tm[1]);
+            }
+            // Pattern 5: Section header with trailing colon e.g. "- Routine Pagi :", "Routine Pagi:"
+            elseif (preg_match("/^(?:[-*•]\s*)?([A-Za-z0-9\s\/\(\)]+)[:\s\-]*:$/u", $trimmed, $tm)) {
                 $isMainTaskHeader = true;
                 $matchedTaskTitle = trim($tm[1]);
             }
@@ -597,18 +622,165 @@ Kembalikan HANYA JSON array valid (tanpa markdown backticks) berisi tepat {$days
     }
 
     /**
+     * Parse syllabus into segmented blocks by day-of-week (Senin-Minggu), day numbers, ranges, and daily routines.
+     */
+    public static function parseSyllabusByDays(?string $text): array
+    {
+        if (empty($text)) {
+            return [
+                'by_iso' => [],
+                'by_day_number' => [],
+                'daily_routine' => [],
+                'has_day_segmentation' => false,
+            ];
+        }
+
+        $dayNameMap = [
+            'senin' => 1, 'monday' => 1,
+            'selasa' => 2, 'tuesday' => 2,
+            'rabu' => 3, 'wednesday' => 3,
+            'kamis' => 4, 'thursday' => 4,
+            'jumat' => 5, 'friday' => 5,
+            'sabtu' => 6, 'saturday' => 6,
+            'minggu' => 7, 'sunday' => 7,
+        ];
+
+        $lines = preg_split("/\r\n|\n|\r/", $text);
+        $sections = [];
+        $currentSectionKey = null;
+        $hasDaySegmentation = false;
+
+        foreach ($lines as $line) {
+            $trimmed = trim($line);
+            if ($trimmed === '' || preg_match("/^#+\s*Silabus/iu", $trimmed)) {
+                continue;
+            }
+
+            // 1. General Daily Routine Header
+            if (preg_match("/^(?:#{1,6}\s*)?(?:[-*•]\s*)?(?:\*{1,2}|\[)?(Rutinitas\s*(?:Harian|Setiap\s*Hari)|Daily\s*Routine|Habit\s*Harian|Setiap\s*Hari)(?:\s*[\(\[].*?[\)\]])?(?:\*{1,2}|\])?\s*[:\-–]?\s*$/iu", $trimmed)) {
+                $currentSectionKey = 'daily_routine';
+                $hasDaySegmentation = true;
+                continue;
+            }
+
+            // 2. Day Range Header: e.g. "Senin - Jumat:", "Senin s/d Jumat:", "Sabtu - Minggu:"
+            if (preg_match("/^(?:#{1,6}\s*)?(?:[-*•]\s*)?(?:\*{1,2}|\[)?(Senin|Selasa|Rabu|Kamis|Jumat|Sabtu|Minggu|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\s*(?:[\-\x{2013}\x{2014}]|s[\/\.]?d|sampai|to)\s*(Senin|Selasa|Rabu|Kamis|Jumat|Sabtu|Minggu|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)(?:\s*[\(\[].*?[\)\]])?(?:\*{1,2}|\])?\s*[:\-–]?\s*$/iu", $trimmed, $rm)) {
+                $d1 = strtolower($rm[1]);
+                $d2 = strtolower($rm[2]);
+                $iso1 = $dayNameMap[$d1] ?? 1;
+                $iso2 = $dayNameMap[$d2] ?? 5;
+                $currentSectionKey = "range_{$iso1}_{$iso2}";
+                $hasDaySegmentation = true;
+                continue;
+            }
+
+            // 3. Day of week / Day Number Header
+            if (preg_match("/^(?:#{1,6}\s*)?(?:[-*•]\s*)?(?:\*{1,2}|\[)?(Senin|Selasa|Rabu|Kamis|Jumat|Sabtu|Minggu|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|Day\s*\d+|Hari\s*(?:Ke-?)?\s*\d+)(?:\s*[\(\[].*?[\)\]])?(?:\*{1,2}|\])?\s*[:\-–]?\s*$/iu", $trimmed, $dm)) {
+                $raw = strtolower(trim($dm[1]));
+                if (isset($dayNameMap[$raw])) {
+                    $currentSectionKey = "iso_" . $dayNameMap[$raw];
+                    $hasDaySegmentation = true;
+                } elseif (preg_match("/(?:day|hari)\s*(?:ke-?)?\s*(\d+)/i", $raw, $numM)) {
+                    $currentSectionKey = "day_" . ((int)$numM[1]);
+                    $hasDaySegmentation = true;
+                } else {
+                    $currentSectionKey = $raw;
+                }
+                continue;
+            }
+
+            if ($currentSectionKey !== null) {
+                $sections[$currentSectionKey][] = $line;
+            } else {
+                $sections['unclassified'][] = $line;
+            }
+        }
+
+        $dailyRoutine = !empty($sections['daily_routine']) ? self::parseTaskList(implode("\n", $sections['daily_routine'])) : [];
+        $byIso = [];
+        $byDayNumber = [];
+
+        foreach ($sections as $k => $secLines) {
+            $parsedSec = self::parseTaskList(implode("\n", $secLines));
+            if (empty($parsedSec)) continue;
+
+            if (str_starts_with($k, 'iso_')) {
+                $iso = (int) substr($k, 4);
+                $byIso[$iso] = array_merge($byIso[$iso] ?? [], $parsedSec);
+            } elseif (str_starts_with($k, 'day_')) {
+                $dNum = (int) substr($k, 4);
+                $byDayNumber[$dNum] = array_merge($byDayNumber[$dNum] ?? [], $parsedSec);
+            } elseif (str_starts_with($k, 'range_')) {
+                $parts = explode('_', $k);
+                $start = (int) ($parts[1] ?? 1);
+                $end = (int) ($parts[2] ?? 5);
+                for ($r = $start; $r <= $end; $r++) {
+                    $byIso[$r] = array_merge($byIso[$r] ?? [], $parsedSec);
+                }
+            }
+        }
+
+        return [
+            'by_iso' => $byIso,
+            'by_day_number' => $byDayNumber,
+            'daily_routine' => $dailyRoutine,
+            'has_day_segmentation' => $hasDaySegmentation,
+        ];
+    }
+
+    /**
+     * Get day-specific tasks for a given day number and day-of-week ISO,
+     * cleanly separating tasks between days.
+     */
+    public static function getTasksForDay(array $parsedSyllabus, int $dayNumber, int $dayOfWeekIso, bool $isRestDay = false): array
+    {
+        $hasSegmentation = !empty($parsedSyllabus['has_day_segmentation']);
+        $daySpecific = [];
+
+        if ($hasSegmentation) {
+            if (!empty($parsedSyllabus['by_day_number'][$dayNumber])) {
+                $daySpecific = $parsedSyllabus['by_day_number'][$dayNumber];
+            } elseif (!empty($parsedSyllabus['by_iso'][$dayOfWeekIso])) {
+                $daySpecific = $parsedSyllabus['by_iso'][$dayOfWeekIso];
+            }
+        } else {
+            $daySpecific = $parsedSyllabus['task_list'] ?? [];
+        }
+
+        $dailyRoutine = $hasSegmentation ? ($parsedSyllabus['daily_routine'] ?? []) : [];
+        $combined = array_merge($dailyRoutine, $daySpecific);
+
+        if ($isRestDay && empty($daySpecific)) {
+            return [
+                [
+                    'title' => 'Istirahat & Pemulihan Terencana',
+                    'sub_tasks' => [
+                        'Peregangan ringan (stretching) / relaksasi 10-15 menit',
+                        'Hidrasi optimal & evaluasi progres di jurnal',
+                    ]
+                ]
+            ];
+        }
+
+        return $combined;
+    }
+
+    /**
      * Parse imported syllabus text into structured daily habits, task lists, and weekly training matrix.
      */
     public static function parseSyllabusContent(?string $text): array
     {
         if (empty($text)) {
-            return ['habits' => [], 'weekly_matrix' => [], 'task_list' => []];
+            return ['habits' => [], 'weekly_matrix' => [], 'task_list' => [], 'has_day_segmentation' => false];
         }
 
         $habits = [];
         $weeklyMatrix = [];
 
-        // Parse structured task list first
+        // Parse day-segmented syllabus first
+        $dayParsed = self::parseSyllabusByDays($text);
+
+        // Parse flat structured task list
         $taskList = self::parseTaskList($text);
 
         // 1. Parse Hourly Architecture / Daily Habits Table:
@@ -649,8 +821,8 @@ Kembalikan HANYA JSON array valid (tanpa markdown backticks) berisi tepat {$days
             }
         }
 
-        // If habits is still empty but taskList was parsed, populate habits from taskList
-        if (empty($habits) && !empty($taskList)) {
+        // If habits is still empty and no day segmentation was found, populate habits from taskList
+        if (empty($habits) && !empty($taskList) && empty($dayParsed['has_day_segmentation'])) {
             foreach ($taskList as $tItem) {
                 $habits[] = [
                     'time' => null,
@@ -700,14 +872,41 @@ Kembalikan HANYA JSON array valid (tanpa markdown backticks) berisi tepat {$days
             'habits' => $habits,
             'weekly_matrix' => $weeklyMatrix,
             'task_list' => $taskList,
+            'by_iso' => $dayParsed['by_iso'] ?? [],
+            'by_day_number' => $dayParsed['by_day_number'] ?? [],
+            'daily_routine' => $dayParsed['daily_routine'] ?? [],
+            'has_day_segmentation' => !empty($dayParsed['has_day_segmentation']),
         ];
     }
 
     /**
      * Build day-specific subtasks tailored with daily habits and weekly routines.
      */
-    public static function buildDaySubtasksFromSyllabus(int $iso, array $parsed, string $routineLabel = '', bool $isRestDay = false): array
+    public static function buildDaySubtasksFromSyllabus(int $iso, array $parsed, string $routineLabel = '', bool $isRestDay = false, int $dayNumber = 1): array
     {
+        // 1. If day segmentation was detected in the syllabus, prioritize day-specific tasks
+        if (!empty($parsed['has_day_segmentation'])) {
+            $dayTasks = self::getTasksForDay($parsed, $dayNumber, $iso, $isRestDay);
+            if (!empty($dayTasks)) {
+                $tasks = [];
+                foreach ($dayTasks as $dt) {
+                    $tTitle = is_array($dt) ? ($dt['title'] ?? '') : (string)$dt;
+                    if (empty($tTitle)) continue;
+
+                    if (is_array($dt) && !empty($dt['sub_tasks'])) {
+                        foreach ($dt['sub_tasks'] as $st) {
+                            $tasks[] = "{$tTitle}: {$st}";
+                        }
+                    } else {
+                        $tasks[] = $tTitle;
+                    }
+                }
+                if (!empty($tasks)) {
+                    return $tasks;
+                }
+            }
+        }
+
         $habits = $parsed['habits'] ?? [];
         $wm = $parsed['weekly_matrix'][$iso] ?? null;
         $isRest = $isRestDay || ($wm ? $wm['is_rest'] : false);
@@ -889,9 +1088,14 @@ Kembalikan HANYA JSON array valid (tanpa markdown backticks) berisi tepat {$days
                 $routineLabel = $isRestDay ? 'Rest & Recovery' : "Latihan {$title}";
             }
 
+            // Extract day-specific tasks from syllabus (respecting day blocking / day-of-week)
+            $dayTaskList = self::getTasksForDay($parsedSyllabus, $i, $dayOfWeekIso, $isRestDay);
+
             // Generate high-fidelity bulk subtasks from parsed syllabus if available
-            if (!empty($parsedSyllabus['habits'])) {
-                $subTasks = self::buildDaySubtasksFromSyllabus($dayOfWeekIso, $parsedSyllabus, $routineLabel, $isRestDay);
+            if (!empty($parsedSyllabus['has_day_segmentation'])) {
+                $subTasks = self::buildDaySubtasksFromSyllabus($dayOfWeekIso, $parsedSyllabus, $routineLabel, $isRestDay, $i);
+            } elseif (!empty($parsedSyllabus['habits'])) {
+                $subTasks = self::buildDaySubtasksFromSyllabus($dayOfWeekIso, $parsedSyllabus, $routineLabel, $isRestDay, $i);
             } else {
                 if ($isRestDay) {
                     $subTasks = [
@@ -932,6 +1136,15 @@ Kembalikan HANYA JSON array valid (tanpa markdown backticks) berisi tepat {$days
                     $dayTitle = "Hari {$i} ({$dayName}): {$headline}";
                     $dayDesc = "Hari {$i} dari tantangan {$title} • {$taskCount} tugas harian terjadwal (0 selesai). Fokus utama hari ini: {$headline}.";
                 }
+            } elseif (!empty($parsedSyllabus['has_day_segmentation'])) {
+                if ($isRestDay) {
+                    $dayTitle = "Hari {$i} ({$dayName}): Istirahat & Pemulihan ({$routineLabel})";
+                    $dayDesc = "Hari {$i} dari tantangan {$title} • {$taskCount} tugas harian terjadwal (0 selesai). Fokus hari ini: Pemulihan terencana {$routineLabel}.";
+                } else {
+                    $firstTask = !empty($dayTaskList[0]['title']) ? $dayTaskList[0]['title'] : $routineLabel;
+                    $dayTitle = "Hari {$i} ({$dayName}): {$firstTask}";
+                    $dayDesc = "Hari {$i} dari tantangan {$title} • {$taskCount} tugas harian terjadwal (0 selesai). Fokus hari ini: {$firstTask} ({$phaseName}).";
+                }
             } elseif ($isRestDay) {
                 $dayTitle = "Hari {$i} ({$dayName}): {$routineLabel}";
                 $dayDesc = "Hari {$i} dari tantangan {$title} • {$taskCount} tugas harian terjadwal (0 selesai). Fokus hari ini: Pemulihan terencana {$routineLabel}.";
@@ -949,7 +1162,6 @@ Kembalikan HANYA JSON array valid (tanpa markdown backticks) berisi tepat {$days
             $refUrl = $skill->reference_url;
             $aiUrl = $skill->ai_chat_url;
 
-            $dayTaskList = !empty($parsedSyllabus['task_list']) ? $parsedSyllabus['task_list'] : [];
             if (empty($dayTaskList)) {
                 foreach ($subTasks as $st) {
                     $dayTaskList[] = [
@@ -957,7 +1169,7 @@ Kembalikan HANYA JSON array valid (tanpa markdown backticks) berisi tepat {$days
                         'sub_tasks' => is_array($st) ? ($st['sub_tasks'] ?? []) : []
                     ];
                 }
-            } elseif ($isRestDay) {
+            } elseif ($isRestDay && empty($dayTaskList)) {
                 $dayTaskList = [
                     [
                         'title' => 'Istirahat & Pemulihan Terencana: ' . $routineLabel,
@@ -1104,7 +1316,11 @@ Kembalikan HANYA JSON array valid (tanpa markdown backticks) berisi tepat {$days
         // 2. Fallback: check if syllabus text in skill interview_context has structured tasks
         if (empty($taskList) && !empty($skill->interview_context['syllabus_text'])) {
             $parsedSyl = self::parseSyllabusContent($skill->interview_context['syllabus_text']);
-            if (!empty($parsedSyl['task_list'])) {
+            $targetIso = (int) \Carbon\Carbon::parse($targetDate)->dayOfWeekIso;
+            $dayTasks = self::getTasksForDay($parsedSyl, $target->day_number, $targetIso, (bool) ($target->is_rest_day ?? false));
+            if (!empty($dayTasks)) {
+                $taskList = $dayTasks;
+            } elseif (!empty($parsedSyl['task_list'])) {
                 $taskList = $parsedSyl['task_list'];
             }
         }

@@ -518,4 +518,181 @@ sub task : - kuliah
         $this->assertEquals('Pelajari HasMany relationship', $subTask->title);
         $this->assertEquals($target->id, $subTask->skill_target_id);
     }
+
+    public function test_ai_skill_planner_day_blocking_segments_weekly_syllabus_cleanly_into_cards(): void
+    {
+        $planner = new AiSkillPlannerService();
+        $user = User::factory()->create();
+
+        // 2026-10-26 is Monday (dayOfWeekIso = 1)
+        $startDate = '2026-10-26';
+        $this->assertEquals(1, Carbon::parse($startDate)->dayOfWeekIso);
+
+        $syllabusText = "
+Rutinitas Harian:
+- 04.00 - 04.30: Bangun & Minum Air
+sub task : - Air hangat
+- Wudhu & Sholat
+
+Senin:
+- Routine Pagi:
+sub task : - Bangun jam 4
+- Gosok gigi
+- Jam 07.00 - 10.00: Kuliah Algoritma
+- Sore 16.00: Lari 5KM
+sub task : - Pemanasan dinamis
+- Lari zona 2 30 menit
+
+Selasa:
+- Jam 08.00 - 11.00: Deep Work Coding Laravel
+sub task : - Slicing UI mobile
+- Sore 16.30: Workout Otot Kaki
+sub task : - Squat 4 set
+- Lunges 3 set
+
+Rabu:
+- Sore: Istirahat Total & Stretching
+
+Kamis:
+- Jam 08.00 - 10.00: Review Catatan Kuliah
+- Sore 16.00: Renang 1000m
+
+Jumat:
+- Jam 09.00 - 11.00: Praktikum Lab
+- Sore: Workout Upper Body Push-Pull
+
+Sabtu:
+- Pagi 06.00: Long Run Aerobik 10KM
+
+Minggu:
+- Pagi: Active Recovery Jalan Santai
+";
+
+        $skill = Skill::create([
+            'user_id' => $user->id,
+            'title' => 'Master Disiplin 90 Hari',
+            'target_days' => 14,
+            'current_day' => 1,
+            'status' => 'active',
+            'mode' => 'systematic',
+            'start_date' => $startDate,
+            'interview_context' => [
+                'syllabus_text' => $syllabusText,
+            ],
+        ]);
+
+        $roadmap = $planner->generateFallbackRoadmap($skill);
+
+        $this->assertCount(14, $roadmap);
+
+        // Day 1: Monday (Senin)
+        $day1 = $roadmap[0];
+        $this->assertEquals(1, $day1['day_number']);
+        $day1Tasks = $day1['task_list'];
+        $day1Titles = array_column($day1Tasks, 'title');
+
+        // Day 1 MUST contain Daily Routine + Monday tasks
+        $this->assertTrue(collect($day1Titles)->contains(fn($t) => str_contains($t, 'Bangun & Minum Air')));
+        $this->assertTrue(collect($day1Titles)->contains(fn($t) => str_contains($t, 'Kuliah Algoritma')));
+        $this->assertTrue(collect($day1Titles)->contains(fn($t) => str_contains($t, 'Lari 5KM')));
+
+        // Day 1 MUST NOT contain Tuesday (Deep Work Coding Laravel / Workout Otot Kaki)
+        $this->assertFalse(collect($day1Titles)->contains(fn($t) => str_contains($t, 'Coding Laravel')));
+        $this->assertFalse(collect($day1Titles)->contains(fn($t) => str_contains($t, 'Workout Otot Kaki')));
+        // Day 1 MUST NOT contain Wednesday (Istirahat Total) or Kamis (Renang)
+        $this->assertFalse(collect($day1Titles)->contains(fn($t) => str_contains($t, 'Renang 1000m')));
+
+        // Day 2: Tuesday (Selasa)
+        $day2 = $roadmap[1];
+        $this->assertEquals(2, $day2['day_number']);
+        $day2Tasks = $day2['task_list'];
+        $day2Titles = array_column($day2Tasks, 'title');
+
+        // Day 2 MUST contain Tuesday tasks
+        $this->assertTrue(collect($day2Titles)->contains(fn($t) => str_contains($t, 'Coding Laravel')));
+        $this->assertTrue(collect($day2Titles)->contains(fn($t) => str_contains($t, 'Workout Otot Kaki')));
+        // Day 2 MUST NOT contain Monday tasks
+        $this->assertFalse(collect($day2Titles)->contains(fn($t) => str_contains($t, 'Kuliah Algoritma')));
+        $this->assertFalse(collect($day2Titles)->contains(fn($t) => str_contains($t, 'Lari 5KM')));
+
+        // Day 3: Wednesday (Rabu) - Rest day/Stretching
+        $day3 = $roadmap[2];
+        $day3Tasks = $day3['task_list'];
+        $day3Titles = array_column($day3Tasks, 'title');
+        $this->assertTrue(collect($day3Titles)->contains(fn($t) => str_contains($t, 'Istirahat Total & Stretching')));
+
+        // Day 8: Next week Monday (Senin) -> Cycles back to Monday schedule!
+        $day8 = $roadmap[7];
+        $this->assertEquals(8, $day8['day_number']);
+        $day8Tasks = $day8['task_list'];
+        $day8Titles = array_column($day8Tasks, 'title');
+        $this->assertTrue(collect($day8Titles)->contains(fn($t) => str_contains($t, 'Kuliah Algoritma')));
+        $this->assertTrue(collect($day8Titles)->contains(fn($t) => str_contains($t, 'Lari 5KM')));
+        $this->assertFalse(collect($day8Titles)->contains(fn($t) => str_contains($t, 'Coding Laravel')));
+    }
+
+    public function test_create_bulk_tasks_for_target_filters_by_day_of_week_from_imported_syllabus(): void
+    {
+        $user = User::factory()->create();
+
+        // 2026-10-26 is Monday
+        $startDate = '2026-10-26';
+
+        $syllabusText = "
+Senin:
+- Jam 07.00 - 10.00: Kuliah Algoritma
+- Sore 16.00: Lari 5KM
+
+Selasa:
+- Jam 08.00 - 11.00: Deep Work Coding
+- Sore 16.30: Workout Otot Kaki
+";
+
+        $skill = Skill::create([
+            'user_id' => $user->id,
+            'title' => 'Bootcamp Disiplin',
+            'target_days' => 7,
+            'current_day' => 1,
+            'status' => 'active',
+            'mode' => 'systematic',
+            'start_date' => $startDate,
+            'interview_context' => [
+                'syllabus_text' => $syllabusText,
+            ],
+        ]);
+
+        // Target Day 1 (Monday)
+        $targetDay1 = $skill->targets()->create([
+            'day_number' => 1,
+            'title' => 'Hari 1 (Senin)',
+            'status' => 'pending',
+            'target_date' => '2026-10-26',
+        ]);
+
+        $createdDay1 = AiSkillPlannerService::createBulkTasksForTarget($skill, $targetDay1, $user);
+
+        // Day 1 should only get Monday's 2 tasks!
+        $this->assertCount(2, $createdDay1);
+        $titlesDay1 = array_map(fn($t) => $t->title, $createdDay1);
+        $this->assertTrue(collect($titlesDay1)->contains(fn($t) => str_contains($t, 'Kuliah Algoritma')));
+        $this->assertTrue(collect($titlesDay1)->contains(fn($t) => str_contains($t, 'Lari 5KM')));
+        $this->assertFalse(collect($titlesDay1)->contains(fn($t) => str_contains($t, 'Deep Work Coding')));
+
+        // Target Day 2 (Tuesday)
+        $targetDay2 = $skill->targets()->create([
+            'day_number' => 2,
+            'title' => 'Hari 2 (Selasa)',
+            'status' => 'pending',
+            'target_date' => '2026-10-27',
+        ]);
+
+        $createdDay2 = AiSkillPlannerService::createBulkTasksForTarget($skill, $targetDay2, $user);
+
+        // Day 2 should only get Tuesday's 2 tasks!
+        $this->assertCount(2, $createdDay2);
+        $titlesDay2 = array_map(fn($t) => $t->title, $createdDay2);
+        $this->assertTrue(collect($titlesDay2)->contains(fn($t) => str_contains($t, 'Deep Work Coding')));
+        $this->assertTrue(collect($titlesDay2)->contains(fn($t) => str_contains($t, 'Workout Otot Kaki')));
+        $this->assertFalse(collect($titlesDay2)->contains(fn($t) => str_contains($t, 'Kuliah Algoritma')));
+    }
 }
