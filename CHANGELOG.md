@@ -1,5 +1,23 @@
 # 📋 ATOMA Changelog & Patch Notes
 
+## [v1.0.1.6] - 2026-10-26 (Milestone Adaptive AI Coaching, Hierarchical Bulk Tasks, Pomodoro Multi-Set Persistence, Subtask Task XP, & Note Sorting)
+
+> **Catatan Rilis:** Patch v1.0.1.6 menggabungkan upgrade arsitektur Milestone AI Coaching (day-blocking parsing jadwal Senin–Minggu, hierarchical bulk tasks per blok waktu, two-way sync, dan blueprint synthesizer 90 hari) dengan Target Perbaikan 27 (penyelesaian task via subtasks mendapatkan XP task penuh, penanganan multi-set pomodoro tanpa invalidasi server, sinkronisasi cloud playlist audio, dan perbaikan query pengurutan catatan terakhir diperbarui).
+
+### 🎯 Milestone AI Coaching & Hierarchical Bulk Tasks
+- **Day-Blocking Syllabus Parsing (`parseSyllabusByDays` & `getTasksForDay`)**: Memecah silabus panjang mingguan (Senin–Minggu) ke dalam ISO kalender target. Tugas hari Senin tidak lagi menumpuk di Hari 1.
+- **Hierarchical Task & Subtask Structure**: Mengonversi subtask flat menjadi kelompok tugas terstruktur per blok waktu (`Pagi:`, `07.00 - 10.00 Kuliah`, `Sore 16.00: Lari 5KM`, `Malam:`).
+- **Two-Way Synchronization**: Checklist tugas di kartu milestone langsung tersinkronisasi dua arah secara realtime dengan Task Board (`/tasks`).
+- **90-Day Blueprint Synthesizer**: Generasi roadmap tantangan jangka panjang (30–90 hari) diproses secara deterministik di memori server dalam <10ms, bebas dari pemborosan kuota token AI dan bebas risiko timeout 502/504 Bad Gateway.
+
+### 🛡️ Target Perbaikan 27 (System Integrity & UX)
+- **Task Auto-Complete via Subtasks XP**: Menyelesaikan semua subtask kini otomatis menandai task induk selesai, mencairkan XP task induk, dan memperpanjang streak.
+- **Pomodoro Multi-Set Persistence**: Menghapus race condition penghapusan token cache di `/api/focus/stop` sehingga Set 2 dan seterusnya tercatat di log dan memberikan reward XP tanpa invalidasi server.
+- **Multi-Device Cloud Playlist Sharing**: Folder playlist Pomodoro kini disinkronkan ke database cloud akun `/api/pomodoro/playlists`, dapat diakses lintas browser dan perangkat.
+- **Note Sorting "Terakhir Diperbarui"**: Menggunakan `->reorder()` pada query catatan untuk membatalkan klausul bawaan `created_at desc`, membuat pengurutan `updated_at desc` dan `title_asc` berjalan 100% akurat dengan label footer "Diperbarui HH:mm".
+
+---
+
 ## [v1.0.1.4] - 2026-10-22 (Pomodoro Architectural Overhaul: Atomic Reset, Monotonic Delta Worker, Brainwave Synthesizer, & Anti-Cheat Validation)
 
 > **Catatan Rilis:** Patch v1.0.1.4 menuntaskan 7 pilar arsitektur fitur Pomodoro & Flowtime di ATOMA: Bug timer tidak bisa direset akibat *zombie state re-hydration*, drift waktu di background tab akibat throttling browser, eksploitasi reward instan di sisi klien, distorsi Web Audio, rumus kurva istirahat ultradian adaptif, pemborosan memori iframe YouTube pada persistent shell, serta sinkronisasi dua arah Android Bridge & Homescreen Widget.
