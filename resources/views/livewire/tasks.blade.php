@@ -2101,10 +2101,39 @@ new #[Layout('layouts.app')] class extends Component {
         $completedSubTasks = $task->subTasks()->where('is_completed', true)->count();
         if ($totalSubTasks > 0) {
             if ($completedSubTasks === $totalSubTasks && !$task->is_completed) {
-                $task->update(['is_completed' => true]);
+                $isOverdue = $task->isOverdue();
+                $task->is_completed_overdue = $isOverdue;
+                $task->is_completed = true;
+                $task->save();
+
+                if (!$task->is_completed_overdue) {
+                    $this->updateStreak(true, $task);
+                }
+
+                $evaluation = \App\Services\TaskXpService::evaluateTaskCompletion($task, auth()->user());
+                $this->generateNextRecurrence($task);
+                $this->dispatch('play-sound', type: $task->is_completed_overdue ? 'warning' : 'success');
+                $this->dispatch('cancel-reminder', id: (int)$task->id);
+                $this->dispatch('native-notify', [
+                    'title' => '🎉 Tugas Selesai!',
+                    'body' => $task->title . ' telah diselesaikan.',
+                    'sound' => $task->is_completed_overdue ? 'chime' : 'success',
+                ]);
+                $this->dispatch('toast', message: $evaluation['message'], type: $evaluation['type']);
+                $this->dispatch('profile-updated');
+
                 $this->syncSkillTargetProgress($task);
             } elseif ($completedSubTasks < $totalSubTasks && $task->is_completed) {
-                $task->update(['is_completed' => false]);
+                $task->is_completed = false;
+                $task->is_completed_overdue = false;
+                $task->xp_settled_at = null;
+                $task->save();
+
+                $this->updateStreak(false, $task);
+                \App\Services\TaskXpService::revertTaskCompletion($task, auth()->user());
+                $this->dispatch('profile-updated');
+                $this->dispatch('toast', message: 'Status tugas dibatalkan.', type: 'info');
+
                 $this->syncSkillTargetProgress($task);
             }
         }

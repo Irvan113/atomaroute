@@ -155,6 +155,7 @@ class TaskEditDeleteTest extends TestCase
         ]);
 
         $st = $task->subTasks()->create(['title' => 'Subtask to delete', 'is_completed' => false]);
+        $st2 = $task->subTasks()->create(['title' => 'Remaining subtask', 'is_completed' => false]);
 
         $this->actingAs($user);
 
@@ -170,6 +171,33 @@ class TaskEditDeleteTest extends TestCase
             ->call('deleteTask', $task->id);
 
         $this->assertEquals(0, $user->fresh()->pending_xp);
+    }
+
+    public function test_completing_all_subtasks_auto_completes_parent_task_and_awards_task_xp(): void
+    {
+        $user = User::factory()->create(['pending_xp' => 0, 'daily_xp_earned' => 0]);
+        $task = Task::create([
+            'user_id' => $user->id,
+            'title' => 'Feature Implementation Sprint Auto Complete',
+            'date' => now()->toDateString(),
+            'is_completed' => false,
+        ]);
+
+        $st1 = $task->subTasks()->create(['title' => 'Subtask 1', 'is_completed' => false]);
+        $st2 = $task->subTasks()->create(['title' => 'Subtask 2', 'is_completed' => false]);
+
+        $this->actingAs($user);
+
+        // Complete first subtask -> only subtask XP awarded (5 XP)
+        Volt::test('tasks')->call('toggleSubTask', $task->id, $st1->id);
+        $this->assertFalse($task->fresh()->is_completed);
+        $this->assertEquals(5, $user->fresh()->pending_xp);
+
+        // Complete second (and last) subtask -> parent task auto-completes AND awards task XP!
+        Volt::test('tasks')->call('toggleSubTask', $task->id, $st2->id);
+        $this->assertTrue($task->fresh()->is_completed);
+        // Subtask 1 (5 XP) + Subtask 2 (5 XP) + Task XP (> 0)
+        $this->assertGreaterThan(10, $user->fresh()->pending_xp);
     }
 }
 

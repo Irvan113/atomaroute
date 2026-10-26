@@ -35,8 +35,8 @@ new class extends Component {
                 return;
             }
 
-            // Cap duration by server-elapsed minutes (+1 min grace window for network latency)
-            $duration = min($duration, $elapsedServerMinutes + 1);
+            // Cap duration by server-elapsed minutes (+2 min grace window for network latency)
+            $duration = min($duration, $elapsedServerMinutes + 2);
         }
 
         // Seal and invalidate active session to prevent double-claim / replay attacks

@@ -85,4 +85,41 @@ class EmailMagicAndNoteImprovementsTest extends TestCase
         $response = $component->call('exportNotes');
         $response->assertFileDownloaded('atoma-notes-backup-' . date('Y-m-d') . '.json');
     }
+
+    public function test_journal_sort_by_latest_updated_prioritizes_recently_modified_notes(): void
+    {
+        $user = User::factory()->create();
+
+        // Note 1 created 5 days ago, updated today
+        $noteOld = Journal::create([
+            'user_id' => $user->id,
+            'title' => 'Old Note Recently Edited',
+            'content' => '<p>Content</p>',
+        ]);
+
+        // Note 2 created yesterday, never updated since (force past updated_at)
+        $noteNew = Journal::create([
+            'user_id' => $user->id,
+            'title' => 'New Note Not Edited',
+            'content' => '<p>Content</p>',
+        ]);
+        \Illuminate\Support\Facades\DB::table('journals')->where('id', $noteNew->id)->update([
+            'created_at' => now()->subDay(),
+            'updated_at' => now()->subDay(),
+        ]);
+        \Illuminate\Support\Facades\DB::table('journals')->where('id', $noteOld->id)->update([
+            'created_at' => now()->subDays(5),
+            'updated_at' => now(),
+        ]);
+
+        $component = Volt::actingAs($user)
+            ->test('journal.index')
+            ->set('noteSortBy', 'latest_updated');
+
+        $grouped = $component->get('groupedJournals');
+
+        // The first group should contain the note updated today at the top
+        $firstGroupNotes = $grouped->first();
+        $this->assertEquals($noteOld->id, $firstGroupNotes->first()->id);
+    }
 }

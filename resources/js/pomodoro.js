@@ -362,6 +362,8 @@ export function pomodoroTimer(initialTasks = [], userStreak = 0, dueFlashcardsCo
                     document.addEventListener('visibilitychange', () => {
                         if (document.visibilityState === 'visible') {
                             this.reconcileTimerState();
+                            this.loadSavedPlaylist();
+                            this.fetchTodaySessions();
                             if (this.isRunning) {
                                 this.requestWakeLock();
                             }
@@ -407,6 +409,7 @@ export function pomodoroTimer(initialTasks = [], userStreak = 0, dueFlashcardsCo
                     // Online/Offline detection
                     window.addEventListener('online', () => {
                         this.isOnline = true;
+                        this.loadSavedPlaylist();
                         this.syncPlaylistToServer();
                     });
                     window.addEventListener('offline', () => {
@@ -1805,36 +1808,29 @@ export function pomodoroTimer(initialTasks = [], userStreak = 0, dueFlashcardsCo
                 },
 
                 loadSavedPlaylist() {
+                    // 1. Optimistic local cache load to prevent UI flicker
                     const savedFolders = localStorage.getItem('atoma_yt_playlist_folders');
+                    let hasLocal = false;
                     if (savedFolders) {
                         try {
-                            this.playlistFolders = JSON.parse(savedFolders);
-                            if (!this.isPro && this.playlistFolders.length > this.maxFolders) {
-                                this.playlistFolders = this.playlistFolders.slice(0, this.maxFolders);
-                            }
-                            if (this.playlistFolders.length > 0) {
-                                this.activeFolderId = this.playlistFolders[0].id;
+                            const parsed = JSON.parse(savedFolders);
+                            if (Array.isArray(parsed) && parsed.length > 0) {
+                                this.playlistFolders = parsed;
+                                if (!this.isPro && this.playlistFolders.length > this.maxFolders) {
+                                    this.playlistFolders = this.playlistFolders.slice(0, this.maxFolders);
+                                }
+                                if (this.playlistFolders.length > 0) {
+                                    this.activeFolderId = this.playlistFolders[0].id;
+                                }
+                                hasLocal = true;
                             }
                         } catch (e) {
                             this.playlistFolders = [];
                         }
-                    } else {
-                        if (this.isOnline) {
-                            fetch('/api/pomodoro/playlists')
-                                .then(res => res.json())
-                                .then(data => {
-                                    if (data && data.folders && data.folders.length > 0) {
-                                        let loaded = data.folders;
-                                        if (!this.isPro && loaded.length > this.maxFolders) {
-                                            loaded = loaded.slice(0, this.maxFolders);
-                                        }
-                                        this.playlistFolders = loaded;
-                                        this.activeFolderId = this.playlistFolders[0].id;
-                                        localStorage.setItem('atoma_yt_playlist_folders', JSON.stringify(this.playlistFolders));
-                                    }
-                                }).catch(() => {});
-                        }
+                    }
 
+                    // 2. Fallback to default presets if neither local nor cloud has loaded yet
+                    if (!hasLocal) {
                         const legacySaved = localStorage.getItem('atoma_yt_saved_playlist');
                         let legacyTracks = [];
                         if (legacySaved) {
@@ -1861,7 +1857,30 @@ export function pomodoroTimer(initialTasks = [], userStreak = 0, dueFlashcardsCo
                             }
                         ];
                         this.activeFolderId = 'focus';
-                        this.saveSavedPlaylist();
+                    }
+
+                    // 3. Always synchronize with cloud database for seamless multi-device library sharing across browsers
+                    if (this.isOnline) {
+                        fetch('/api/pomodoro/playlists')
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data && Array.isArray(data.folders) && data.folders.length > 0) {
+                                    let loaded = data.folders;
+                                    if (!this.isPro && loaded.length > this.maxFolders) {
+                                        loaded = loaded.slice(0, this.maxFolders);
+                                    }
+                                    this.playlistFolders = loaded;
+                                    const folderExists = this.playlistFolders.some(f => f.id === this.activeFolderId);
+                                    if (!folderExists && this.playlistFolders.length > 0) {
+                                        this.activeFolderId = this.playlistFolders[0].id;
+                                    }
+                                    localStorage.setItem('atoma_yt_playlist_folders', JSON.stringify(this.playlistFolders));
+                                } else if (!data || !Array.isArray(data.folders) || data.folders.length === 0) {
+                                    // If cloud database has no folders yet, upload the current library to cloud database
+                                    this.syncPlaylistToServer();
+                                }
+                            })
+                            .catch(() => {});
                     }
                 },
 

@@ -66,7 +66,17 @@ new #[Layout('layouts.app')] class extends Component {
         if (auth()->check()) {
             $this->monthly_budget_input = auth()->user()->monthly_budget ? (string) (int) auth()->user()->monthly_budget : '';
         }
+        if (session()->has('atoma_note_sort_by')) {
+            $this->noteSortBy = session('atoma_note_sort_by');
+        } elseif (request()->has('sort')) {
+            $this->noteSortBy = request('sort');
+        }
         $this->dispatch('journal-tab-changed', tab: $this->activeTab);
+    }
+
+    public function updatedNoteSortBy($value)
+    {
+        session(['atoma_note_sort_by' => $value]);
     }
 
     public function updatedActiveTab($value)
@@ -109,12 +119,15 @@ new #[Layout('layouts.app')] class extends Component {
         return $tagCounts;
     }
 
-    // 2. Filtered Journals Grouped by Date
+    // 2. Filtered Journals Grouped by Date / Order
     #[Computed]
     public function groupedJournals()
     {
+        $userTz = auth()->user()->timezone ?? config('app.timezone', 'Asia/Jakarta');
+
         $query = auth()->user()->journals()
-            ->withCount(['outgoingLinks', 'incomingLinks']);
+            ->withCount(['outgoingLinks', 'incomingLinks'])
+            ->reorder();
 
         switch ($this->noteSortBy) {
             case 'created_newest':
@@ -156,11 +169,15 @@ new #[Layout('layouts.app')] class extends Component {
             $j->incoming_links_count = (int)($j->incoming_links_count ?? 0);
         });
             
-        return $journals->groupBy(function($journal) {
+        return $journals->groupBy(function($journal) use ($userTz) {
             if ($this->noteSortBy === 'latest_updated') {
-                return Carbon::parse($journal->updated_at)->format('Y-m-d');
+                return Carbon::parse($journal->updated_at)->timezone($userTz)->format('Y-m-d');
             }
-            return Carbon::parse($journal->created_at)->format('Y-m-d');
+            if ($this->noteSortBy === 'title_asc') {
+                $firstChar = mb_strtoupper(mb_substr(trim($journal->title ?: 'Tanpa Judul'), 0, 1));
+                return preg_match('/[A-Z]/u', $firstChar) ? $firstChar : '#';
+            }
+            return Carbon::parse($journal->created_at)->timezone($userTz)->format('Y-m-d');
         });
     }
 
@@ -453,6 +470,7 @@ new #[Layout('layouts.app')] class extends Component {
                     'mood' => $this->mood,
                     'tags' => $combinedTags,
                 ]);
+                $journal->touch();
             }
         } else {
             $journal = auth()->user()->journals()->create([
@@ -596,6 +614,7 @@ new #[Layout('layouts.app')] class extends Component {
                 'tags' => empty($combinedTags) ? null : array_values($combinedTags),
                 'images' => empty($finalImages) ? null : array_values($finalImages),
             ]);
+            $journal->touch();
 
             // Sync links (data-attributes, wikilinks, manual checkboxes)
             $this->syncNoteLinksFromContent($journal->id, $this->content);
@@ -1769,20 +1788,44 @@ new #[Layout('layouts.app')] class extends Component {
         <div class="space-y-6">
             @forelse($this->groupedJournals as $date => $journals)
                 @php
-                    $carbonDate = \Carbon\Carbon::parse($date);
-                    $isToday = $carbonDate->isToday();
+                    $isAlphaSort = ($noteSortBy === 'title_asc');
+                    $isUpdateSort = ($noteSortBy === 'latest_updated');
+                    $userTz = auth()->user()->timezone ?? config('app.timezone', 'Asia/Jakarta');
+                    if (!$isAlphaSort) {
+                        $carbonDate = \Carbon\Carbon::parse($date)->timezone($userTz);
+                        $isToday = $carbonDate->isToday();
+                        $isYesterday = $carbonDate->isYesterday();
+                    } else {
+                        $carbonDate = null;
+                        $isToday = false;
+                        $isYesterday = false;
+                    }
                 @endphp
                 <div>
                     <!-- Date Header with Indicator -->
                     <div class="sticky top-[68px] z-10 flex items-center justify-between mb-3.5 bg-gray-50/95 dark:bg-gray-900/95 backdrop-blur-sm py-2 border-b border-gray-200/60 dark:border-gray-800/80">
                         <div class="flex items-center gap-2">
                             <span class="w-2.5 h-2.5 rounded-full bg-atoma-blue dark:bg-indigo-500 shrink-0"></span>
-                            <h3 class="text-base sm:text-lg font-black text-gray-900 dark:text-white">
-                                {{ $isToday ? __('Hari Ini') : $carbonDate->translatedFormat('l') }}
-                            </h3>
-                            <span class="text-gray-400 dark:text-gray-500 font-medium text-xs">
-                                {{ $carbonDate->translatedFormat('d F Y') }}
-                            </span>
+                            @if($isAlphaSort)
+                                <h3 class="text-base sm:text-lg font-black text-gray-900 dark:text-white">
+                                    {{ $date }}
+                                </h3>
+                                <span class="text-gray-400 dark:text-gray-500 font-medium text-xs">
+                                    {{ __('Abjad') }}
+                                </span>
+                            @else
+                                <h3 class="text-base sm:text-lg font-black text-gray-900 dark:text-white">
+                                    {{ $isToday ? __('Hari Ini') : ($isYesterday ? __('Kemarin') : $carbonDate->translatedFormat('l')) }}
+                                </h3>
+                                <span class="text-gray-400 dark:text-gray-500 font-medium text-xs">
+                                    {{ $carbonDate->translatedFormat('d F Y') }}
+                                </span>
+                                @if($isUpdateSort)
+                                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-atoma-ice dark:bg-indigo-950/60 text-atoma-blue dark:text-indigo-300 border border-atoma-aqua/40 dark:border-indigo-500/30">
+                                        {{ __('Aktivitas Terakhir') }}
+                                    </span>
+                                @endif
+                            @endif
                         </div>
                         <span class="text-[11px] font-bold px-2 py-0.5 rounded-lg bg-gray-200/60 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
                             {{ $journals->count() }} {{ __('Catatan') }}
@@ -1873,9 +1916,16 @@ new #[Layout('layouts.app')] class extends Component {
                                 <!-- Card Footer: Time, Tags, Reading Estimate & Extract Button -->
                                 <div class="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800 flex flex-wrap items-center justify-between gap-2">
                                     <div class="flex items-center gap-1.5 flex-wrap">
-                                        <span class="text-[11px] font-semibold text-gray-400 flex items-center">
+                                        @php
+                                            $userTz = auth()->user()->timezone ?? config('app.timezone', 'Asia/Jakarta');
+                                            $showUpdated = ($noteSortBy === 'latest_updated');
+                                            $displayTime = $showUpdated 
+                                                ? \Carbon\Carbon::parse($journal->updated_at)->timezone($userTz) 
+                                                : \Carbon\Carbon::parse($journal->created_at)->timezone($userTz);
+                                        @endphp
+                                        <span class="text-[11px] font-semibold text-gray-400 flex items-center" title="{{ $showUpdated ? 'Terakhir diperbarui: ' . $displayTime->format('d M Y H:i') : 'Dibuat: ' . $displayTime->format('d M Y H:i') }}">
                                             <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                            {{ \Carbon\Carbon::parse($journal->created_at)->format('H:i') }}
+                                            {{ $showUpdated ? __('Diperbarui') . ' ' : '' }}{{ $displayTime->format('H:i') }}
                                         </span>
 
                                         <span class="text-gray-300 dark:text-gray-600 text-xs">•</span>

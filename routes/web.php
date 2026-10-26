@@ -319,19 +319,29 @@ Route::middleware(['auth', 'throttle:60,1'])->group(function () {
         $mode = $request->input('mode', 'work');
         $taskId = $request->input('task_id');
         $targetDuration = (int) $request->input('target_duration', 25);
+        $sessionKey = "user_focus_session_{$user->id}";
 
-        $sessionData = [
-            'user_id' => $user->id,
-            'started_at' => now()->timestamp,
-            'mode' => $mode,
-            'task_id' => $taskId ? (int) $taskId : null,
-            'target_duration' => $targetDuration,
-            'heartbeat_count' => 0,
-            'last_heartbeat_at' => now()->timestamp,
-        ];
+        $existing = \Illuminate\Support\Facades\Cache::get($sessionKey);
+        // If resuming an ongoing session of the same mode that hasn't expired, preserve original started_at
+        if ($existing && is_array($existing) && ($existing['mode'] ?? '') === $mode && !empty($existing['started_at'])) {
+            $sessionData = $existing;
+            $sessionData['task_id'] = $taskId ? (int) $taskId : ($existing['task_id'] ?? null);
+            $sessionData['target_duration'] = $targetDuration;
+            $sessionData['last_heartbeat_at'] = now()->timestamp;
+        } else {
+            $sessionData = [
+                'user_id' => $user->id,
+                'started_at' => now()->timestamp,
+                'mode' => $mode,
+                'task_id' => $taskId ? (int) $taskId : null,
+                'target_duration' => $targetDuration,
+                'heartbeat_count' => 0,
+                'last_heartbeat_at' => now()->timestamp,
+            ];
+        }
 
         // Store active session token with 3-hour TTL
-        \Illuminate\Support\Facades\Cache::put("user_focus_session_{$user->id}", $sessionData, now()->addHours(3));
+        \Illuminate\Support\Facades\Cache::put($sessionKey, $sessionData, now()->addHours(3));
 
         return response()->json(['success' => true, 'session' => $sessionData]);
     });
@@ -361,6 +371,16 @@ Route::middleware(['auth', 'throttle:60,1'])->group(function () {
             $activeSession['heartbeat_count'] = ($activeSession['heartbeat_count'] ?? 0) + 1;
             $activeSession['last_heartbeat_at'] = now()->timestamp;
             \Illuminate\Support\Facades\Cache::put($sessionKey, $activeSession, now()->addHours(3));
+        } elseif ($mode === 'work' || $mode === 'flowtime') {
+            // Auto-heal session if heartbeat arrives during work/flowtime
+            $activeSession = [
+                'user_id' => $user->id,
+                'started_at' => now()->timestamp - 30,
+                'mode' => $mode,
+                'heartbeat_count' => 1,
+                'last_heartbeat_at' => now()->timestamp,
+            ];
+            \Illuminate\Support\Facades\Cache::put($sessionKey, $activeSession, now()->addHours(3));
         }
 
         return response()->json(['success' => true, 'focus' => $focusData]);
@@ -369,7 +389,6 @@ Route::middleware(['auth', 'throttle:60,1'])->group(function () {
     Route::post('/api/focus/stop', function () {
         $user = auth()->user();
         \Illuminate\Support\Facades\Cache::forget("user_focus_{$user->id}");
-        \Illuminate\Support\Facades\Cache::forget("user_focus_session_{$user->id}");
         return response()->json(['success' => true]);
     });
 
