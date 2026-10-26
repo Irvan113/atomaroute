@@ -3,6 +3,13 @@
 @tailwind utilities;
 
 /* ==========================================================================
+   0. ALPINE.JS X-CLOAK — ZERO LAYOUT SHIFT (CLS < 0.1)
+   ========================================================================== */
+[x-cloak] {
+    display: none !important;
+}
+
+/* ==========================================================================
    1. VIEW TRANSITIONS & SMOOTH PAGE TRANSITIONS (0% Backend Overhead)
    ========================================================================== */
 @media (prefers-reduced-motion: no-preference) {

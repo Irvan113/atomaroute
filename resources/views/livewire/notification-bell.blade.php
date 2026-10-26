@@ -17,6 +17,7 @@ new class extends Component {
     }
 
     #[On('notifications-updated')]
+    #[On('social-notifications-cleared')]
     public function refreshCounts()
     {
         $user = auth()->user();

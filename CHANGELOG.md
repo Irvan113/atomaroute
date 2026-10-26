@@ -1,5 +1,27 @@
 # 📋 ATOMA Changelog & Patch Notes
 
+## [v1.0.2.1] - 2026-10-26 (Stability, Core Web Vitals, Cross-Midnight Overnight Task Scheduling, Event-Driven Notification Purge, & Social State Sync)
+
+> **Catatan Rilis:** Patch v1.0.2.1 mengeksekusi penyesuaian kode hasil audit arsitektur ATOMA. Database SQLite tetap dipertahankan utuh (migrasi database ditangguhkan untuk dilakukan secara manual oleh pemilik agar data user aman). Rilis ini menghadirkan perbaikan jadwal lintas malam (overnight shift 22:00–04:00 tidak prematur overdue), pembatalan notifikasi suara seketika saat tugas dicentang via event `task-toggled`, eliminasi pergeseran layout (CLS < 0.1) dengan aturan global `x-cloak` & `min-h-dvh`, penjangkaran waktu AI lokal WIB eksplisit, serta auto-clear badge notifikasi sosial dan hak akses pin post admin.
+
+### ⏱️ Penjadwalan Lintas Malam (Overnight Shift 22:00–04:00) & AI Time Anchor
+- **Cross-Midnight Deadline Detection (`Task::isOverdue`)**: Menambahkan penyesuaian `+1 hari` otomatis ketika jam tenggat lebih kecil atau sama dengan jam mulai. Tugas malam aktif (misal jam 22:30 pada shift 22:00–04:00) kini diakui aktif dan tidak divonis *Overdue*.
+- **Client-Side Notification Scheduler**: Menambahkan penyesuaian 24 jam (+1440 menit) pada Alpine.js `taskNotificationScheduler` agar peringatan batas waktu malam hari tidak salah memicu status kadaluarsa.
+- **Explicit Asia/Jakarta AI Anchor**: Menyuntikkan tanggal ISO, nama hari, dan referensi jam WIB pada `AiTaskDecomposerService` agar permintaan seperti *"nanti malam"* atau *"malam ini"* tidak melompat tanggal.
+
+### 🔔 Event-Driven Notification Cancellation
+- **Instant Alarm Purge (`task-toggled` & `cancel-reminder`)**: Ketika tugas dicentang selesai (manual maupun auto-complete via seluruh subtask), event `task-toggled` memicu pembersihan seketika dari antrean scheduler di browser, menghentikan suara alarm yang sebelumnya tetap berbunyi pasca checklist.
+
+### ⚡ Core Web Vitals (Pencegahan CLS < 0.1) & Layout Stability
+- **Global `x-cloak` Display Rule**: Menambahkan `[x-cloak] { display: none !important; }` pada `resources/css/app.css` dan memasang atribut `x-cloak` pada seluruh modal, bar filter, dan dropdown untuk menghilangkan kedipan dan pergeseran layout saat inisialisasi Alpine.js.
+- **Modern Mobile Viewport (`min-h-dvh`)**: Memastikan kontainer layout utama menggunakan `min-h-dvh` dan `contain-layout` agar tampilan mobile stabil saat bar URL browser atau keyboard virtual aktif.
+
+### 🌐 Social Feed State Sync & Post Pinning
+- **Auto-Read Unread Social Badges**: Membuka halaman sosial otomatis menandai notifikasi interaksi (like, komentar, nudge) sebagai telah dibaca pada siklus `mount()`, seketika mereset badge angka pada `notification-bell`.
+- **Extended Pin Post Permissions**: Fitur *Pin Post* kini dapat dikelola oleh pemilik post maupun admin sistem (`$user->isAdmin()`).
+
+---
+
 ## [v1.0.1.6] - 2026-10-26 (Milestone Adaptive AI Coaching, Hierarchical Bulk Tasks, Pomodoro Multi-Set Persistence, Subtask Task XP, & Note Sorting)
 
 > **Catatan Rilis:** Patch v1.0.1.6 menggabungkan upgrade arsitektur Milestone AI Coaching (day-blocking parsing jadwal Senin–Minggu, hierarchical bulk tasks per blok waktu, two-way sync, dan blueprint synthesizer 90 hari) dengan Target Perbaikan 27 (penyelesaian task via subtasks mendapatkan XP task penuh, penanganan multi-set pomodoro tanpa invalidasi server, sinkronisasi cloud playlist audio, dan perbaikan query pengurutan catatan terakhir diperbarui).

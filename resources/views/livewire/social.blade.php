@@ -74,6 +74,20 @@ new class extends Component {
             $this->privacyShareAchievements = (bool) ($user->share_achievements ?? true);
             $this->privacyAllowNudges = (bool) ($user->allow_friend_nudges ?? true);
 
+            // Auto-clear unread social notifications & nudges when accessing social feed
+            try {
+                $user->unreadNotifications()
+                    ->where(function($q) {
+                        $q->where('type', 'like', '%Social%')
+                          ->orWhere('type', 'like', '%Nudge%')
+                          ->orWhere('type', 'like', '%Friend%');
+                    })
+                    ->update(['read_at' => now()]);
+
+                $this->dispatch('social-notifications-cleared');
+                $this->dispatch('notifications-updated');
+            } catch (\Throwable $e) {}
+
             // Check for unacknowledged incoming nudges in the last 24h
             $incoming = FriendNudge::where('receiver_id', $user->id)
                 ->whereNull('acknowledged_at')
@@ -155,7 +169,12 @@ new class extends Component {
     public function togglePin($postId)
     {
         $post = Post::findOrFail($postId);
-        if ($post->user_id === auth()->id() || (auth()->user()->email ?? '') === 'admin@atoma.app') {
+        $user = auth()->user();
+        $canPin = $post->user_id === $user->id 
+            || ($user && method_exists($user, 'isAdmin') && $user->isAdmin())
+            || ($user->email ?? '') === 'admin@atoma.app';
+
+        if ($canPin) {
             $post->update(['is_pinned' => !$post->is_pinned]);
             $this->dispatch('toast', message: $post->is_pinned ? 'Topik disematkan di atas (Pinned) 📌' : 'Sematkan topik dilepas', type: 'success');
         }

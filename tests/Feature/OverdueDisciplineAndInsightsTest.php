@@ -56,6 +56,37 @@ class OverdueDisciplineAndInsightsTest extends TestCase
         Carbon::setTestNow();
     }
 
+    public function test_overnight_task_crossing_midnight_is_not_overdue_before_next_day_deadline(): void
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $today = Carbon::today()->toDateString();
+        $task = Task::create([
+            'user_id' => $user->id,
+            'title' => 'Shift Coding Malam',
+            'date' => $today,
+            'start_time' => '22:00',
+            'deadline' => '04:00',
+            'priority' => 'high',
+            'is_completed' => false,
+        ]);
+
+        // At 23:00 on the same night, it is NOT overdue
+        Carbon::setTestNow(Carbon::parse($today . ' 23:00:00'));
+        $this->assertFalse($task->isOverdue());
+
+        // At 02:00 next day, it is STILL NOT overdue
+        Carbon::setTestNow(Carbon::parse($today . ' 02:00:00')->addDay());
+        $this->assertFalse($task->isOverdue());
+
+        // At 04:30 next day (passed 04:00 deadline), it IS overdue
+        Carbon::setTestNow(Carbon::parse($today . ' 04:30:00')->addDay());
+        $this->assertTrue($task->isOverdue());
+
+        Carbon::setTestNow();
+    }
+
     public function test_overdue_task_completion_does_not_increase_streak(): void
     {
         $user = User::factory()->create([

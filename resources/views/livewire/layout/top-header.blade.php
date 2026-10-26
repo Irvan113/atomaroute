@@ -10,11 +10,22 @@ new class extends Component {
     {
         $this->user = auth()->user();
         if ($this->user) {
-            $settlement = $this->user->processDailySettlement();
-            if (!empty($settlement['settled'])) {
-                $this->dispatch('profile-updated');
-                $this->dispatch('toast', message: "✨ Settlement Harian Selesai: +{$settlement['xp']} XP & +{$settlement['coins']} Koin!", type: 'success');
+            $userTz = $this->user->timezone ?? config('app.timezone', 'Asia/Jakarta');
+            $today = \Carbon\Carbon::today($userTz)->toDateString();
+            $lastSettlement = $this->user->last_settlement_date 
+                ? ($this->user->last_settlement_date instanceof \Carbon\Carbon 
+                    ? $this->user->last_settlement_date->toDateString() 
+                    : \Carbon\Carbon::parse($this->user->last_settlement_date)->toDateString())
+                : null;
+
+            if ($lastSettlement !== $today && (int) $this->user->pending_xp > 0) {
+                $settlement = $this->user->processDailySettlement();
+                if (!empty($settlement['settled'])) {
+                    $this->dispatch('profile-updated');
+                    $this->dispatch('toast', message: "✨ Settlement Harian Selesai: +{$settlement['xp']} XP & +{$settlement['coins']} Koin!", type: 'success');
+                }
             }
+
             if (session('secret_protection_activated')) {
                 $this->dispatch('toast', message: "🛡️ Secret Protection Aktif! Dedikasi belajarmu menyelamatkan streak 1x bulan ini.", type: 'info');
             }
@@ -155,7 +166,12 @@ new class extends Component {
                         <img src="{{ asset('images/frames/crown_gold.svg') }}" alt="Crown" class="w-full h-auto object-contain">
                     </div>
                 @endif
-                <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}" class="h-8 w-8 rounded-full {{ $headerFrameClass }} object-cover bg-white shadow-sm transition-all aspect-square shrink-0">
+                <img src="{{ $user->avatar_url }}" 
+                     alt="{{ $user->name }}" 
+                     width="32" 
+                     height="32" 
+                     fetchpriority="high"
+                     class="h-8 w-8 rounded-full {{ $headerFrameClass }} object-cover bg-white shadow-sm transition-all aspect-square shrink-0">
                 @if($user->equipped_badge_details)
                     <div class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-white dark:bg-gray-900 p-0.5 shadow-sm border border-gray-200 dark:border-gray-700 flex items-center justify-center z-20 aspect-square shrink-0">
                         <img src="{{ asset($user->equipped_badge_details['svg_path']) }}" class="w-full h-full object-contain">

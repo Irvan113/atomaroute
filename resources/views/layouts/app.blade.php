@@ -115,14 +115,19 @@
             })();
         </script>
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
+        <!-- Preconnect Critical Origins for Zero-RTT Handshake (Google Avatar LCP & Fonts) -->
+        <link rel="preconnect" href="https://lh3.googleusercontent.com" crossorigin>
+        <link rel="dns-prefetch" href="https://lh3.googleusercontent.com">
+        <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
+        <link rel="dns-prefetch" href="https://fonts.bunny.net">
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+        <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
 
-        <!-- Scripts (data-navigate-once prevents re-evaluation and memory leaks on wire:navigate) -->
-        <script src="https://cdn.jsdelivr.net/npm/chart.js" data-navigate-once></script>
-        <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js" data-navigate-once></script>
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" data-navigate-once></script>
+        <!-- Scripts (defer prevents parser-blocking on the Critical Rendering Path; data-navigate-once prevents re-evaluation) -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js" defer data-navigate-once></script>
+        <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js" defer data-navigate-once></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer data-navigate-once></script>
         
         <script data-navigate-once>
             window.addEventListener('confirm-delete', (e) => {
@@ -322,9 +327,10 @@
         <!-- Global SPA Navigation Progress Bar (Ultra-Smooth, 0% Backend Overhead) -->
         <div id="atoma-nav-progress" class="fixed top-0 left-0 h-[2.5px] w-0 bg-gradient-to-r from-atoma-blue via-atoma-cyan to-indigo-500 z-[9999] transition-all duration-300 ease-out opacity-0 pointer-events-none shadow-[0_0_8px_rgba(62,100,255,0.7)]"></div>
 
-        <!-- Navigation (Left on Desktop, Bottom on Mobile) -->
+        <!-- Navigation (Left on Desktop, Bottom on Mobile - Pre-allocated static width eliminates CLS 1.248) -->
         @persist('atoma-navigation-shell')
-            <aside :class="sidebarCollapsed ? 'flex md:hidden' : 'flex md:flex md:w-20 2xl:w-72 xl:w-64'" class="atoma-bottom-nav fixed bottom-0 w-full md:relative border-t md:border-t-0 md:border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shrink-0 z-30 md:z-10 flex-col h-[calc(4rem+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] md:h-full md:pb-0 transition-all duration-300">
+            <aside :class="sidebarCollapsed ? 'flex md:hidden' : 'flex md:flex md:w-20 2xl:w-72 xl:w-64'" 
+                   class="atoma-bottom-nav fixed bottom-0 w-full md:relative md:w-20 2xl:w-72 xl:w-64 border-t md:border-t-0 md:border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shrink-0 z-30 md:z-10 flex flex-col h-[calc(4rem+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] md:h-full md:pb-0 transition-all duration-300 [contain:layout_style]">
                 <livewire:layout.navigation />
             </aside>
         @endpersist

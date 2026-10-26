@@ -98,6 +98,7 @@ new #[Layout('layouts.app')] class extends Component {
             default => 30
         };
 
+        \Illuminate\Support\Facades\Cache::forget('admin_sub_summary_stats');
         $this->dispatch('toast', message: "✅ Berhasil memberikan PRO ({$days} hari) untuk {$targetUser->name}!", type: 'success');
     }
 
@@ -153,6 +154,7 @@ new #[Layout('layouts.app')] class extends Component {
             paymentMethod: $this->modalPaymentMethod
         );
 
+        \Illuminate\Support\Facades\Cache::forget('admin_sub_summary_stats');
         $this->closeCustomModal();
         $this->dispatch('toast', message: "✅ Paket PRO untuk {$targetUser->name} berhasil diperbarui!", type: 'success');
     }
@@ -163,6 +165,7 @@ new #[Layout('layouts.app')] class extends Component {
         if (!$targetUser) return;
 
         $targetUser->revokePro('Dicabut oleh Administrator ' . auth()->user()->name, auth()->user());
+        \Illuminate\Support\Facades\Cache::forget('admin_sub_summary_stats');
         $this->dispatch('toast', message: "Status PRO {$targetUser->name} telah dicabut (kembali ke Free).", type: 'info');
     }
 
@@ -229,20 +232,26 @@ new #[Layout('layouts.app')] class extends Component {
                 </p>
             </div>
 
-            {{-- Quick Summary Badges --}}
+            {{-- Quick Summary Badges (Cached for 60s to reduce TTFB) --}}
             @php
-                $totalProActive = User::where('subscription_tier', 'pro')
-                    ->where(function($q) {
-                        $q->whereNull('subscription_expires_at')->orWhere('subscription_expires_at', '>', now());
-                    })->count();
-
-                $expiringSoon = User::where('subscription_tier', 'pro')
-                    ->where('subscription_expires_at', '>', now())
-                    ->where('subscription_expires_at', '<=', now()->addDays(3))
-                    ->count();
-
-                $totalRevenue = SubscriptionTransaction::sum('amount');
-                $totalTrxCount = SubscriptionTransaction::count();
+                $subStats = \Illuminate\Support\Facades\Cache::remember('admin_sub_summary_stats', 60, function () {
+                    return [
+                        'totalProActive' => User::where('subscription_tier', 'pro')
+                            ->where(function($q) {
+                                $q->whereNull('subscription_expires_at')->orWhere('subscription_expires_at', '>', now());
+                            })->count(),
+                        'expiringSoon' => User::where('subscription_tier', 'pro')
+                            ->where('subscription_expires_at', '>', now())
+                            ->where('subscription_expires_at', '<=', now()->addDays(3))
+                            ->count(),
+                        'totalRevenue' => SubscriptionTransaction::sum('amount'),
+                        'totalTrxCount' => SubscriptionTransaction::count(),
+                    ];
+                });
+                $totalProActive = $subStats['totalProActive'];
+                $expiringSoon = $subStats['expiringSoon'];
+                $totalRevenue = $subStats['totalRevenue'];
+                $totalTrxCount = $subStats['totalTrxCount'];
             @endphp
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 shrink-0">
                 <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-white/10 text-center">

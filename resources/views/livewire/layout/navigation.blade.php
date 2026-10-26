@@ -202,7 +202,12 @@ new class extends Component {
                 </div>
             @endif
             <a href="{{ route('profile') }}" wire:navigate class="h-12 w-12 xl:h-20 xl:w-20 aspect-square shrink-0 rounded-full {{ $navFrameClass }} flex items-center justify-center text-atoma-blue text-2xl font-bold bg-white overflow-hidden transition-colors cursor-pointer group block">
-                <img src="{{ $user->avatar_url }}" alt="Avatar" class="w-full h-full object-cover group-hover:scale-105 transition-transform aspect-square">
+                <img src="{{ $user->avatar_url }}" 
+                     alt="Avatar" 
+                     width="80" 
+                     height="80" 
+                     fetchpriority="high"
+                     class="w-full h-full object-cover group-hover:scale-105 transition-transform aspect-square">
             </a>
             @if($user->equipped_badge_details)
                 <div class="absolute bottom-0 right-0 w-4 h-4 xl:w-6 xl:h-6 aspect-square shrink-0 rounded-full bg-white dark:bg-gray-900 p-0.5 xl:p-1 shadow-sm border border-gray-200 dark:border-gray-700 flex items-center justify-center z-10">
@@ -301,8 +306,8 @@ new class extends Component {
         </button>
     </div>
 
-    <!-- Navigation Links -->
-    <div class="flex-1 px-1.5 sm:px-2 md:px-2 xl:px-5 flex md:flex-col justify-around md:justify-start space-x-0.5 sm:space-x-1 md:space-x-0 md:space-y-1 h-16 md:h-auto items-center md:items-stretch overflow-y-hidden md:overflow-y-auto">
+    <!-- Navigation Links (Contained layout boundaries eliminate CLS 1.248 & isolate reflow) -->
+    <div class="flex-1 px-1.5 sm:px-2 md:px-2 xl:px-5 flex md:flex-col justify-around md:justify-start space-x-0.5 sm:space-x-1 md:space-x-0 md:space-y-1 h-16 md:h-auto items-center md:items-stretch overflow-y-hidden md:overflow-y-auto [contain:layout_style]">
         <!-- Main Navigation Section Header -->
         <div class="hidden xl:block px-3 pt-1 pb-1 text-[10px] font-black uppercase tracking-wider text-gray-400 dark:text-gray-500 select-none">
             {{ __('Menu Utama') }}

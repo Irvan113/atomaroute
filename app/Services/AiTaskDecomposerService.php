@@ -15,11 +15,21 @@ class AiTaskDecomposerService
     public static function decompose(string $prompt, ?string $selectedDate = null): array
     {
         $cleanPrompt = trim($prompt);
+        $userTz = auth()->user()->timezone ?? config('app.timezone', 'Asia/Jakarta');
+        $now = now()->timezone($userTz);
+        $anchorDate = $selectedDate ?: $now->toDateString();
+        $dateFormatted = Carbon::parse($anchorDate, $userTz)->translatedFormat('l, d F Y');
+
+        $timeAnchor = "Referensi Waktu Saat Ini: {$now->translatedFormat('l, d F Y H:i')} WIB (ISO: {$now->toDateTimeString()}). "
+                    . "Tanggal Target Tugas: {$dateFormatted} (ISO: {$anchorDate}). "
+                    . "PANDUAN WAKTU & TANGGAL: Jika pengguna menyebut 'malam ini', 'nanti malam', 'siang ini', atau 'pagi ini', WAJIB kaitkan dengan tanggal {$anchorDate}. "
+                    . "Jika waktu pelaksanaan melewati tengah malam (misal 22:00 - 04:00), jadwalkan start_time pada 22:00 dan deadline pada 04:00 (+1 hari lintas malam).";
+
         $apiKey = config('services.gemini.key') ?? env('GEMINI_API_KEY') ?? '';
 
         // Attempt Gemini API if available and quota not exceeded
         if ($apiKey && !Cache::get('gemini_quota_reset_time')) {
-            $promptText = "Kamu adalah ATOMA Productivity AI. Pecah tujuan atau ide tugas berikut menjadi rencana kerja terstruktur dengan langkah-langkah yang sangat spesifik dan aplikatif: '{$cleanPrompt}'.
+            $promptText = "Kamu adalah ATOMA Productivity AI. {$timeAnchor}\nPecah tujuan atau ide tugas berikut menjadi rencana kerja terstruktur dengan langkah-langkah yang sangat spesifik dan aplikatif: '{$cleanPrompt}'.
 Kembalikan HANYA JSON murni (tanpa markdown backticks) dengan format:
 {
   \"title\": \"Judul ringkas & actionable (maks 60 karakter)\",

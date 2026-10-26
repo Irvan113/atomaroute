@@ -54,7 +54,7 @@ class Task extends Model
     }
 
     /**
-     * Determine if this task is overdue (either scheduled before today or today's deadline has passed).
+     * Determine if this task is overdue (either scheduled before today or deadline has passed, with overnight cross-midnight support).
      */
     public function isOverdue(?\Carbon\Carbon $now = null): bool
     {
@@ -62,20 +62,36 @@ class Task extends Model
             return (bool) $this->is_completed_overdue;
         }
 
-        $now = $now ?? now();
-        $today = \Carbon\Carbon::today();
+        $userTz = $this->user?->timezone ?? config('app.timezone', 'Asia/Jakarta');
+        $now = $now ? $now->copy()->timezone($userTz) : \Carbon\Carbon::now($userTz);
+        $today = \Carbon\Carbon::today($userTz);
 
         if ($this->date) {
-            $taskDate = \Carbon\Carbon::parse($this->date)->startOfDay();
-            if ($taskDate->isBefore($today)) {
-                return true;
-            }
-            if ($taskDate->isSameDay($today) && $this->deadline) {
-                $taskDateStr = $this->date instanceof \Carbon\Carbon ? $this->date->format('Y-m-d') : \Carbon\Carbon::parse($this->date)->format('Y-m-d');
-                $deadlineTime = \Carbon\Carbon::parse($taskDateStr . ' ' . $this->deadline);
+            $taskDateStr = $this->date instanceof \Carbon\Carbon ? $this->date->format('Y-m-d') : \Carbon\Carbon::parse($this->date)->format('Y-m-d');
+            $taskDate = \Carbon\Carbon::parse($taskDateStr, $userTz)->startOfDay();
+
+            if ($this->deadline) {
+                $deadlineTime = \Carbon\Carbon::parse($taskDateStr . ' ' . $this->deadline, $userTz);
+
+                // Overnight detection (e.g. 22:00 - 04:00): if deadline time is <= start_time, the deadline extends into +1 day (next morning)
+                if ($this->start_time) {
+                    $startTime = \Carbon\Carbon::parse($taskDateStr . ' ' . $this->start_time, $userTz);
+                    if ($deadlineTime->lessThanOrEqualTo($startTime)) {
+                        $deadlineTime->addDay();
+                    }
+                }
+
+                // If deadline passed, it's overdue
                 if ($now->isAfter($deadlineTime)) {
                     return true;
                 }
+
+                // If deadline has not passed yet, it is not overdue
+                return false;
+            }
+
+            if ($taskDate->isBefore($today)) {
+                return true;
             }
         }
 

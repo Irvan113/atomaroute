@@ -1372,6 +1372,7 @@ new #[Layout('layouts.app')] class extends Component {
             $this->generateNextRecurrence($task);
             $this->dispatch('play-sound', type: $task->is_completed_overdue ? 'warning' : 'success');
             $this->dispatch('cancel-reminder', id: (int)$task->id);
+            $this->dispatch('task-toggled', id: (int)$task->id, completed: true);
             $this->dispatch('native-notify', [
                 'title' => '🎉 Tugas Selesai!',
                 'body' => $task->title . ' telah diselesaikan.',
@@ -1458,6 +1459,7 @@ new #[Layout('layouts.app')] class extends Component {
         } else {
             $this->updateStreak(false, $task);
             \App\Services\TaskXpService::revertTaskCompletion($task, auth()->user());
+            $this->dispatch('task-toggled', id: (int)$task->id, completed: false);
             $this->dispatch('profile-updated');
             $this->dispatch('toast', message: 'Status tugas dibatalkan.', type: 'info');
         }
@@ -2114,6 +2116,7 @@ new #[Layout('layouts.app')] class extends Component {
                 $this->generateNextRecurrence($task);
                 $this->dispatch('play-sound', type: $task->is_completed_overdue ? 'warning' : 'success');
                 $this->dispatch('cancel-reminder', id: (int)$task->id);
+                $this->dispatch('task-toggled', id: (int)$task->id, completed: true);
                 $this->dispatch('native-notify', [
                     'title' => '🎉 Tugas Selesai!',
                     'body' => $task->title . ' telah diselesaikan.',
@@ -2131,6 +2134,7 @@ new #[Layout('layouts.app')] class extends Component {
 
                 $this->updateStreak(false, $task);
                 \App\Services\TaskXpService::revertTaskCompletion($task, auth()->user());
+                $this->dispatch('task-toggled', id: (int)$task->id, completed: false);
                 $this->dispatch('profile-updated');
                 $this->dispatch('toast', message: 'Status tugas dibatalkan.', type: 'info');
 
@@ -3530,7 +3534,7 @@ new #[Layout('layouts.app')] class extends Component {
     }
 }; ?>
 
-<div class="relative pb-24"
+<div class="relative pb-24 [contain:layout]"
      x-data="{}"
      x-init="
         try {
@@ -3838,9 +3842,9 @@ new #[Layout('layouts.app')] class extends Component {
         </div>
 
         <!-- Full Calendar Modal -->
-        <div x-show="showCalendarModal" style="display: none;" class="relative z-50">
-            <div x-show="showCalendarModal" x-transition.opacity class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm"></div>
-            <div x-show="showCalendarModal" x-transition class="fixed inset-0 flex items-center justify-center p-4">
+        <div x-show="showCalendarModal" x-cloak style="display: none;" class="relative z-50">
+            <div x-show="showCalendarModal" x-cloak x-transition.opacity class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm"></div>
+            <div x-show="showCalendarModal" x-cloak x-transition class="fixed inset-0 flex items-center justify-center p-4">
                 <div @click.away="showCalendarModal = false" class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl w-full max-w-md border border-gray-100 dark:border-gray-700">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg font-bold text-gray-900 dark:text-white">
@@ -3948,9 +3952,9 @@ new #[Layout('layouts.app')] class extends Component {
         </div>
 
         <!-- Mode Selection Modal -->
-        <div x-show="showModeModal" style="display: none;" class="relative z-50">
-            <div x-show="showModeModal" x-transition.opacity class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm"></div>
-            <div x-show="showModeModal" x-transition class="fixed inset-0 flex items-center justify-center p-4">
+        <div x-show="showModeModal" x-cloak style="display: none;" class="relative z-50">
+            <div x-show="showModeModal" x-cloak x-transition.opacity class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm"></div>
+            <div x-show="showModeModal" x-cloak x-transition class="fixed inset-0 flex items-center justify-center p-4">
                 <div @click.away="showModeModal = false" class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl w-full max-w-sm border border-gray-100 dark:border-gray-700">
                     <div class="flex justify-between items-center mb-5">
                         <h3 class="text-lg font-bold text-gray-900 dark:text-white">
@@ -4112,7 +4116,7 @@ new #[Layout('layouts.app')] class extends Component {
             </div>
 
             <!-- Collapsible Search & Filter Toolbar Box -->
-            <div x-show="showFilterBar" 
+            <div x-show="showFilterBar" x-cloak
                  x-transition:enter="transition ease-out duration-200"
                  x-transition:enter-start="opacity-0 -translate-y-2"
                  x-transition:enter-end="opacity-100 translate-y-0"
@@ -4166,7 +4170,7 @@ new #[Layout('layouts.app')] class extends Component {
                             </button>
 
                             <!-- Mobile Bottom Sheet (Sleek, thumb-friendly, anti-clipping) -->
-                            <div x-show="openSort" 
+                            <div x-show="openSort" x-cloak
                                  x-transition:enter="transition ease-out duration-200"
                                  x-transition:enter-start="opacity-0"
                                  x-transition:enter-end="opacity-100"
@@ -4217,7 +4221,7 @@ new #[Layout('layouts.app')] class extends Component {
                             </div>
 
                             <!-- Desktop Floating Dropdown Menu (Clean, aligned left-0) -->
-                            <div x-show="openSort" 
+                            <div x-show="openSort" x-cloak
                                  x-transition:enter="transition ease-out duration-150"
                                  x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
                                  x-transition:enter-end="opacity-100 scale-100 translate-y-0"
@@ -4280,7 +4284,7 @@ new #[Layout('layouts.app')] class extends Component {
                     </button>
 
                     <!-- Mobile Bottom Sheet for Priority -->
-                    <div x-show="openPriority" 
+                    <div x-show="openPriority" x-cloak
                          x-transition:enter="transition ease-out duration-200"
                          x-transition:enter-start="opacity-0"
                          x-transition:enter-end="opacity-100"
@@ -4331,7 +4335,7 @@ new #[Layout('layouts.app')] class extends Component {
                     </div>
 
                     <!-- Desktop Floating Menu for Priority -->
-                    <div x-show="openPriority" 
+                    <div x-show="openPriority" x-cloak
                          x-transition:enter="transition ease-out duration-150"
                          x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
                          x-transition:enter-end="opacity-100 scale-100 translate-y-0"
@@ -4374,7 +4378,7 @@ new #[Layout('layouts.app')] class extends Component {
                         </button>
 
                         <!-- Mobile Bottom Sheet for Category -->
-                        <div x-show="openCategory" 
+                        <div x-show="openCategory" x-cloak
                              x-transition:enter="transition ease-out duration-200"
                              x-transition:enter-start="opacity-0"
                              x-transition:enter-end="opacity-100"
@@ -4439,7 +4443,7 @@ new #[Layout('layouts.app')] class extends Component {
                         </div>
 
                         <!-- Desktop Floating Menu for Category -->
-                        <div x-show="openCategory" 
+                        <div x-show="openCategory" x-cloak
                              x-transition:enter="transition ease-out duration-150"
                              x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
                              x-transition:enter-end="opacity-100 scale-100 translate-y-0"
@@ -4498,7 +4502,7 @@ new #[Layout('layouts.app')] class extends Component {
                     </button>
 
                     <!-- Mobile Bottom Sheet for Status -->
-                    <div x-show="openStatus" 
+                    <div x-show="openStatus" x-cloak
                          x-transition:enter="transition ease-out duration-200"
                          x-transition:enter-start="opacity-0"
                          x-transition:enter-end="opacity-100"
@@ -4549,7 +4553,7 @@ new #[Layout('layouts.app')] class extends Component {
                     </div>
 
                     <!-- Desktop Floating Menu for Status -->
-                    <div x-show="openStatus" 
+                    <div x-show="openStatus" x-cloak
                          x-transition:enter="transition ease-out duration-150"
                          x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
                          x-transition:enter-end="opacity-100 scale-100 translate-y-0"
@@ -8007,6 +8011,29 @@ new #[Layout('layouts.app')] class extends Component {
                             Notification.requestPermission().catch(() => {});
                         }, 2500);
                     }
+
+                    // Event-driven listener: immediately purge/update task status when toggled or cancelled
+                    window.addEventListener('cancel-reminder', (e) => {
+                        const raw = e.detail;
+                        const detail = Array.isArray(raw) ? (raw[0] || {}) : (raw || {});
+                        const id = detail.id || detail;
+                        if (id && this.tasks) {
+                            const found = this.tasks.find(t => String(t.id) === String(id));
+                            if (found) found.is_completed = true;
+                        }
+                    });
+
+                    window.addEventListener('task-toggled', (e) => {
+                        const raw = e.detail;
+                        const detail = Array.isArray(raw) ? (raw[0] || {}) : (raw || {});
+                        const id = detail.id || detail;
+                        const completed = detail.completed !== undefined ? detail.completed : true;
+                        if (id && this.tasks) {
+                            const found = this.tasks.find(t => String(t.id) === String(id));
+                            if (found) found.is_completed = completed;
+                        }
+                    });
+
                     this.checkNotifications();
                     setInterval(() => {
                         this.checkNotifications();
@@ -8046,10 +8073,20 @@ new #[Layout('layouts.app')] class extends Component {
                             }
                         }
 
-                        // 2. Check Deadline (10 min before & Expired)
+                        // 2. Check Deadline (10 min before & Expired) with Overnight (+1 day) detection
                         if (task.deadline) {
                             const parts = task.deadline.split(':').map(Number);
-                            const deadlineTotalMin = parts[0] * 60 + (parts[1] || 0);
+                            let deadlineTotalMin = parts[0] * 60 + (parts[1] || 0);
+
+                            // Overnight task detection (e.g. 22:00 - 04:00)
+                            if (task.start_time) {
+                                const sParts = task.start_time.split(':').map(Number);
+                                const startTotalMin = sParts[0] * 60 + (sParts[1] || 0);
+                                if (deadlineTotalMin <= startTotalMin) {
+                                    deadlineTotalMin += 1440; // Next morning (+24h)
+                                }
+                            }
+
                             const diffDeadline = deadlineTotalMin - currentTotalMin;
                             const warnKey = `notified_warn_${task.id}_${todayStr}`;
                             const expKey = `notified_exp_${task.id}_${todayStr}`;
