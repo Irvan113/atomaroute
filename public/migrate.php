@@ -25,7 +25,7 @@ echo "<style>
 echo "<h2>🐬 ATOMA SQLite ke MySQL Migrator</h2>";
 
 try {
-    // 1. Perbaiki urutan migration likes dan posts jika masih tanggal lama
+    // 1. Perbaiki urutan migration likes dan posts secara otomatis
     $oldLikeMig = $baseDir . '/database/migrations/2026_07_05_025535_create_likes_table.php';
     $newLikeMig = $baseDir . '/database/migrations/2026_07_05_025536_create_likes_table.php';
     if (file_exists($oldLikeMig)) {
@@ -46,7 +46,12 @@ try {
     $kernel = $app->make(\Illuminate\Contracts\Console\Kernel::class);
     $kernel->bootstrap();
 
-    // 4. Bersihkan tabel likes yang macet di MySQL dan buat semua tabel fresh di MySQL
+    // 4. KUNCI: Paksa koneksi SQLite agar membaca file fisik database.sqlite
+    // (Mencegah error 'Database file at path [nama_mysql] does not exist')
+    config(['database.connections.sqlite.database' => $baseDir . '/database/database.sqlite']);
+    \Illuminate\Support\Facades\DB::purge('sqlite');
+
+    // 5. Bersihkan tabel di MySQL dan buat semua tabel fresh di MySQL
     \Illuminate\Support\Facades\DB::connection('mysql')->statement('SET FOREIGN_KEY_CHECKS=0;');
     
     // Jalankan migrate:fresh khusus pada database MySQL (SQLite tidak disentuh sama sekali)
@@ -56,7 +61,7 @@ try {
     ]);
     echo "<div class='step'><span class='success'>✅ Seluruh struktur 43 tabel MySQL berhasil dibuat bersih tanpa bentrok foreign key!</span></div>";
 
-    // 5. Salin data dari SQLite ke MySQL
+    // 6. Salin data dari SQLite ke MySQL
     $sqliteTables = \Illuminate\Support\Facades\Schema::connection('sqlite')->getTableListing();
     $totalRecords = 0;
     $details = [];
@@ -77,7 +82,7 @@ try {
     }
     \Illuminate\Support\Facades\DB::connection('mysql')->statement('SET FOREIGN_KEY_CHECKS=1;');
 
-    // 6. Bersihkan cache
+    // 7. Bersihkan cache
     \Illuminate\Support\Facades\Artisan::call('optimize:clear');
 
     echo "<div class='step'><span class='success'>✅ <b>{$totalRecords} baris data</b> (akun user, task, journal, level, XP) berhasil dipindahkan ke MySQL!</span>";
