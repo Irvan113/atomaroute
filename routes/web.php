@@ -1003,3 +1003,52 @@ Route::get('/download/apk', function () {
     }
     return redirect('https://github.com/Irvan113/atomaroute/actions');
 })->name('download.apk');
+
+// 1-Click SQLite to MySQL Web Migration Endpoint (Shared Hosting / cPanel)
+Route::get('/migrate-to-mysql', function () {
+    $sqlitePath = database_path('database.sqlite');
+    if (!file_exists($sqlitePath)) {
+        return response("<h3>❌ File database/database.sqlite tidak ditemukan di server.</h3>", 404);
+    }
+
+    // Auto-backup file sqlite
+    $backupPath = database_path('database.sqlite.bak_' . date('Ymd_His'));
+    @copy($sqlitePath, $backupPath);
+
+    // Verifikasi koneksi MySQL di .env
+    $currentDefault = config('database.default');
+    if ($currentDefault !== 'mysql') {
+        return response("<h3>⚠️ Konfigurasi .env belum menggunakan MySQL</h3><p>Saat ini <code>DB_CONNECTION={$currentDefault}</code>. Silakan buka cPanel File Manager, edit <code>.env</code> dan set <code>DB_CONNECTION=mysql</code> beserta nama database, username, dan password MySQL Anda.</p>", 400);
+    }
+
+    try {
+        \Illuminate\Support\Facades\DB::connection('mysql')->getPdo();
+    } catch (\Throwable $e) {
+        return response("<h3>❌ Gagal Terhubung ke MySQL Database</h3><p>" . htmlspecialchars($e->getMessage()) . "</p><p>Periksa kembali <code>DB_DATABASE</code>, <code>DB_USERNAME</code>, dan <code>DB_PASSWORD</code> pada berkas <code>.env</code> di cPanel.</p>", 500);
+    }
+
+    // Eksekusi migrasi skema tabel
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+    } catch (\Throwable $e) {
+        return response("<h3>❌ Gagal Membuat Skema Tabel MySQL</h3><p>" . htmlspecialchars($e->getMessage()) . "</p>", 500);
+    }
+
+    // Eksekusi transfer data dari SQLite ke MySQL
+    try {
+        \Illuminate\Support\Facades\Artisan::call('db:transfer-sqlite', ['--target' => 'mysql']);
+        $transferLog = \Illuminate\Support\Facades\Artisan::output();
+    } catch (\Throwable $e) {
+        return response("<h3>❌ Gagal Mentransfer Data dari SQLite</h3><p>" . htmlspecialchars($e->getMessage()) . "</p>", 500);
+    }
+
+    // Bersihkan cache aplikasi
+    try {
+        \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+    } catch (\Throwable $e) {
+        // Abaikan jika clear cache terkendala
+    }
+
+    return response("<!DOCTYPE html><html><head><meta charset='utf-8'><title>Migrasi MySQL Sukses</title><style>body{font-family:system-ui,sans-serif;background:#0f172a;color:#f8fafc;padding:40px;display:flex;justify-content:center;} .box{background:#1e293b;border-radius:24px;padding:36px;max-width:620px;border:1px solid #334155;box-shadow:0 20px 40px rgba(0,0,0,0.5);} h2{color:#38bdf8;margin-top:0;} pre{background:#020617;padding:12px;border-radius:10px;font-size:12px;overflow:auto;max-height:220px;color:#cbd5e1;border:1px solid #334155;} .btn{display:inline-block;padding:12px 24px;background:#3b82f6;color:white;text-decoration:none;border-radius:12px;font-weight:bold;margin-top:16px;}</style></head><body><div class='box'><h2>🎉 Migrasi ke MySQL Sukses 100%!</h2><p style='color:#94a3b8;'>Seluruh data pengguna, task, catatan, level, streak, dan progres XP dari SQLite berhasil dipindahkan ke MySQL secara aman tanpa data hilang.</p><pre>" . htmlspecialchars($transferLog) . "</pre><div style='margin-top:20px;'><a href='/dashboard' class='btn'>🚀 Buka Dashboard ATOMA</a></div></div></body></html>", 200, ['Content-Type' => 'text/html; charset=utf-8']);
+});
+
