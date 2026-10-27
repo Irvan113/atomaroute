@@ -1,4 +1,4 @@
-const CACHE_NAME = 'atoma-pwa-v3';
+const CACHE_NAME = 'atoma-pwa-v4';
 const STATIC_ASSETS = [
   '/',
   '/offline.html',

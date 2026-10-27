@@ -159,7 +159,7 @@ new #[Layout('layouts.app')] class extends Component {
         $pendingFeedbacks = UserFeedback::where('status', 'pending')->count();
         $resolvedFeedbacks = UserFeedback::where('status', 'resolved')->count();
 
-        $tasksCompletedToday = Task::where('is_completed', true)->whereDate('completed_at', today())->count();
+        $tasksCompletedToday = Task::where('is_completed', true)->whereDate('updated_at', today())->count();
         $focusMinutesToday = (int) FocusSession::whereDate('created_at', today())->sum('minutes');
 
         $isSpotifyConfigured = !empty(config('services.spotify.client_id')) && !empty(config('services.spotify.client_secret'));
