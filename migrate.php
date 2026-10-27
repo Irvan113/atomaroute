@@ -25,14 +25,14 @@ echo "<style>
 echo "<h2>🐬 ATOMA SQLite ke MySQL Migrator</h2>";
 
 try {
-    // 1. Perbaiki urutan migration likes dan posts secara otomatis
+    // 1. Perbaiki urutan migration likes dan posts
     $oldLikeMig = $baseDir . '/database/migrations/2026_07_05_025535_create_likes_table.php';
     $newLikeMig = $baseDir . '/database/migrations/2026_07_05_025536_create_likes_table.php';
     if (file_exists($oldLikeMig)) {
         @rename($oldLikeMig, $newLikeMig);
     }
 
-    // 2. Backup SQLite otomatis untuk jaminan keamanan
+    // 2. Backup SQLite otomatis
     $sqliteFile = $baseDir . '/database/database.sqlite';
     if (file_exists($sqliteFile)) {
         $backup = $baseDir . '/database/database.sqlite.bak_' . date('Ymd_His');
@@ -46,30 +46,49 @@ try {
     $kernel = $app->make(\Illuminate\Contracts\Console\Kernel::class);
     $kernel->bootstrap();
 
-    // 4. KUNCI: Paksa koneksi SQLite agar membaca file fisik database.sqlite
-    // (Mencegah error 'Database file at path [nama_mysql] does not exist')
+    // 4. Paksa koneksi SQLite membaca database.sqlite secara absolut
     config(['database.connections.sqlite.database' => $baseDir . '/database/database.sqlite']);
     \Illuminate\Support\Facades\DB::purge('sqlite');
 
-    // 5. Bersihkan tabel di MySQL dan buat semua tabel fresh di MySQL
-    \Illuminate\Support\Facades\DB::connection('mysql')->statement('SET FOREIGN_KEY_CHECKS=0;');
-    
-    // Jalankan migrate:fresh khusus pada database MySQL (SQLite tidak disentuh sama sekali)
+    // 5. Buat struktur tabel fresh di MySQL
     \Illuminate\Support\Facades\Artisan::call('migrate:fresh', [
         '--database' => 'mysql',
         '--force' => true,
     ]);
-    echo "<div class='step'><span class='success'>✅ Seluruh struktur 43 tabel MySQL berhasil dibuat bersih tanpa bentrok foreign key!</span></div>";
+    echo "<div class='step'><span class='success'>✅ Seluruh struktur 43 tabel MySQL berhasil dibuat bersih!</span></div>";
 
-    // 6. Salin data dari SQLite ke MySQL
-    $sqliteTables = \Illuminate\Support\Facades\Schema::connection('sqlite')->getTableListing();
+    // 6. Matikan Foreign Key Checks pada sesi PDO MySQL langsung
+    $mysqlPdo = \Illuminate\Support\Facades\DB::connection('mysql')->getPdo();
+    $mysqlPdo->exec('SET FOREIGN_KEY_CHECKS=0;');
+
+    // 7. Ambil daftar tabel dari SQLite
+    $rawTables = \Illuminate\Support\Facades\Schema::connection('sqlite')->getTableListing();
+    $tables = [];
+    foreach ($rawTables as $rawTable) {
+        $table = str_replace(['main.', '"', '`'], '', $rawTable);
+        if (in_array($table, ['sqlite_sequence', 'sqlite_master', 'sqlite_stat1', 'migrations'])) continue;
+        $tables[] = $table;
+    }
+
+    // KUNCI: Prioritaskan tabel induk (users, posts, tasks, skills) dipindahkan lebih dulu!
+    $priority = ['users', 'posts', 'tasks', 'skills', 'skill_targets'];
+    usort($tables, function($a, $b) use ($priority) {
+        $posA = array_search($a, $priority);
+        $posB = array_search($b, $priority);
+        if ($posA !== false && $posB !== false) return $posA - $posB;
+        if ($posA !== false) return -1;
+        if ($posB !== false) return 1;
+        return strcmp($a, $b);
+    });
+
     $totalRecords = 0;
     $details = [];
 
-    foreach ($sqliteTables as $rawTable) {
-        $table = str_replace(['main.', '"', '`'], '', $rawTable);
-        if (in_array($table, ['sqlite_sequence', 'sqlite_master', 'sqlite_stat1', 'migrations'])) continue;
+    foreach ($tables as $table) {
         if (!\Illuminate\Support\Facades\Schema::connection('mysql')->hasTable($table)) continue;
+
+        // Pastikan foreign keys tetap mati di setiap tabel
+        $mysqlPdo->exec('SET FOREIGN_KEY_CHECKS=0;');
 
         $rows = \Illuminate\Support\Facades\DB::connection('sqlite')->table($table)->get();
         if ($rows->isNotEmpty()) {
@@ -80,12 +99,14 @@ try {
             $details[] = "• {$table}: {$count} data disalin";
         }
     }
-    \Illuminate\Support\Facades\DB::connection('mysql')->statement('SET FOREIGN_KEY_CHECKS=1;');
 
-    // 7. Bersihkan cache
+    // Aktifkan kembali Foreign Key Checks
+    $mysqlPdo->exec('SET FOREIGN_KEY_CHECKS=1;');
+
+    // 8. Bersihkan cache
     \Illuminate\Support\Facades\Artisan::call('optimize:clear');
 
-    echo "<div class='step'><span class='success'>✅ <b>{$totalRecords} baris data</b> (akun user, task, journal, level, XP) berhasil dipindahkan ke MySQL!</span>";
+    echo "<div class='step'><span class='success'>✅ <b>{$totalRecords} baris data</b> (users, task, journal, level, XP, AI logs) berhasil dipindahkan ke MySQL!</span>";
     if (!empty($details)) {
         echo "<pre>" . implode("\n", $details) . "</pre>";
     }
