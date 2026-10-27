@@ -68,12 +68,16 @@ try {
     $mysqlPdo = \Illuminate\Support\Facades\DB::connection('mysql')->getPdo();
     $mysqlPdo->exec('SET FOREIGN_KEY_CHECKS=0;');
 
-    // 7. Ambil daftar tabel dari SQLite
+    // 7. Ambil daftar tabel dari SQLite (Abaikan tabel sistem, session, dan cache sementara)
     $rawTables = \Illuminate\Support\Facades\Schema::connection('sqlite')->getTableListing();
     $tables = [];
+    $ignoredTables = [
+        'sqlite_sequence', 'sqlite_master', 'sqlite_stat1', 'migrations',
+        'sessions', 'cache', 'cache_locks', 'jobs', 'failed_jobs', 'job_batches'
+    ];
     foreach ($rawTables as $rawTable) {
         $table = str_replace(['main.', '"', '`'], '', $rawTable);
-        if (in_array($table, ['sqlite_sequence', 'sqlite_master', 'sqlite_stat1', 'migrations'])) continue;
+        if (in_array($table, $ignoredTables)) continue;
         $tables[] = $table;
     }
 
@@ -109,6 +113,11 @@ try {
 
     // Aktifkan kembali Foreign Key Checks setelah semua data masuk
     $mysqlPdo->exec('SET FOREIGN_KEY_CHECKS=1;');
+
+    // Kosongkan tabel sessions agar tidak ada sesi login kadaluarsa yang tertinggal
+    if (\Illuminate\Support\Facades\Schema::connection('mysql')->hasTable('sessions')) {
+        \Illuminate\Support\Facades\DB::connection('mysql')->table('sessions')->truncate();
+    }
 
     // 8. Bersihkan cache
     \Illuminate\Support\Facades\Artisan::call('optimize:clear');
