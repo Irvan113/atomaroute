@@ -40,6 +40,7 @@ $login = function () {
         </a>
         <script>
             (function() {
+                try { sessionStorage.removeItem('atoma_pwa_dismissed'); } catch(e){}
                 var btn = document.getElementById('google-login-btn');
                 var origin = (window.location.origin && window.location.origin.indexOf('http') === 0 && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1')
                     ? window.location.origin

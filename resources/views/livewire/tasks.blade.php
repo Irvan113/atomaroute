@@ -5986,15 +5986,14 @@ new #[Layout('layouts.app')] class extends Component {
 
     <!-- Add / Edit Task Modal -->
     @if($showAddTaskModal)
-    <div class="fixed inset-0 z-[100] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <!-- Backdrop Overlay -->
         <div class="fixed inset-0 bg-gray-900/75 backdrop-blur-sm transition-opacity" 
              wire:click="$set('showAddTaskModal', false)"></div>
 
-        <div class="flex min-h-full items-end sm:items-center justify-center p-0 sm:p-4 text-center">
-            <div class="relative transform overflow-hidden rounded-t-3xl sm:rounded-2xl bg-white dark:bg-gray-800 text-left shadow-2xl transition-all w-full sm:max-w-lg border-t sm:border border-gray-100 dark:border-gray-700 z-10 max-h-[92dvh] sm:max-h-[88vh] flex flex-col">
-                    <form wire:submit="saveTask" class="flex flex-col max-h-full">
-                        <div class="bg-white dark:bg-gray-800 p-5 sm:p-6 max-h-[85dvh] sm:max-h-[80vh] overflow-y-auto hide-scrollbar overscroll-contain">
+        <div class="relative transform rounded-t-3xl sm:rounded-2xl bg-white dark:bg-gray-800 text-left shadow-2xl transition-all w-full sm:max-w-lg border-t sm:border border-gray-100 dark:border-gray-700 z-10 max-h-[88dvh] sm:max-h-[85vh] flex flex-col overflow-hidden">
+            <form wire:submit="saveTask" class="flex flex-col flex-1 min-h-0 overflow-hidden">
+                <div class="bg-white dark:bg-gray-800 p-5 sm:p-6 flex-1 min-h-0 overflow-y-auto hide-scrollbar overscroll-contain">
                             <!-- Title Header with Dynamic Mode -->
                             <div class="flex items-center justify-between mb-4">
                                 <h3 class="text-base sm:text-lg font-black text-gray-900 dark:text-white flex items-center gap-2">
@@ -6420,7 +6419,7 @@ new #[Layout('layouts.app')] class extends Component {
                             </div>
                         </div>
 
-                        <div class="bg-gray-50 dark:bg-gray-900/80 px-5 py-3.5 flex items-center justify-end gap-2.5 border-t border-gray-100 dark:border-gray-700 rounded-b-2xl">
+                        <div class="bg-gray-50 dark:bg-gray-900/80 px-5 py-3.5 flex items-center justify-end gap-2.5 border-t border-gray-100 dark:border-gray-700 rounded-b-2xl shrink-0 pb-[max(0.875rem,env(safe-area-inset-bottom,0px))]">
                             <button type="button" wire:click="$set('showAddTaskModal', false)" class="px-4 py-2 text-xs sm:text-sm font-bold text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer">
                                 {{ __('Batal') }}
                             </button>
@@ -6430,7 +6429,6 @@ new #[Layout('layouts.app')] class extends Component {
                         </div>
                     </form>
                 </div>
-            </div>
         </div>
     @endif
 

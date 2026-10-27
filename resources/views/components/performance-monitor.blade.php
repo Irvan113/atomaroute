@@ -5,7 +5,7 @@
      @keydown.window.ctrl.shift.p.prevent="toggleDashboard()"
      class="atoma-perf-monitor select-none font-sans text-xs">
 
-    <!-- 1. Floating Live Telemetry Pill (Bottom-Right) -->
+    <!-- 1. Floating Live Telemetry Pill (Desktop Only - Hidden on Mobile) -->
     <div x-show="showPill" 
          x-transition:enter="transition ease-out duration-200"
          x-transition:enter-start="opacity-0 translate-y-4 scale-95"
@@ -13,7 +13,7 @@
          x-transition:leave="transition ease-in duration-150"
          x-transition:leave-start="opacity-100 translate-y-0 scale-100"
          x-transition:leave-end="opacity-0 translate-y-4 scale-95"
-         class="atoma-perf-monitor fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] md:bottom-4 right-4 z-40 flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-900/90 dark:bg-gray-800/95 text-white shadow-xl border border-gray-700/60 backdrop-blur-md cursor-pointer hover:bg-gray-800 dark:hover:bg-gray-750 transition-all hover:scale-105 active:scale-95 group"
+         class="atoma-perf-monitor fixed bottom-4 right-4 z-40 hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-900/90 dark:bg-gray-800/95 text-white shadow-xl border border-gray-700/60 backdrop-blur-md cursor-pointer hover:bg-gray-800 dark:hover:bg-gray-750 transition-all hover:scale-105 active:scale-95 group"
          @click="toggleDashboard()">
         
         <!-- Live Pulse Indicator -->
@@ -51,12 +51,12 @@
         </button>
     </div>
 
-    <!-- Mini Re-open Button if Pill Hidden -->
+    <!-- Mini Re-open Button if Pill Hidden (Desktop Only - Hidden on Mobile) -->
     <button x-show="!showPill && !showDashboard" 
             x-transition
             @click="showPill = true"
             title="Buka Monitor Kecepatan & Beban Server (Ctrl+Shift+P)"
-            class="fixed bottom-4 right-4 z-40 w-8 h-8 rounded-full bg-gray-900/80 dark:bg-gray-800/90 text-amber-400 shadow-md border border-gray-700/60 flex items-center justify-center text-xs hover:scale-110 active:scale-95 transition-all">
+            class="hidden md:flex fixed bottom-4 right-4 z-40 w-8 h-8 rounded-full bg-gray-900/80 dark:bg-gray-800/90 text-amber-400 shadow-md border border-gray-700/60 items-center justify-center text-xs hover:scale-110 active:scale-95 transition-all">
         ⚡
     </button>
 

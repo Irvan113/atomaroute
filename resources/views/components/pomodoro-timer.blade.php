@@ -29,7 +29,7 @@
      @toggle-pip-window.window="togglePip()"
      @start-pomodoro-task.window="startFocusTask($event.detail)"
      @pomodoro-session-logged.window="fetchTodaySessions()"
-     class="atoma-floating-pomodoro fixed bottom-20 md:bottom-20 right-2 sm:right-4 md:right-8 left-2 sm:left-auto z-[9999] max-w-[calc(100vw-1rem)] sm:max-w-md pointer-events-none flex justify-center sm:block"
+     class="atoma-floating-pomodoro fixed bottom-20 md:bottom-20 right-2 sm:right-4 md:right-8 left-2 sm:left-auto z-35 max-w-[calc(100vw-1rem)] sm:max-w-md pointer-events-none flex justify-center sm:block"
      x-cloak>
     
     <!-- Timer Widget Card (Ultra-Clean, Responsive & Scrollable) -->
@@ -1203,7 +1203,7 @@
          :class="{ 'touch-none cursor-grabbing': isDragging, 'cursor-grab': !isDragging, 'opacity-70 hover:opacity-100': !isRunning && !isYtPlaying && !isAmbientPlaying && settings.alwaysShowFloat }"
          @mousedown="startDrag($event)"
          @touchstart="startDrag($event)"
-         class="fixed z-[9999] pointer-events-auto select-none transition-shadow">
+         class="fixed z-35 pointer-events-auto select-none transition-shadow">
         
         <!-- MODE 1: Ultra-Compact Circular Bubble (48px) -->
         <div x-show="isCompact" 

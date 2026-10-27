@@ -335,7 +335,7 @@
             </aside>
         @endpersist
 
-        <div class="atoma-content-shell flex-1 flex flex-col min-w-0 h-full overflow-hidden relative">
+        <div class="atoma-content-shell flex-1 flex flex-col min-w-0 h-full overflow-hidden relative has-[[aria-modal='true']]:z-50">
             @auth
                 @persist('atoma-top-header')
                     <livewire:layout.top-header />
@@ -1072,7 +1072,7 @@
 
         <!-- In-App PWA Install Prompt Banner (Mobile & Desktop) -->
         <div x-data="{ showInstall: false }"
-             @pwa-installable.window="if (!window.Capacitor?.isNativePlatform?.() && !window.matchMedia('(display-mode: standalone)').matches) showInstall = true"
+             @pwa-installable.window="if (!sessionStorage.getItem('atoma_pwa_dismissed') && !window.Capacitor?.isNativePlatform?.() && !window.matchMedia('(display-mode: standalone)').matches) showInstall = true"
              @pwa-installed.window="showInstall = false"
              x-show="showInstall"
              x-transition:enter="transition ease-out duration-300"
@@ -1094,8 +1094,9 @@
                     Pasang
                 </button>
                 <button type="button" 
-                        @click="showInstall = false" 
-                        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1.5 rounded-lg cursor-pointer">
+                        @click="sessionStorage.setItem('atoma_pwa_dismissed', 'true'); showInstall = false" 
+                        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1.5 rounded-lg cursor-pointer"
+                        title="Tutup banner">
                     ✕
                 </button>
             </div>
