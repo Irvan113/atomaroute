@@ -3825,7 +3825,7 @@ new #[Layout('layouts.app')] class extends Component {
             </button>
 
             <!-- Insights Card -->
-            <a href="{{ route('insights') }}" wire:navigate class="flex flex-col items-center justify-center bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 py-2 sm:py-2.5 px-1 hover:bg-atoma-ice/30 dark:hover:bg-gray-750 hover:border-atoma-cyan/40 transition-all transform hover:scale-[1.02] cursor-pointer text-atoma-cyan min-h-[56px] sm:min-h-[68px]">
+            <a href="{{ route('insights') }}" wire:navigate.hover class="flex flex-col items-center justify-center bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 py-2 sm:py-2.5 px-1 hover:bg-atoma-ice/30 dark:hover:bg-gray-750 hover:border-atoma-cyan/40 transition-all transform hover:scale-[1.02] cursor-pointer text-atoma-cyan min-h-[56px] sm:min-h-[68px]">
                 <div class="h-5 w-5 sm:h-6 sm:w-6 mb-0.5 flex items-center justify-center">
                     <img src="{{ asset('images/icons/feature_insights.svg') }}" alt="Insights" class="w-4.5 h-4.5 sm:w-6 sm:h-6 object-contain">
                 </div>
@@ -3833,7 +3833,7 @@ new #[Layout('layouts.app')] class extends Component {
             </a>
 
             <!-- Milestone Card (Renamed from Skills) -->
-            <a href="{{ route('skills.index') }}" wire:navigate class="flex flex-col items-center justify-center bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 py-2 sm:py-2.5 px-1 hover:bg-atoma-ice/30 dark:hover:bg-gray-750 hover:border-atoma-blue/40 transition-all transform hover:scale-[1.02] cursor-pointer text-atoma-blue dark:text-atoma-cyan min-h-[56px] sm:min-h-[68px]">
+            <a href="{{ route('skills.index') }}" wire:navigate.hover class="flex flex-col items-center justify-center bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 py-2 sm:py-2.5 px-1 hover:bg-atoma-ice/30 dark:hover:bg-gray-750 hover:border-atoma-blue/40 transition-all transform hover:scale-[1.02] cursor-pointer text-atoma-blue dark:text-atoma-cyan min-h-[56px] sm:min-h-[68px]">
                 <div class="h-5 w-5 sm:h-6 sm:w-6 mb-0.5 flex items-center justify-center">
                     <img src="{{ asset('images/icons/feature_milestone.svg') }}" alt="Milestone" class="w-full h-full object-contain">
                 </div>
@@ -4690,7 +4690,7 @@ new #[Layout('layouts.app')] class extends Component {
                             $nextSubTask = $uncompletedSubtasks->count() > 1 ? $uncompletedSubtasks->get(1) : null;
                         @endphp
 
-                        <div wire:key="timeline-task-{{ $task->id }}-{{ $task->is_completed ? 'completed' : 'pending' }}" 
+                        <div wire:key="timeline-task-{{ $task->id }}" 
                              x-data="{ completed: @js((bool)$task->is_completed), showMenu: false, showSubtasks: true, newSubtaskText: '', showAddSubtask: false, subtaskMode: ($store.taskConfig && $store.taskConfig.subtaskMode) ? $store.taskConfig.subtaskMode : 'list' }"
                              class="flex items-start gap-2 sm:gap-3.5 group">
                             
@@ -4707,13 +4707,11 @@ new #[Layout('layouts.app')] class extends Component {
                             <!-- 2. Connector Spine Node Checkbox (Center Column) -->
                             <div class="relative flex flex-col items-center shrink-0 self-stretch pt-0.5" @click.stop>
                                 <button type="button"
-                                        wire:loading.attr="disabled"
-                                        wire:target="toggleComplete({{ $task->id }})"
                                         @if(!$isNotToday) 
                                             @if($this->isWorkoutTask($task) && !$task->is_completed)
                                                 @click="$wire.openWorkoutModal({{ $task->id }})"
                                             @else
-                                                @click="completed = !completed; if (navigator.vibrate) navigator.vibrate(20);"
+                                                @click="completed = !completed; if (navigator.vibrate) navigator.vibrate(20); if (completed && window.playHapticSound) window.playHapticSound('success');"
                                                 wire:click="toggleComplete({{ $task->id }})" 
                                             @endif
                                         @endif
@@ -4995,15 +4993,13 @@ new #[Layout('layouts.app')] class extends Component {
                                             <!-- A. Full Checklist (subtaskMode === 'list') -->
                                             <div x-show="subtaskMode === 'list'" class="space-y-1.5">
                                                 @foreach($subtasks as $subTask)
-                                                    <div wire:key="timeline-subtask-{{ $subTask->id }}-{{ $subTask->is_completed ? 'completed' : 'pending' }}"
+                                                    <div wire:key="timeline-subtask-{{ $subTask->id }}"
                                                          x-data="{ subCompleted: @js((bool)$subTask->is_completed) }"
                                                          class="flex items-start justify-between group/sub py-0.5 rounded-lg px-1 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors gap-2">
                                                         <div class="flex items-start gap-2 min-w-0 flex-1">
                                                             <button type="button"
-                                                                wire:loading.attr="disabled"
-                                                                wire:target="toggleSubTask({{ $task->id }}, {{ $subTask->id }})"
                                                                 @if(!$isNotToday) 
-                                                                    @click.stop="subCompleted = !subCompleted; if (navigator.vibrate) navigator.vibrate(15);"
+                                                                    @click.stop="subCompleted = !subCompleted; if (navigator.vibrate) navigator.vibrate(15); if (subCompleted && window.playHapticSound) window.playHapticSound('pop');"
                                                                     wire:click="toggleSubTask({{ $task->id }}, {{ $subTask->id }})" 
                                                                 @endif 
                                                                 :class="subCompleted ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-gray-300 dark:border-gray-600 hover:border-indigo-400'"
@@ -5053,7 +5049,7 @@ new #[Layout('layouts.app')] class extends Component {
                                                             </div>
                                                             <button type="button" 
                                                                     @if(!$isNotToday) wire:click="toggleSubTask({{ $task->id }}, {{ $currentSubTask->id }})" @endif 
-                                                                    @click.stop
+                                                                    @click.stop="if (navigator.vibrate) navigator.vibrate(15); if (window.playHapticSound) window.playHapticSound('pop');"
                                                                     class="px-3 py-1.5 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white text-xs font-black rounded-xl shadow-xs transition-all cursor-pointer active:scale-95 flex items-center gap-1.5 shrink-0 {{ $isNotToday ? 'cursor-not-allowed opacity-60' : '' }}"
                                                                     {{ $isNotToday ? 'disabled' : '' }}>
                                                                 <span>✓</span>
@@ -5085,13 +5081,11 @@ new #[Layout('layouts.app')] class extends Component {
                                                         </div>
                                                         @if(!$task->is_completed && !$isNotToday)
                                                             <button type="button" 
-                                                                    wire:loading.attr="disabled"
-                                                                    wire:target="toggleComplete({{ $task->id }})"
                                                                     @if($this->isWorkoutTask($task) && !$task->is_completed)
                                                                         @click.stop="$wire.openWorkoutModal({{ $task->id }})"
                                                                     @else
                                                                         wire:click="toggleComplete({{ $task->id }})" 
-                                                                        @click.stop="completed = true; if (navigator.vibrate) navigator.vibrate(20);"
+                                                                        @click.stop="completed = true; if (navigator.vibrate) navigator.vibrate(20); if (window.playHapticSound) window.playHapticSound('success');"
                                                                     @endif
                                                                     class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs rounded-xl shadow-sm transition-all cursor-pointer inline-flex items-center gap-1.5">
                                                                 <span>✓ Selesaikan Tugas Utama Ini</span>
@@ -5182,7 +5176,7 @@ new #[Layout('layouts.app')] class extends Component {
                             $nextSubTask = $uncompletedSubtasks->count() > 1 ? $uncompletedSubtasks->get(1) : null;
                         @endphp
 
-                        <div wire:key="card-task-{{ $task->id }}-{{ $task->is_completed ? 'completed' : 'pending' }}" 
+                        <div wire:key="card-task-{{ $task->id }}" 
                              x-data="{ completed: @js((bool)$task->is_completed), showMenu: false, showSubtasks: true, newSubtaskText: '', showAddSubtask: false, subtaskMode: ($store.taskConfig && $store.taskConfig.subtaskMode) ? $store.taskConfig.subtaskMode : 'list' }"
                              @click="{{ ($isOverdue || $isCompletedOverdue) ? 'return' : '$wire.editTask(' . $task->id . ')' }}"
                              :class="completed ? 'opacity-55' : ''"
@@ -5191,13 +5185,11 @@ new #[Layout('layouts.app')] class extends Component {
                             <div class="flex items-start">
                                 <div class="flex-shrink-0 pt-0.5" @click.stop>
                                     <button 
-                                        wire:loading.attr="disabled"
-                                        wire:target="toggleComplete({{ $task->id }})"
                                         @if(!$isNotToday) 
                                             @if($this->isWorkoutTask($task) && !$task->is_completed)
                                                 @click="$wire.openWorkoutModal({{ $task->id }})"
                                             @else
-                                                @click="completed = !completed; if (navigator.vibrate) navigator.vibrate(20);"
+                                                @click="completed = !completed; if (navigator.vibrate) navigator.vibrate(20); if (completed && window.playHapticSound) window.playHapticSound('success');"
                                                 wire:click="toggleComplete({{ $task->id }})" 
                                             @endif
                                         @endif
@@ -5417,15 +5409,13 @@ new #[Layout('layouts.app')] class extends Component {
                                         <!-- A. Full Checklist (subtaskMode === 'list') -->
                                         <div x-show="subtaskMode === 'list'" class="space-y-1.5">
                                             @foreach($subtasks as $subTask)
-                                                <div wire:key="card-subtask-{{ $subTask->id }}-{{ $subTask->is_completed ? 'completed' : 'pending' }}"
+                                                <div wire:key="card-subtask-{{ $subTask->id }}"
                                                      x-data="{ subCompleted: @js((bool)$subTask->is_completed) }"
                                                      class="flex items-start justify-between group/sub py-0.5 px-1 gap-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors">
                                                     <div class="flex items-start gap-2 min-w-0 flex-1">
                                                         <button type="button"
-                                                            wire:loading.attr="disabled"
-                                                            wire:target="toggleSubTask({{ $task->id }}, {{ $subTask->id }})"
                                                             @if(!$isNotToday) 
-                                                                @click.stop="subCompleted = !subCompleted; if (navigator.vibrate) navigator.vibrate(15);"
+                                                                @click.stop="subCompleted = !subCompleted; if (navigator.vibrate) navigator.vibrate(15); if (subCompleted && window.playHapticSound) window.playHapticSound('pop');"
                                                                 wire:click="toggleSubTask({{ $task->id }}, {{ $subTask->id }})" 
                                                             @endif 
                                                             :class="subCompleted ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-gray-300 dark:border-gray-600 hover:border-indigo-500'"
@@ -5474,7 +5464,7 @@ new #[Layout('layouts.app')] class extends Component {
                                                         </div>
                                                         <button type="button" 
                                                                 @if(!$isNotToday) wire:click="toggleSubTask({{ $task->id }}, {{ $currentSubTask->id }})" @endif 
-                                                                @click.stop
+                                                                @click.stop="if (navigator.vibrate) navigator.vibrate(15); if (window.playHapticSound) window.playHapticSound('pop');"
                                                                 class="px-3 py-1.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-black rounded-xl shadow-xs transition-all cursor-pointer active:scale-95 flex items-center gap-1.5 shrink-0 {{ $isNotToday ? 'cursor-not-allowed opacity-60' : '' }}"
                                                                 {{ $isNotToday ? 'disabled' : '' }}>
                                                             <span>✓</span>
@@ -5506,13 +5496,11 @@ new #[Layout('layouts.app')] class extends Component {
                                                     </div>
                                                     @if(!$task->is_completed && !$isNotToday)
                                                         <button type="button" 
-                                                                wire:loading.attr="disabled"
-                                                                wire:target="toggleComplete({{ $task->id }})"
                                                                 @if($this->isWorkoutTask($task) && !$task->is_completed)
                                                                     @click.stop="$wire.openWorkoutModal({{ $task->id }})"
                                                                 @else
                                                                     wire:click="toggleComplete({{ $task->id }})" 
-                                                                    @click.stop="completed = true; if (navigator.vibrate) navigator.vibrate(20);"
+                                                                    @click.stop="completed = true; if (navigator.vibrate) navigator.vibrate(20); if (window.playHapticSound) window.playHapticSound('success');"
                                                                 @endif
                                                                 class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs rounded-xl shadow-sm transition-all cursor-pointer inline-flex items-center gap-1.5">
                                                             <span>✓ Selesaikan Tugas Utama Ini</span>

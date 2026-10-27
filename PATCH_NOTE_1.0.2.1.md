@@ -145,6 +145,18 @@ Pembaruan versi **1.0.2.1** mengeksekusi restrukturisasi kode dan penyempurnaan 
     }
     ```
 
+### 6. Optimistic UI & Responsivitas Mobile 0ms (`tasks.blade.php`, `navigation.blade.php`, `top-header.blade.php`)
+- **Akar Masalah**: Pada Livewire, setiap klik checklist sebelumnya menunggu balasan server (network round-trip ~300-800ms di mobile), diperparah oleh `wire:loading.attr="disabled"` yang membekukan tombol dan `wire:key` yang menyertakan status `{{ $task->is_completed ? 'completed' : 'pending' }}` sehingga Morphdom menghancurkan dan membuat ulang seluruh node DOM (menimbulkan kedipan dan lag pada smartphone).
+- **Perbaikan**:
+  - **Stabilisasi DOM Key (Zero Morphdom Teardown)**: Mengubah `wire:key` menjadi identitas statis unik per model (`wire:key="timeline-task-{{ $task->id }}"`, `wire:key="timeline-subtask-{{ $subTask->id }}"`, `wire:key="card-task-{{ $task->id }}"`, `wire:key="card-subtask-{{ $subTask->id }}"`). Morphdom kini memperbarui atribut secara *in-place* tanpa mereset DOM atau merusak state Alpine.
+  - **Optimistic UI 0ms Feedback**:
+    - Tombol checkbox langsung mencoret teks (`line-through`), mengubah warna badge ke hijau emerald, menyalakan centang SVG, dan memudarkan card (`opacity-55`) secara instan di sisi browser pengguna.
+    - Menghapus atribut penghambat `wire:loading.attr="disabled"` dan `wire:target="toggleComplete(...)"` agar interaksi tap terasa responsif layaknya aplikasi native tanpa delay.
+    - Memicu getaran haptik instan (`navigator.vibrate(20)`) serta audio synthesizer Web Audio 0-delay (`window.playHapticSound('success')` dan `window.playHapticSound('pop')`) begitu tombol disentuh.
+  - **Prefetch Navigasi Cepat (`wire:navigate.hover`)**:
+    - Menerapkan `wire:navigate.hover` pada seluruh link tab utama (Tasks, Note, Rank, Sosial, Store, Guide, Profile, Admin) di `navigation.blade.php` dan `top-header.blade.php`.
+    - Browser secara otomatis melakukan *background prefetch* HTML saat pengguna menyentuh (*touchstart*) atau mendekatkan kursor ke tombol, menjadikan pergantian halaman instan (0ms).
+
 ---
 
 ## 🧪 Hasil Verifikasi Pengujian Otomatis

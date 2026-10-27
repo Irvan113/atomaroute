@@ -155,7 +155,7 @@ new class extends Component {
     </div>
     <!-- Desktop Brand, Notification, & Close Sidebar Button -->
     <div class="hidden md:flex items-center justify-between px-3 xl:px-5 mb-4 w-full">
-        <a href="{{ route('dashboard') }}" wire:navigate class="flex items-center space-x-2.5 group shrink-0 mx-auto xl:mx-0">
+        <a href="{{ route('dashboard') }}" wire:navigate.hover class="flex items-center space-x-2.5 group shrink-0 mx-auto xl:mx-0">
             <img src="/images/atoma_icon.png" alt="ATOMA Icon" class="h-8 w-auto object-contain drop-shadow-sm group-hover:scale-105 transition-transform">
             <span class="hidden xl:inline text-xl font-black tracking-wider bg-gradient-to-r from-atoma-blue to-atoma-cyan bg-clip-text text-transparent uppercase">
                 ATOMA
@@ -201,7 +201,7 @@ new class extends Component {
                     <img src="{{ asset('images/frames/crown_gold.svg') }}" alt="Crown" class="w-full h-auto object-contain">
                 </div>
             @endif
-            <a href="{{ route('profile') }}" wire:navigate class="h-12 w-12 xl:h-20 xl:w-20 aspect-square shrink-0 rounded-full {{ $navFrameClass }} flex items-center justify-center text-atoma-blue text-2xl font-bold bg-white overflow-hidden transition-colors cursor-pointer group block">
+            <a href="{{ route('profile') }}" wire:navigate.hover class="h-12 w-12 xl:h-20 xl:w-20 aspect-square shrink-0 rounded-full {{ $navFrameClass }} flex items-center justify-center text-atoma-blue text-2xl font-bold bg-white overflow-hidden transition-colors cursor-pointer group block">
                 <img src="{{ $user->avatar_url }}" 
                      alt="Avatar" 
                      width="80" 
@@ -245,7 +245,7 @@ new class extends Component {
                 $prestigeTier = $user->prestige_tier_details;
                 $levelProg = $user->level_progress;
             @endphp
-            <a href="{{ route('prestige') }}" wire:navigate 
+            <a href="{{ route('prestige') }}" wire:navigate.hover 
                class="bg-atoma-ice/80 hover:bg-atoma-ice dark:bg-gray-700/50 dark:hover:bg-gray-700/80 rounded-2xl p-2.5 text-center border border-atoma-aqua/40 dark:border-gray-600 hover:border-atoma-blue/60 dark:hover:border-atoma-cyan/60 transition-all cursor-pointer group relative overflow-hidden shadow-2xs block select-none hover:scale-[1.02] active:scale-95" 
                title="{{ number_format($levelProg['current_xp']) }} / {{ number_format($levelProg['required_xp']) }} XP • {{ __('Klik untuk melihat Sistem Level & Prestige') }}">
                 <div class="absolute inset-y-0 left-0 bg-gradient-to-r {{ $prestigeTier['gradient'] }} opacity-25 group-hover:opacity-35 transition-all duration-1000" style="width: {{ $levelProg['percentage'] }}%"></div>
@@ -314,7 +314,7 @@ new class extends Component {
         </div>
 
         <!-- Dashboard / Tasks -->
-        <a href="{{ route('dashboard') }}" wire:navigate @click="navigate('dashboard', $event)" 
+        <a href="{{ route('dashboard') }}" wire:navigate.hover @click="navigate('dashboard', $event)" 
            :class="isActive('dashboard') 
                ? 'bg-atoma-ice dark:bg-atoma-blue/20 text-atoma-blue dark:text-atoma-cyan font-bold border border-atoma-aqua/50 dark:border-atoma-cyan/30 shadow-xs' 
                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:text-atoma-blue dark:hover:text-atoma-cyan'"
@@ -332,7 +332,7 @@ new class extends Component {
         </a>
 
         <!-- Note (renamed from Journal) -->
-        <a href="{{ route('journal') }}" wire:navigate @click="navigate('journal', $event)" 
+        <a href="{{ route('journal') }}" wire:navigate.hover @click="navigate('journal', $event)" 
            :class="isActive('journal') 
                ? 'bg-atoma-ice dark:bg-atoma-blue/20 text-atoma-blue dark:text-atoma-cyan font-bold border border-atoma-aqua/50 dark:border-atoma-cyan/30 shadow-xs' 
                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:text-atoma-blue dark:hover:text-atoma-cyan'"
@@ -371,7 +371,7 @@ new class extends Component {
         </div>
 
         <!-- Leaderboard / Rank -->
-        <a href="{{ route('leaderboard') }}" wire:navigate @click="navigate('leaderboard', $event)" 
+        <a href="{{ route('leaderboard') }}" wire:navigate.hover @click="navigate('leaderboard', $event)" 
            :class="isActive('leaderboard') 
                ? 'bg-atoma-ice dark:bg-atoma-blue/20 text-atoma-blue dark:text-atoma-cyan font-bold border border-atoma-aqua/50 dark:border-atoma-cyan/30 shadow-xs' 
                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:text-atoma-blue dark:hover:text-atoma-cyan'"
@@ -383,7 +383,7 @@ new class extends Component {
         </a>
 
         <!-- Social / Sosial -->
-        <a href="{{ route('social') }}" wire:navigate @click="navigate('social', $event)" 
+        <a href="{{ route('social') }}" wire:navigate.hover @click="navigate('social', $event)" 
            :class="isActive('social') 
                ? 'bg-atoma-ice dark:bg-atoma-blue/20 text-atoma-blue dark:text-atoma-cyan font-bold border border-atoma-aqua/50 dark:border-atoma-cyan/30 shadow-xs' 
                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:text-atoma-blue dark:hover:text-atoma-cyan'"
@@ -393,7 +393,7 @@ new class extends Component {
         </a>
 
         <!-- Store / Toko Hadiah (Desktop Sidebar) -->
-        <a href="{{ route('store') }}" wire:navigate @click="navigate('store', $event)" 
+        <a href="{{ route('store') }}" wire:navigate.hover @click="navigate('store', $event)" 
            :class="isActive('store') 
                ? 'bg-atoma-ice dark:bg-atoma-blue/20 text-atoma-blue dark:text-atoma-cyan font-bold border border-atoma-aqua/50 dark:border-atoma-cyan/30 shadow-xs' 
                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:text-atoma-blue dark:hover:text-atoma-cyan'"
@@ -424,7 +424,7 @@ new class extends Component {
         </button>
 
         <!-- Guide / Panduan Fitur -->
-        <a href="{{ route('guide') }}" wire:navigate @click="navigate('guide', $event)" 
+        <a href="{{ route('guide') }}" wire:navigate.hover @click="navigate('guide', $event)" 
            :class="isActive('guide') 
                ? 'bg-atoma-ice dark:bg-atoma-blue/20 text-atoma-blue dark:text-atoma-cyan font-bold border border-atoma-aqua/50 dark:border-atoma-cyan/30 shadow-xs' 
                : 'text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/30'"
@@ -437,7 +437,7 @@ new class extends Component {
 
         @if($user && ($user->is_admin || $user->id === 1))
             <!-- Admin Command Center Link -->
-            <a href="{{ route('admin.dashboard') }}" wire:navigate @click="navigate('admin', $event)" 
+            <a href="{{ route('admin.dashboard') }}" wire:navigate.hover @click="navigate('admin', $event)" 
                :class="isActive('admin') 
                    ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 font-bold border border-indigo-200 dark:border-indigo-800 shadow-2xs' 
                    : 'text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/30'"
@@ -453,7 +453,7 @@ new class extends Component {
     <div class="hidden md:flex flex-col px-2 xl:px-5 pt-3 pb-2 mt-auto border-t border-gray-100 dark:border-gray-700/60 select-none items-center xl:items-stretch">
         <div class="flex flex-col xl:flex-row items-center justify-between w-full gap-2 xl:gap-0">
             <!-- Settings Link -->
-            <a href="{{ route('profile') }}" wire:navigate class="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 font-semibold text-xs sm:text-sm transition-colors py-1 justify-center xl:justify-start" title="{{ __('Settings') }}">
+            <a href="{{ route('profile') }}" wire:navigate.hover class="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 font-semibold text-xs sm:text-sm transition-colors py-1 justify-center xl:justify-start" title="{{ __('Settings') }}">
                 <x-icon.gear class="w-4 h-4 text-gray-400" />
                 <span class="hidden xl:inline">{{ __('Settings') }}</span>
             </a>
@@ -481,7 +481,7 @@ new class extends Component {
 
         <!-- Subtle Terms & Privacy Link at Bottom -->
         <div class="hidden xl:flex mt-2 pt-2 border-t border-gray-100/70 dark:border-gray-750 items-center justify-between text-[11px] text-gray-400 dark:text-gray-500">
-            <a href="{{ route('terms') }}" wire:navigate class="hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+            <a href="{{ route('terms') }}" wire:navigate.hover class="hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
                 {{ __('Syarat & Privasi') }}
             </a>
             <span class="text-[10px] text-gray-300 dark:text-gray-600 font-medium">ATOMA</span>

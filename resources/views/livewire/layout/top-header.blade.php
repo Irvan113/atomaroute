@@ -61,7 +61,7 @@ new class extends Component {
     </div>
 
     <!-- Brand / Logo (Mobile Only) -->
-    <a href="{{ route('dashboard') }}" wire:navigate class="flex items-center space-x-1.5 shrink-0 md:hidden group select-none">
+    <a href="{{ route('dashboard') }}" wire:navigate.hover class="flex items-center space-x-1.5 shrink-0 md:hidden group select-none">
         <img src="/images/atoma_icon.png" alt="ATOMA Icon" width="28" height="28" class="w-7 h-7 object-contain drop-shadow-xs group-hover:scale-105 transition-transform shrink-0">
         <span class="text-sm sm:text-base font-black tracking-wider text-gray-900 dark:text-white uppercase">
             ATOMA
@@ -191,7 +191,7 @@ new class extends Component {
                 
                 <!-- Profile Header -->
                 <div class="px-4 py-2.5 border-b border-gray-100 dark:border-gray-700/80 mb-1.5 flex items-center justify-between">
-                    <a href="{{ route('prestige') }}" wire:navigate class="min-w-0 flex-1 group/prestige cursor-pointer">
+                    <a href="{{ route('prestige') }}" wire:navigate.hover class="min-w-0 flex-1 group/prestige cursor-pointer">
                         <div class="flex items-center gap-1.5">
                             <p class="text-sm font-black text-gray-900 dark:text-gray-100 truncate group-hover/prestige:text-indigo-600 dark:group-hover/prestige:text-indigo-400">{{ $user->name }}</p>
                             @if($user->is_admin || $user->id === 1)
@@ -227,12 +227,12 @@ new class extends Component {
                         <span class="text-[9px] uppercase px-1.5 py-0.5 rounded font-black {{ auth()->user()->isPro() ? 'bg-amber-400/20 text-amber-700 dark:text-amber-300' : 'bg-white/20 text-white' }}">{{ auth()->user()->isPro() ? __('PRO') : __('NEW') }}</span>
                     </button>
 
-                    <a href="{{ route('prestige') }}" wire:navigate class="px-3 py-2 rounded-xl text-xs sm:text-sm text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50/60 dark:hover:bg-emerald-950/30 flex items-center font-bold transition-colors">
+                    <a href="{{ route('prestige') }}" wire:navigate.hover class="px-3 py-2 rounded-xl text-xs sm:text-sm text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50/60 dark:hover:bg-emerald-950/30 flex items-center font-bold transition-colors">
                         <span class="w-5 text-center mr-2">🌱</span>
                         <span>{{ __('Sistem Level & Prestige') }}</span>
                     </a>
 
-                    <a href="{{ route('user.profile', $user->id) }}" wire:navigate class="px-3 py-2 rounded-xl text-xs sm:text-sm text-atoma-blue dark:text-atoma-cyan hover:bg-indigo-50/60 dark:hover:bg-indigo-950/30 flex items-center font-bold transition-colors">
+                    <a href="{{ route('user.profile', $user->id) }}" wire:navigate.hover class="px-3 py-2 rounded-xl text-xs sm:text-sm text-atoma-blue dark:text-atoma-cyan hover:bg-indigo-50/60 dark:hover:bg-indigo-950/30 flex items-center font-bold transition-colors">
                         <span class="w-5 text-center mr-2">🌐</span>
                         <span>{{ __('Profil Publik Pamer') }}</span>
                     </a>
@@ -244,12 +244,12 @@ new class extends Component {
                         <span>{{ __('Bocoran Rank & Liga') }}</span>
                     </button>
 
-                    <a href="{{ route('profile') }}" wire:navigate class="px-3 py-2 rounded-xl text-xs sm:text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/70 dark:hover:bg-gray-700/50 flex items-center font-medium transition-colors">
+                    <a href="{{ route('profile') }}" wire:navigate.hover class="px-3 py-2 rounded-xl text-xs sm:text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/70 dark:hover:bg-gray-700/50 flex items-center font-medium transition-colors">
                         <x-icon.gear class="w-4 h-4 mr-3 text-gray-400" />
                         <span>{{ __('Pengaturan Akun') }}</span>
                     </a>
 
-                    <a href="{{ route('guide') }}" wire:navigate class="px-3 py-2 rounded-xl text-xs sm:text-sm text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 flex items-center font-bold transition-colors">
+                    <a href="{{ route('guide') }}" wire:navigate.hover class="px-3 py-2 rounded-xl text-xs sm:text-sm text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 flex items-center font-bold transition-colors">
                         <span class="w-5 text-center mr-2 text-sm">📖</span>
                         <span>{{ __('Panduan Fitur (Guide)') }}</span>
                     </a>
@@ -281,7 +281,7 @@ new class extends Component {
                     </button>
 
                     <!-- Store -->
-                    <a href="{{ route('store') }}" wire:navigate class="px-3 py-2 rounded-xl text-xs sm:text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/70 dark:hover:bg-gray-700/50 flex items-center font-medium transition-colors">
+                    <a href="{{ route('store') }}" wire:navigate.hover class="px-3 py-2 rounded-xl text-xs sm:text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/70 dark:hover:bg-gray-700/50 flex items-center font-medium transition-colors">
                         <span class="w-5 text-center mr-2 text-sm">🛒</span>
                         <span>{{ __('Reward Store') }}</span>
                     </a>
@@ -290,7 +290,7 @@ new class extends Component {
                 @if($user->is_admin || $user->id === 1)
                     <div class="border-t border-gray-100 dark:border-gray-700/80 my-1.5"></div>
                     <div class="px-1.5 space-y-0.5">
-                        <a href="{{ route('admin.dashboard') }}" wire:navigate class="px-3 py-2 rounded-xl text-xs sm:text-sm text-indigo-600 dark:text-indigo-400 font-black hover:bg-indigo-50/80 dark:hover:bg-indigo-950/50 flex items-center justify-between transition-colors">
+                        <a href="{{ route('admin.dashboard') }}" wire:navigate.hover class="px-3 py-2 rounded-xl text-xs sm:text-sm text-indigo-600 dark:text-indigo-400 font-black hover:bg-indigo-50/80 dark:hover:bg-indigo-950/50 flex items-center justify-between transition-colors">
                             <div class="flex items-center">
                                 <span class="w-5 text-center mr-2 text-sm">👑</span>
                                 <span>{{ __('Admin Dashboard') }}</span>
@@ -298,15 +298,15 @@ new class extends Component {
                             <span class="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">PUSAT</span>
                         </a>
                         <div class="pl-7 pr-2 py-0.5 space-y-0.5">
-                            <a href="{{ route('admin.system-logs') }}" wire:navigate class="px-2 py-1 rounded-lg text-xs text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-100/70 dark:hover:bg-gray-700/50 flex items-center transition-colors">
+                            <a href="{{ route('admin.system-logs') }}" wire:navigate.hover class="px-2 py-1 rounded-lg text-xs text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-100/70 dark:hover:bg-gray-700/50 flex items-center transition-colors">
                                 <span class="w-4 text-center mr-1.5">📋</span>
                                 <span>{{ __('System Logs & Audit') }}</span>
                             </a>
-                            <a href="{{ route('admin.ai-usage') }}" wire:navigate class="px-2 py-1 rounded-lg text-xs text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-100/70 dark:hover:bg-gray-700/50 flex items-center transition-colors">
+                            <a href="{{ route('admin.ai-usage') }}" wire:navigate.hover class="px-2 py-1 rounded-lg text-xs text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-100/70 dark:hover:bg-gray-700/50 flex items-center transition-colors">
                                 <span class="w-4 text-center mr-1.5">🛡️</span>
                                 <span>{{ __('AI Telemetry') }}</span>
                             </a>
-                            <a href="{{ route('admin.feedbacks') }}" wire:navigate class="px-2 py-1 rounded-lg text-xs text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-100/70 dark:hover:bg-gray-700/50 flex items-center transition-colors">
+                            <a href="{{ route('admin.feedbacks') }}" wire:navigate.hover class="px-2 py-1 rounded-lg text-xs text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-100/70 dark:hover:bg-gray-700/50 flex items-center transition-colors">
                                 <span class="w-4 text-center mr-1.5">📬</span>
                                 <span>{{ __('Kotak Surat Admin') }}</span>
                             </a>
