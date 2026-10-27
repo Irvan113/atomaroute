@@ -57,6 +57,13 @@ try {
     ]);
     echo "<div class='step'><span class='success'>✅ Seluruh struktur 43 tabel MySQL berhasil dibuat bersih!</span></div>";
 
+    // KUNCI: Ubah kolom text catatan & postingan menjadi LONGTEXT agar mampu menampung artikel/jurnal panjang (>64KB)
+    try {
+        \Illuminate\Support\Facades\DB::connection('mysql')->statement('ALTER TABLE journals MODIFY content LONGTEXT;');
+        \Illuminate\Support\Facades\DB::connection('mysql')->statement('ALTER TABLE posts MODIFY content LONGTEXT;');
+        \Illuminate\Support\Facades\DB::connection('mysql')->statement('ALTER TABLE tasks MODIFY description LONGTEXT;');
+    } catch (\Throwable $e) {}
+
     // 6. Matikan Foreign Key Checks pada sesi PDO MySQL langsung
     $mysqlPdo = \Illuminate\Support\Facades\DB::connection('mysql')->getPdo();
     $mysqlPdo->exec('SET FOREIGN_KEY_CHECKS=0;');
@@ -70,7 +77,7 @@ try {
         $tables[] = $table;
     }
 
-    // KUNCI: Prioritaskan tabel induk (users, posts, tasks, skills) dipindahkan lebih dulu!
+    // Prioritaskan tabel induk dipindahkan lebih dulu
     $priority = ['users', 'posts', 'tasks', 'skills', 'skill_targets'];
     usort($tables, function($a, $b) use ($priority) {
         $posA = array_search($a, $priority);
@@ -87,7 +94,7 @@ try {
     foreach ($tables as $table) {
         if (!\Illuminate\Support\Facades\Schema::connection('mysql')->hasTable($table)) continue;
 
-        // Pastikan foreign keys tetap mati di setiap tabel
+        // Pastikan foreign keys tetap mati di setiap iterasi tabel
         $mysqlPdo->exec('SET FOREIGN_KEY_CHECKS=0;');
 
         $rows = \Illuminate\Support\Facades\DB::connection('sqlite')->table($table)->get();
@@ -100,13 +107,13 @@ try {
         }
     }
 
-    // Aktifkan kembali Foreign Key Checks
+    // Aktifkan kembali Foreign Key Checks setelah semua data masuk
     $mysqlPdo->exec('SET FOREIGN_KEY_CHECKS=1;');
 
     // 8. Bersihkan cache
     \Illuminate\Support\Facades\Artisan::call('optimize:clear');
 
-    echo "<div class='step'><span class='success'>✅ <b>{$totalRecords} baris data</b> (users, task, journal, level, XP, AI logs) berhasil dipindahkan ke MySQL!</span>";
+    echo "<div class='step'><span class='success'>✅ <b>{$totalRecords} baris data</b> (users, task, journal panjang, level, XP, AI logs) berhasil dipindahkan ke MySQL!</span>";
     if (!empty($details)) {
         echo "<pre>" . implode("\n", $details) . "</pre>";
     }
