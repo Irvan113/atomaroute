@@ -281,3 +281,25 @@ body.atoma-note-modal-open #atoma-nav-progress {
     z-index: 50 !important;
 }
 
+/* Neutralize containing blocks on main canvas when any modal is open so position:fixed attaches directly to viewport */
+.atoma-content-shell:has([role="dialog"]) .atoma-main-container,
+.atoma-content-shell:has([aria-modal="true"]) .atoma-main-container,
+body:has([aria-modal="true"]) .atoma-main-container {
+    view-transition-name: none !important;
+    container-type: normal !important;
+    contain: none !important;
+    transform: none !important;
+    filter: none !important;
+}
+
+/* Completely suppress bottom navigation bar when any modal is open so it cannot peek or overlap */
+body:has([aria-modal="true"]) aside.atoma-bottom-nav,
+body.atoma-modal-open aside.atoma-bottom-nav {
+    display: none !important;
+}
+
+/* Prevent accidental background page scrolling while modal is open on mobile */
+body:has([aria-modal="true"]) {
+    overflow: hidden !important;
+}
+

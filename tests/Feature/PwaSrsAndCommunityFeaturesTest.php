@@ -36,7 +36,7 @@ class PwaSrsAndCommunityFeaturesTest extends TestCase
         $swPath = public_path('sw.js');
         $this->assertFileExists($swPath);
         $swContent = file_get_contents($swPath);
-        $this->assertStringContainsString('atoma-pwa-v4', $swContent);
+        $this->assertStringContainsString('atoma-pwa-v5', $swContent);
         $this->assertStringContainsString('/offline.html', $swContent);
     }
 

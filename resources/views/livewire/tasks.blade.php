@@ -3534,7 +3534,7 @@ new #[Layout('layouts.app')] class extends Component {
     }
 }; ?>
 
-<div class="relative pb-24 [contain:layout]"
+<div class="relative pb-24"
      x-data="{}"
      x-init="
         try {
@@ -5993,17 +5993,18 @@ new #[Layout('layouts.app')] class extends Component {
 
         <div class="relative transform rounded-t-3xl sm:rounded-2xl bg-white dark:bg-gray-800 text-left shadow-2xl transition-all w-full sm:max-w-lg border-t sm:border border-gray-100 dark:border-gray-700 z-10 max-h-[88dvh] sm:max-h-[85vh] flex flex-col overflow-hidden">
             <form wire:submit="saveTask" class="flex flex-col flex-1 min-h-0 overflow-hidden">
+                <!-- Title Header with Dynamic Mode (Pinned Top) -->
+                <div class="px-5 pt-4 pb-3 sm:px-6 sm:pt-5 sm:pb-3 border-b border-gray-100 dark:border-gray-700/80 flex items-center justify-between bg-white dark:bg-gray-800 shrink-0">
+                    <h3 class="text-base sm:text-lg font-black text-gray-900 dark:text-white flex items-center gap-2">
+                        <span class="text-indigo-600 dark:text-indigo-400">{{ $editingTaskId ? '✏️' : '➕' }}</span>
+                        <span>{{ $editingTaskId ? __('Edit Tugas') : __('Tambah Tugas Baru') }}</span>
+                    </h3>
+                    <button type="button" wire:click="$set('showAddTaskModal', false)" class="p-1 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+
                 <div class="bg-white dark:bg-gray-800 p-5 sm:p-6 flex-1 min-h-0 overflow-y-auto hide-scrollbar overscroll-contain">
-                            <!-- Title Header with Dynamic Mode -->
-                            <div class="flex items-center justify-between mb-4">
-                                <h3 class="text-base sm:text-lg font-black text-gray-900 dark:text-white flex items-center gap-2">
-                                    <span class="text-indigo-600 dark:text-indigo-400">{{ $editingTaskId ? '✏️' : '➕' }}</span>
-                                    <span>{{ $editingTaskId ? __('Edit Tugas') : __('Tambah Tugas Baru') }}</span>
-                                </h3>
-                                <button type="button" wire:click="$set('showAddTaskModal', false)" class="p-1 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                </button>
-                            </div>
 
                             <!-- Segmented Mode Switcher -->
                             <div class="bg-gray-100 dark:bg-gray-700/60 p-1 rounded-2xl flex items-center mb-3">
